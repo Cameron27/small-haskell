@@ -21,9 +21,14 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- parsec
+- HUnit
+- MissingH
+- directory
 
 library:
-  source-dirs: src
+  source-dirs:
+  - src
 
 executables:
   small-haskell-exe:

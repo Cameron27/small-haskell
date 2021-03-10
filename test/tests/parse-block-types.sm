@@ -1,0 +1,17 @@
+// true
+// false
+/**/
+
+program {
+    var x = 1;
+    {
+        var x = 0;
+    }
+    {
+        var x = 0;
+        output x;
+    }
+    {
+        output x;
+    }
+}

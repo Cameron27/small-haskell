@@ -1,0 +1,32 @@
+// true
+// false
+/**/
+
+program {
+    var a = 1;
+    var b = 0;
+    var c = -1;
+    var d = 2394;
+    var e = 000;
+    var f = 0xF8;
+    var g = -0xF8;
+    var h = 5.5;
+    var i = 23432.234;
+    var j = -5.5;
+    var k = 000.000;
+    var l = "";
+    var m = "test";
+    var n = "1\n2";
+    var o = true;
+    var p = false;
+    var q = x;
+    var r = _x;
+    var s = test;
+    var t = _test;
+    var u = _te_st;
+    var v = Test;
+    var w = TestTest;
+    var x = testTest;
+    var y = (1);
+    var z = read;
+}

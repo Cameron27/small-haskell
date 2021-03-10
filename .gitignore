@@ -28,3 +28,7 @@ tags
 .hspec-failures
 better-cache/
 stack*.yaml.lock
+
+/small-haskell.cabal
+/*.sm
+/.vscode

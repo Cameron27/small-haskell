@@ -1,0 +1,25 @@
+// true
+// false
+/**/
+
+program {
+    var x = 0;
+    proc a(b) {
+        x = b;
+    }
+    x = 1;
+    output x;
+    a(2);
+    if (x == 2) {
+        x = 3;
+    } else {
+        x = 4;
+    }
+    while (x < 10) {
+        x = x + 1;
+    }
+    {
+        var x = 5;
+        x = 4;
+    }
+}
