@@ -1,0 +1,72 @@
+module Parser.Types where
+
+import Classes (Pretty (..))
+
+type Id = String
+
+data Opr
+  = Mult
+  | Div
+  | Mod
+  | Add
+  | Sub
+  | Less
+  | LessEq
+  | Great
+  | GreatEq
+  | Equal
+  | NEqual
+  | And
+  | Xor
+  | Or
+  deriving (Show)
+
+instance Pretty Opr where
+  pretty Mult = "*"
+  pretty Div = "/"
+  pretty Mod = "%"
+  pretty Add = "+"
+  pretty Sub = "-"
+  pretty Less = "<"
+  pretty LessEq = "<="
+  pretty Great = ">"
+  pretty GreatEq = ">="
+  pretty Equal = "=="
+  pretty NEqual = "!="
+  pretty And = "&"
+  pretty Xor = "^"
+  pretty Or = "|"
+
+newtype Pgm = Program Com deriving (Show)
+
+data Com
+  = Assign Exp Exp
+  | Output Exp
+  | Proc Exp Exp
+  | If Exp Com Com
+  | While Exp Com
+  | Block Dec Com
+  | Chain Com Com
+  | Skip
+  deriving (Show)
+
+data Dec
+  = Const Id Exp
+  | Var Id Exp
+  | ProcDec Id Id Com
+  | FuncDec Id Id Exp
+  | ChainDec Dec Dec
+  | SkipDec
+  deriving (Show)
+
+data Exp
+  = Int Integer
+  | Double Double
+  | Bool Bool
+  | String String
+  | Read
+  | I Id
+  | Func Exp Exp
+  | IfExp Exp Exp Exp
+  | Op Opr Exp Exp
+  deriving (Show)

@@ -25,6 +25,7 @@ dependencies:
 - HUnit
 - MissingH
 - directory
+- unordered-containers
 
 library:
   source-dirs:

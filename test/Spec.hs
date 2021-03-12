@@ -1,12 +1,18 @@
-module Spec where
-
-import Control.Monad
-import Data.Either
-import Data.List
-import Data.String.Utils
-import SmallParser
-import System.Directory
+import Control.Monad (void, zipWithM)
+import Data.Either (isRight)
+import Data.List (intercalate, isPrefixOf)
+import Data.String.Utils (strip)
+import Interpreter.Small (interpretSmall)
+import Interpreter.Types (Ans)
+import Parser.Small (parseSmall)
+import System.Directory (getDirectoryContents)
 import Test.HUnit
+  ( Test (TestCase, TestList),
+    assertEqual,
+    assertFailure,
+    runTestTT,
+    (~:),
+  )
 
 data TestSpec = TestSpec {name :: String, parsed :: Bool, ran :: Bool, expected :: String, program :: String} deriving (Show)
 
@@ -58,19 +64,19 @@ generateTestSpec name content
 testProgram :: String -> TestSpec -> Test
 testProgram fp testSpec = name testSpec ~: TestList ([parseTest] ++ [runTest | shouldRun] ++ [resultTest | shouldCheckResult])
   where
-    com = parseSmall fp (program testSpec)
-    parseTest = case com of
+    pgm = parseSmall fp (program testSpec)
+    parseTest = case pgm of
       Left err -> TestCase $ assertEqual (show err) (parsed testSpec) False
-      Right com -> TestCase $ assertEqual "program parsed when it should not have" (parsed testSpec) True
-    -- shouldRun = isRight com && parsed testSpec
-    shouldRun = False -- TODO: Remove this when interpreter has been implemented
-    -- result = case com of
-    --   Right com -> execTiny "" com
-    result :: Either String String
-    result = Right ""
+      Right pgm -> TestCase $ assertEqual "program parsed when it should not have" (parsed testSpec) True
+    shouldRun = isRight pgm && parsed testSpec
+    result = checkResult $ case pgm of
+      Right pgm -> interpretSmall pgm []
     runTest = case result of
       Left err -> TestCase $ assertEqual (show err) (ran testSpec) False
       Right res -> TestCase $ assertEqual "program ran when it should not have" (ran testSpec) True
     shouldCheckResult = shouldRun && isRight result && ran testSpec
     resultTest = case result of
       Right res -> TestCase $ assertEqual "program result was not as expected" (expected testSpec) (strip res)
+
+checkResult :: Ans -> Either String String
+checkResult _ = Right ""

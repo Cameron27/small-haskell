@@ -1,62 +1,29 @@
-module SmallParser where
+module Parser.Small where
 
-import Data.List
-import ParserHelper
+import Data.List (drop, foldl, head, isPrefixOf, tail)
+import Parser.Helper
+  ( braces,
+    ide,
+    keyword,
+    naturalOrFloat,
+    op,
+    opChoice,
+    parens,
+    semi,
+    stringLiteral,
+  )
+import Parser.Types (Com (..), Dec (..), Exp (..), Opr (..), Pgm (..))
 import Text.Parsec
+  ( ParseError,
+    Parsec,
+    SourceName,
+    choice,
+    many,
+    option,
+    parse,
+    spaces,
+  )
 import Prelude hiding (exp)
-
-type Ide = String
-
-data Opr
-  = Mult
-  | Div
-  | Mod
-  | Add
-  | Sub
-  | Less
-  | LessEq
-  | Great
-  | GreatEq
-  | Equal
-  | NEqual
-  | And
-  | Xor
-  | Or
-  deriving (Show)
-
-newtype Pgm = Program Com deriving (Show)
-
-data Com
-  = Assign Exp Exp
-  | Output Exp
-  | Proc Exp Exp
-  | If Exp Com Com
-  | While Exp Com
-  | Block Dec Com
-  | Chain Com Com
-  | Skip
-  deriving (Show)
-
-data Dec
-  = Const Ide Exp
-  | Var Ide Exp
-  | ProcDec Ide Ide Com
-  | FuncDec Ide Ide Exp
-  | ChainDec Dec Dec
-  | SkipDec
-  deriving (Show)
-
-data Exp
-  = Int Integer
-  | Float Double
-  | Bool Bool
-  | String String
-  | Read
-  | I Ide
-  | Func Exp Exp
-  | IfExp Exp Exp Exp
-  | Op Opr Exp Exp
-  deriving (Show)
 
 pgm :: Parsec String () Pgm
 pgm =
@@ -238,7 +205,7 @@ atom =
         x <- naturalOrFloat
         case x of
           Left i -> return $ Int (if negate then - i else i)
-          Right f -> return $ Float (if negate then - f else f),
+          Right f -> return $ Double (if negate then - f else f),
       -- String
       String
         <$> stringLiteral,
