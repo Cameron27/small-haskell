@@ -1,7 +1,9 @@
 module Interpreter.Types where
 
-import Classes (Typeable (..))
-import Data.HashMap.Internal.Strict (HashMap)
+import Classes
+import Data.HashMap.Internal.Strict
+import System.Exit
+import Text.Printf
 
 type Ide = String
 
@@ -21,6 +23,16 @@ data Dv
   | DBool Bool
   | DString String
 
+instance Pretty Dv where
+  pretty (DLoc x) = printf "Loc(%d)" x
+  pretty (DProc x) = "PROCEDURE"
+  pretty (DFunc x) = "FUNCTION"
+  pretty (DInt x) = show x
+  pretty (DDouble x) = show x
+  pretty (DBool True) = "true"
+  pretty (DBool False) = "false"
+  pretty (DString x) = x
+
 instance Show Dv where
   show (DLoc x) = "DLoc " ++ show x
   show (DProc _) = "DProc _"
@@ -31,8 +43,7 @@ instance Show Dv where
   show (DString x) = "DString " ++ show x
 
 data Sv
-  = SFile File
-  | SInt Integer
+  = SInt Integer
   | SDouble Double
   | SBool Bool
   | SString String
@@ -48,12 +59,10 @@ data Rv
   deriving (Show)
 
 instance Typeable Rv where
-  typeSrt (RInt _) = "int"
-  typeSrt (RDouble _) = "double"
-  typeSrt (RBool _) = "bool"
-  typeSrt (RString _) = "string"
-
-type File = [Rv]
+  typeStr (RInt _) = "int"
+  typeStr (RDouble _) = "double"
+  typeStr (RBool _) = "bool"
+  typeStr (RString _) = "string"
 
 type Env = HashMap Ide Dv
 
@@ -69,16 +78,4 @@ type Procedure = Cc -> Ec
 
 type Function = Ec -> Ec
 
-data Ans
-  = Error String
-  | Stop
-  | Ok Rv Ans
-
-instance Show Ans where
-  show (Error s) = "ERROR: " ++ s
-  show Stop = ""
-  show (Ok (RInt x) a) = show x ++ "\n" ++ show a
-  show (Ok (RDouble x) a) = show x ++ "\n" ++ show a
-  show (Ok (RBool True) a) = "true\n" ++ show a
-  show (Ok (RBool False) a) = "false\n" ++ show a
-  show (Ok (RString x) a) = x ++ "\n" ++ show a
+type Ans = IO ExitCode

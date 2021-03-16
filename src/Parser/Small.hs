@@ -1,28 +1,9 @@
 module Parser.Small where
 
-import Data.List (drop, foldl, head, isPrefixOf, tail)
+import Data.List
 import Parser.Helper
-  ( braces,
-    ide,
-    keyword,
-    naturalOrFloat,
-    op,
-    opChoice,
-    parens,
-    semi,
-    stringLiteral,
-  )
-import Parser.Types (Com (..), Dec (..), Exp (..), Opr (..), Pgm (..))
+import Parser.Types
 import Text.Parsec
-  ( ParseError,
-    Parsec,
-    SourceName,
-    choice,
-    many,
-    option,
-    parse,
-    spaces,
-  )
 import Prelude hiding (exp)
 
 pgm :: Parsec String () Pgm
@@ -51,6 +32,7 @@ com = do
                 -- Procedure: E1 ( E2 ) ;
                 case e1 of
                   Func e2 e3 -> return $ Proc e2 e3
+                  _ -> fail ""
               ]
           semi
           return c,
@@ -83,7 +65,9 @@ block =
         [ do
             d <- dec
             Block d <$> option Skip com,
-          Block SkipDec <$> com
+          Block SkipDec <$> com,
+          do
+            return $ Block SkipDec Skip
         ]
     )
 

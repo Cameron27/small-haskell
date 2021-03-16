@@ -26,6 +26,9 @@ dependencies:
 - MissingH
 - directory
 - unordered-containers
+- silently
+- main-tester
+- bytestring
 
 library:
   source-dirs:

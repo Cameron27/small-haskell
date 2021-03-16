@@ -1,34 +1,8 @@
 module Parser.Helper where
 
-import Data.Functor.Identity (Identity)
+import Data.Functor.Identity
 import Text.Parsec
-  ( ParsecT,
-    alphaNum,
-    char,
-    choice,
-    letter,
-    parserZero,
-    (<|>),
-  )
 import Text.Parsec.Token
-  ( GenLanguageDef
-      ( LanguageDef,
-        caseSensitive,
-        commentEnd,
-        commentLine,
-        commentStart,
-        identLetter,
-        identStart,
-        nestedComments,
-        opLetter,
-        opStart,
-        reservedNames,
-        reservedOpNames
-      ),
-    GenTokenParser,
-    LanguageDef,
-    makeTokenParser,
-  )
 import qualified Text.Parsec.Token as Token
 
 tinyDef :: LanguageDef st

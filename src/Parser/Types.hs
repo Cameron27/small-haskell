@@ -1,6 +1,7 @@
 module Parser.Types where
 
-import Classes (Pretty (..))
+import Classes
+import Text.Printf
 
 type Id = String
 
@@ -70,3 +71,15 @@ data Exp
   | IfExp Exp Exp Exp
   | Op Opr Exp Exp
   deriving (Show)
+
+instance Pretty Exp where
+  pretty (Int x) = show x
+  pretty (Double x) = show x
+  pretty (Bool True) = "true"
+  pretty (Bool False) = "false"
+  pretty (String x) = show x
+  pretty Read = "read"
+  pretty (I x) = x
+  pretty (Func x y) = printf "%s(%s)" (pretty x) (pretty y)
+  pretty (IfExp x y z) = printf "%s ? %s : %s" (pretty x) (pretty y) (pretty z)
+  pretty (Op x y z) = printf "%s %s %s" (pretty y) (pretty x) (pretty z)

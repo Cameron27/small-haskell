@@ -1,10 +1,10 @@
 module Main where
 
-import Interpreter.Small (interpretSmall)
-import Interpreter.Types (Rv (RInt))
-import Parser.Small (parseSmall)
-import System.Environment (getArgs)
-import System.Exit (die)
+import Interpreter.Small
+import Interpreter.Types
+import Parser.Small
+import System.Environment
+import System.Exit
 
 main :: IO ()
 main = do
@@ -17,5 +17,5 @@ main = do
   parsedProgram <- case parsedProgram' of
     Right p -> return p
     Left err -> die $show err
-  let res = interpretSmall parsedProgram [RInt 6, RInt 4, RInt 4, RInt 4, RInt 5]
-  print res
+  exitCode <- interpretSmall parsedProgram
+  exitWith exitCode
