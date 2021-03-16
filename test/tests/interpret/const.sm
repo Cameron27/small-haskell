@@ -1,0 +1,36 @@
+// true
+// true
+/*
+6
+*/
+/*
+3
+-2
+test
+some text
+56.32
+6
+*/
+
+program {
+    const a = 3;
+    const b = -5;
+    const c = "test";
+    const d = "some";
+    const e = "text";
+    const f = true;
+    const g = 7;
+    const g = 56.32;
+    const h = read;
+    
+    output a;
+    output a + b;
+    output c;
+    output d + " " + e;
+    if (f) {
+        output g;
+    } else {
+        output a;
+    }
+    output h;
+}

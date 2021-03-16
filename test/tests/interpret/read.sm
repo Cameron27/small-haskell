@@ -1,0 +1,19 @@
+// true
+// true
+/*
+test
+3
+te
+st
+*/
+/*
+test
+3
+test
+*/
+
+program {
+    output read;
+    output read;
+    output read + read;
+}

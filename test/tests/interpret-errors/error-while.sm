@@ -1,0 +1,11 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    var x = true;
+    while (x) {
+        x = 4;
+    }
+}

@@ -1,6 +1,10 @@
 // true
 // true
 /**/
+/*
+0
+1
+*/
 
 program {
     var x = 1;

@@ -1,0 +1,83 @@
+// true
+// true
+/*
+1
+2
+*/
+/*
+1
+2
+1
+5
+false
+1
+5
+true
+*/
+
+program {
+    const a = true;
+    const b = 5;
+    const c = 1;
+
+    if (true) {
+        output read;
+    } else {
+        output read;
+    }
+
+    if (true) {
+        output read;
+    } else {
+        output read;
+    }
+
+    if (a) {
+        output 1;
+    } else {
+        output 4;
+    }
+
+    if (a) {
+        output b;
+    } else {
+        output c;
+    }
+
+    if (a) {
+        var x = 34 + 23 < 4;
+        var y = x | false;
+        output y;
+    } else {
+        var x = 56 - 34 + 6;
+        var y = x == 3;
+        output y;
+    }
+
+    if (b == 5) {
+        output 1;
+    } else {
+        output 0;
+    }
+
+    if (true) {
+        if (false) {
+            output 0;
+        } else {
+            if (true) {
+                output 5;
+            } else {
+                output 3;
+            }
+        }
+    } else {
+        output true;
+    }
+
+    if (true) {
+        var a = false;
+    } else {
+
+    }
+    output a;
+}

@@ -1,0 +1,9 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    const x = 1;
+    output x(4);
+}

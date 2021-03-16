@@ -1,0 +1,12 @@
+// true
+// false
+/*
+2
+*/
+/*
+2
+*/
+
+program {
+    output x;
+}

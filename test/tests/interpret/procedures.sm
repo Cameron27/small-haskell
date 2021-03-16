@@ -1,0 +1,42 @@
+// true
+// true
+/**/
+/*
+1
+2
+ttest
+test
+testtext
+test
+*/
+
+program {
+    var a = "test";
+    var b = "text";
+    var c = 1;
+    var d = "t";
+    proc inc(x) {
+        x = x + 1;
+    }
+    proc test(a) {
+        a = a + "test";
+    }
+    proc test_text(x) {
+        if (a == "test") {
+            a = a + b;
+        } else {
+            a = "test";
+        }
+    }
+
+    output c;
+    inc(c);
+    output c;
+    test(d);
+    output d;
+    output a;
+    test_text(1);
+    output a;
+    test_text(1);
+    output a;
+}

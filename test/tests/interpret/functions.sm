@@ -1,0 +1,43 @@
+// true
+// true
+/**/
+/*
+15
+-1
+1
+-1
+1
+12.5
+13.5
+3.0
+*/
+
+program {
+    var a = 5;
+    const b = 6;
+    func add10(x) {
+        x + 10
+    }
+
+    func sign(x) {
+        x < 0 ? -1 : 1
+    }
+
+    func add11(x) {
+        x + a + b
+    }
+
+    func double(a) {
+        a * 2
+    }
+
+    output add10(5);
+    output sign(-10);
+    output sign(324);
+    output sign(-34.2);
+    output sign(34.3);
+    output add11(1.5);
+    a = 6;
+    output add11(1.5);
+    output double(1.5);
+}

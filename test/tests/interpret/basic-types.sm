@@ -1,0 +1,43 @@
+// true
+// true
+/**/
+/*
+test
+te
+st
+te"st
+\
+
+1
+-1
+15
+-15
+34.65
+-34.65
+0.0
+0.5
+5.0
+5.5
+true
+false
+*/
+
+program {
+    output "test";
+    output "te\nst";
+    output "te\"st";
+    output "\\";
+    output "";
+    output 1;
+    output -1;
+    output 0xF;
+    output -0xF;
+    output 34.65;
+    output -34.65;
+    output 0.0;
+    output 0.5;
+    output 5.0;
+    output 005.5000;
+    output true;
+    output false;
+}

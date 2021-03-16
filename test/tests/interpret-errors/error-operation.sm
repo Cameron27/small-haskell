@@ -1,0 +1,8 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    var x = 1 + "test";
+}

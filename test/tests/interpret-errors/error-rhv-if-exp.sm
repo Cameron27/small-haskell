@@ -1,0 +1,11 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    proc x(y) {
+        output y;
+    }
+    output x ? 1 : 2;
+}
