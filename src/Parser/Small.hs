@@ -168,14 +168,8 @@ atom =
       do
         keyword "read"
         return Read,
-      -- True: true
-      do
-        keyword "true"
-        return $ Bool True,
-      -- False: false
-      do
-        keyword "false"
-        return $ Bool False,
+      -- Bool: true or false
+      Bool <$> boolean,
       -- Number
       do
         negate <-

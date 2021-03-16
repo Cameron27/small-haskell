@@ -17,6 +17,12 @@ another test
 more text
 34.35
 test input
+1
+1
+10
+1
+10
+10
 */
 
 program {
@@ -60,4 +66,15 @@ program {
         output d;
     }
     output e;
+
+    a = 1;
+    b = 1;
+    output a;
+    output b;
+    true ? a : b = 10;
+    output a;
+    output b;
+    false ? a : b = 10;
+    output a;
+    output b;
 }

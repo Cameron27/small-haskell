@@ -12,11 +12,11 @@
 false
 1
 5
-true
+false
 */
 
 program {
-    const a = true;
+    var a = true;
     const b = 5;
     const c = 1;
 
@@ -26,7 +26,7 @@ program {
         output read;
     }
 
-    if (true) {
+    if (false) {
         output read;
     } else {
         output read;
@@ -44,13 +44,14 @@ program {
         output c;
     }
 
+    a = false;
     if (a) {
-        var x = 34 + 23 < 4;
-        var y = x | false;
-        output y;
-    } else {
         var x = 56 - 34 + 6;
         var y = x == 3;
+        output y;
+    } else {
+        var x = 34 + 23 < 4;
+        var y = x | false;
         output y;
     }
 
@@ -74,10 +75,9 @@ program {
         output true;
     }
 
-    if (true) {
-        var a = false;
+    if (false) {
     } else {
-
+        var a = true;
     }
     output a;
 }

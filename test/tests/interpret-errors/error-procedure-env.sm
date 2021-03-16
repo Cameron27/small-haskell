@@ -1,0 +1,12 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    proc a(b) {
+        output b + x;
+    }
+    const x = 1;
+    a(1);
+}

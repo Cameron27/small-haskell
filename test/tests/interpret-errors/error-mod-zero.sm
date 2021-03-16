@@ -1,0 +1,9 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    var x = 5 % 0;
+    output x;
+}

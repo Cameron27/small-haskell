@@ -65,17 +65,6 @@ dvToRv e = error $ printf "Tried to convert \"%s\" to a right hand value." (pret
 evToRv :: Ev -> Rv
 evToRv = dvToRv
 
--- | @svToEv e` returns the denotable value version of `e`.
-rvToDv :: Rv -> Dv
-rvToDv (RInt x) = DInt x
-rvToDv (RDouble x) = DDouble x
-rvToDv (RBool x) = DBool x
-rvToDv (RString x) = DString x
-
--- | @svToEv e` returns the expressible value version of `e`.
-rvToEv :: Rv -> Ev
-rvToEv = rvToDv
-
 -- | @ecToLoc d` returns the location `d` represents.
 dvToLoc :: Dv -> Loc
 dvToLoc (DLoc x) = x

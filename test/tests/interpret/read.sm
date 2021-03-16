@@ -5,15 +5,18 @@ test
 3
 te
 st
+another test
 */
 /*
 test
 3
 test
+another test
 */
 
 program {
     output read;
     output read;
     output read + read;
+    output read;
 }

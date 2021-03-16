@@ -8,6 +8,9 @@ ttest
 test
 testtext
 test
+3
+x
+y
 */
 
 program {
@@ -28,6 +31,15 @@ program {
             a = "test";
         }
     }
+    proc x(a) {
+        output "x";
+    }
+    proc y(a) {
+        output "y";
+    }
+    func t(a) {
+        inc
+    }
 
     output c;
     inc(c);
@@ -39,4 +51,8 @@ program {
     output a;
     test_text(1);
     output a;
+    t(1)(c);
+    output c;
+    (true ? x : y)(1);
+    (false ? x : y)(1);
 }
