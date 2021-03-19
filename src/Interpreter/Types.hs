@@ -28,7 +28,7 @@ instance Pretty Dv where
   pretty (DProc x) = "PROCEDURE"
   pretty (DFunc x) = "FUNCTION"
   pretty (DInt x) = show x
-  pretty (DDouble x) = show x
+  pretty (DDouble x) = printf "%f" x
   pretty (DBool True) = "true"
   pretty (DBool False) = "false"
   pretty (DString x) = x

@@ -2,42 +2,78 @@
 // true
 /**/
 /*
-test
-te
-st
-te"st
-\
-
 1
+0
 -1
-15
--15
-34.65
--34.65
-0.0
-0.5
-5.0
-5.5
+2394
+0
+248
+248
+-248
+248
+248
+-248
+46
+46
+-46
+46
+46
+-46
+1.25
+1.25
+-1.25
+125.0
+125.0
+-125.0
+125.0
+125.0
+-125.0
+0.0125
+0.0125
+-0.0125
+
+test
+1
+2
 true
 false
+1
 */
 
 program {
-    output "test";
-    output "te\nst";
-    output "te\"st";
-    output "\\";
-    output "";
     output 1;
+    output 0;
     output -1;
-    output 0xF;
-    output -0xF;
-    output 34.65;
-    output -34.65;
-    output 0.0;
-    output 0.5;
-    output 5.0;
-    output 005.5000;
+    output 2394;
+    output 000;
+    output 0xF8;
+    output +0xF8;
+    output -0xF8;
+    output 0XF8;
+    output +0XF8;
+    output -0XF8;
+    output 0o56;
+    output +0o56;
+    output -0o56;
+    output 0O56;
+    output +0O56;
+    output -0O56;
+    output 1.25;
+    output +1.25;
+    output -1.25;
+    output 1.25e2;
+    output +1.25e2;
+    output -1.25e2;
+    output 1.25e+2;
+    output +1.25e+2;
+    output -1.25e+2;
+    output 1.25e-2;
+    output +1.25e-2;
+    output -1.25e-2;
+    output "";
+    output "test";
+    output "1\n2";
     output true;
     output false;
+    output (1);
 }
