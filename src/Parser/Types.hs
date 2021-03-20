@@ -46,7 +46,7 @@ data Com
   | Proc Exp Exp
   | If Exp Com Com
   | While Exp Com
-  | Block Dec Com
+  | Block [Dec] [Com]
   | Chain Com Com
   | Skip
   deriving (Show)

@@ -1,7 +1,7 @@
 module Interpreter.Small where
 
 import Classes
-import Data.HashMap.Internal.Strict hiding (update)
+import Data.HashMap.Internal.Strict hiding (foldl, update)
 import Interpreter.Helper
 import Interpreter.Operations
 import Interpreter.Types
@@ -39,7 +39,11 @@ evalCom (Output e1) r c = evalRVal e1 r (\e s -> putStrLn (pretty e) >> c s)
 evalCom (Proc e1 e2) r c = evalExp e1 r $ testProc e1 (\p -> evalExp e2 r $ evToProc p c)
 evalCom (If e1 c1 c2) r c = evalRVal e1 r $ testBool e1 $ \e -> cond (evalCom c1 r c, evalCom c2 r c) $evToBool e
 evalCom (While e1 c1) r c = evalRVal e1 r $ testBool e1 $ \e -> cond (evalCom c1 r $ evalCom (While e1 c1) r c, c) $evToBool e
-evalCom (Block d1 c1) r c = evalDec d1 r (\r' -> evalCom c1 (updateE r' r) c)
+evalCom (Block ds cs) r c = evalDec d1 r (\r' -> evalCom c1 (updateE r' r) c)
+  where
+    d1 = foldl ChainDec SkipDec ds
+    c1 = foldl Chain Skip cs
+-- evalCom (Block d1 c1) r c = evalDec d1 r (\r' -> evalCom c1 (updateE r' r) c)
 evalCom (Chain c1 c2) r c = evalCom c1 r $ evalCom c2 r c
 evalCom Skip r c = c
 

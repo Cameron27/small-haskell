@@ -16,96 +16,92 @@ pgm =
 
 com :: Parsec String () Com
 com = do
-  c <-
-    choice
-      [ -- Block: { D C }
-        block,
-        -- Assign and Procedure: E1 ... ;
-        do
-          e1 <- exp
-          c <-
-            choice
-              [ -- Assign: E1 = E2 ;
-                do
-                  op "="
-                  Assign e1 <$> exp,
-                -- Procedure: E1 ( E2 ) ;
-                case e1 of
-                  Func e2 e3 -> return $ Proc e2 e3
-                  _ -> fail ""
-              ]
-          semi
-          return c,
-        -- Output: output E ;
-        do
-          keyword "output"
-          e <- exp
-          semi
-          return $ Output e,
-        -- If: if ( E ) { C1 } else { C2 }
-        do
-          keyword "if"
-          e <- parens exp
-          c1 <- block
-          keyword "else"
-          If e c1 <$> block,
-        -- While: while ( E ) { C }
-        do
-          keyword "while"
-          e <- parens exp
-          While e <$> block
-      ]
-  -- Chain: C1 C2
-  option c (Chain c <$> com)
+  choice
+    [ -- Block: { D* C* }
+      block,
+      -- Assign and Procedure: E1 ... ;
+      do
+        e1 <- exp
+        c <-
+          choice
+            [ -- Assign: E1 = E2 ;
+              do
+                op "="
+                Assign e1 <$> exp,
+              -- Procedure: E1 ( E2 ) ;
+              case e1 of
+                Func e2 e3 -> return $ Proc e2 e3
+                _ -> fail ""
+            ]
+        semi
+        return c,
+      -- Output: output E ;
+      do
+        keyword "output"
+        e <- exp
+        semi
+        return $ Output e,
+      -- If: if ( E ) { C1 } else { C2 }
+      do
+        keyword "if"
+        e <- parens exp
+        c1 <- com
+        c2 <-
+          option
+            Skip
+            ( do
+                keyword "else"
+                com
+            )
+        return $ If e c1 c2,
+      -- While: while ( E ) { C }
+      do
+        keyword "while"
+        e <- parens exp
+        While e <$> com
+    ]
 
 block :: Parsec String () Com
 block =
   braces
-    ( choice
-        [ do
-            d <- dec
-            Block d <$> option Skip com,
-          Block SkipDec <$> com,
-          do
-            return $ Block SkipDec Skip
-        ]
+    ( do
+        ds <- many dec
+        cs <- many com
+        return $ Block ds cs
     )
 
 dec :: Parsec String () Dec
 dec = do
-  d <-
-    choice
-      [ -- Constant: const I = E ;
-        do
-          keyword "const"
-          i <- ide
-          op "="
-          e <- exp
-          semi
-          return $ Const i e,
-        -- Variable: var I = E ;
-        do
-          keyword "var"
-          i <- ide
-          op "="
-          e <- exp
-          semi
-          return $ Var i e,
-        -- Procedure: proc I1( I2 ) { C }
-        do
-          keyword "proc"
-          i1 <- ide
-          i2 <- parens ide
-          ProcDec i1 i2 <$> block,
-        -- Function: func I1 ( I2 ) { C }
-        do
-          keyword "func"
-          i1 <- ide
-          i2 <- parens ide
-          FuncDec i1 i2 <$> braces exp
-      ]
-  -- Chain: D1 D2
-  option d (ChainDec d <$> dec)
+  choice
+    [ -- Constant: const I = E ;
+      do
+        keyword "const"
+        i <- ide
+        op "="
+        e <- exp
+        semi
+        return $ Const i e,
+      -- Variable: var I = E ;
+      do
+        keyword "var"
+        i <- ide
+        op "="
+        e <- exp
+        semi
+        return $ Var i e,
+      -- Procedure: proc I1( I2 ) { C }
+      do
+        keyword "proc"
+        i1 <- ide
+        i2 <- parens ide
+        ProcDec i1 i2 <$> block,
+      -- Function: func I1 ( I2 ) { C }
+      do
+        keyword "func"
+        i1 <- ide
+        i2 <- parens ide
+        FuncDec i1 i2 <$> braces exp
+    ]
 
 exp :: Parsec String () Exp
 exp = ternaryOp

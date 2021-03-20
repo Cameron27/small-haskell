@@ -13,6 +13,15 @@ false
 1
 5
 false
+1
+2
+1
+2
+3
+1
+2
+1
+2
 */
 
 program {
@@ -80,4 +89,64 @@ program {
         var a = true;
     }
     output a;
+
+    if (true)
+        output 1;
+    else
+        output 2;
+    
+    if (false)
+        output 1;
+    else
+        output 2;
+    
+    if (true) {
+        output 1;
+    }
+
+    if (false) {
+        output 1;
+    }
+    
+    if (true)
+        if (false)
+            output 1;
+        else
+            output 2;
+
+    if (false)
+        if (false)
+            output 1;
+        else
+            output 2;
+
+    if (false)
+        if (false)
+            output 1;
+        else
+            output 2;
+    else
+        output 3;
+
+    if (true) {
+        output 1;
+    } else
+        output 2;
+
+    if (false) {
+        output 1;
+    } else
+        output 2;
+
+    if (true)
+        output 1;
+    else {
+        output 2;
+    }
+
+    if (false)
+        output 1;
+    else {
+        output 2;
+    }
 }
