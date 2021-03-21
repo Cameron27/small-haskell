@@ -1,3 +1,5 @@
+import Control.Concurrent
+import Control.Concurrent.ParallelIO
 import Control.Monad
 import qualified Data.ByteString.Char8 as Char8
 import Data.Either
@@ -22,6 +24,7 @@ main :: IO ()
 main = do
   x <- generateTest "test/tests/"
   void $ runTestTT x
+  stopGlobalPool
 
 generateTest :: FilePath -> IO Test
 generateTest fp = do
@@ -29,12 +32,13 @@ generateTest fp = do
   contents <- mapM readFile files
   let testSpecs = zipWithM generateTestSpec files contents
   args <- getArgs
-  let testProgram =
-        if null args || head args /= "k"
-          then testHaskellProgram
-          else testKProgram
   case testSpecs of
-    Right testSpecs -> TestList <$> mapM (testProgram fp) testSpecs
+    Right testSpecs ->
+      if null args || head args /= "k"
+        then TestList <$> mapM testHaskellProgram testSpecs
+        else do
+          x <- parallel $ map testKProgram testSpecs
+          return $ TestList x
     Left err -> return $ TestCase $ assertFailure err
   where
     getFilesRecursive :: FilePath -> IO [String]
@@ -75,10 +79,10 @@ generateTestSpec name content = TestSpec <$> Right name <*> parsed <*> ran <*> i
       | otherwise = dropUntilPrefix prefix xs
     dropUntilPrefix prefix [] = error $ "needed comments are missing in " ++ name
 
-testHaskellProgram :: String -> TestSpec -> IO Test
-testHaskellProgram fp testSpec =
+testHaskellProgram :: TestSpec -> IO Test
+testHaskellProgram testSpec =
   do
-    let pgm = parseSmall fp (program testSpec)
+    let pgm = parseSmall (name testSpec) (program testSpec)
     let parseTest =
           case pgm of
             Left err -> TestCase $ assertEqual (show err) (parsed testSpec) False
@@ -108,8 +112,8 @@ testHaskellProgram fp testSpec =
       | "Error: " `isPrefixOf` xs = xs
       | otherwise = getError $ tail xs
 
-testKProgram :: String -> TestSpec -> IO Test
-testKProgram fp testSpec =
+testKProgram :: TestSpec -> IO Test
+testKProgram testSpec =
   do
     (exitCode, stdout, stderr) <-
       readCreateProcessWithExitCode

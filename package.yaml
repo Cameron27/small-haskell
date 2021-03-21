@@ -30,6 +30,7 @@ dependencies:
 - main-tester
 - bytestring
 - process
+- parallel-io
 
 library:
   source-dirs:
