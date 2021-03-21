@@ -8,9 +8,11 @@ import Interpreter.Small
 import Interpreter.Types
 import Parser.Small
 import System.Directory
+import System.Environment
 import System.Exit
 import System.IO
 import System.IO.Silently
+import System.Process
 import Test.HUnit
 import Test.Main
 
@@ -26,6 +28,11 @@ generateTest fp = do
   files <- getFilesRecursive fp
   contents <- mapM readFile files
   let testSpecs = zipWithM generateTestSpec files contents
+  args <- getArgs
+  let testProgram =
+        if null args || head args /= "k"
+          then testHaskellProgram
+          else testKProgram
   case testSpecs of
     Right testSpecs -> TestList <$> mapM (testProgram fp) testSpecs
     Left err -> return $ TestCase $ assertFailure err
@@ -68,8 +75,8 @@ generateTestSpec name content = TestSpec <$> Right name <*> parsed <*> ran <*> i
       | otherwise = dropUntilPrefix prefix xs
     dropUntilPrefix prefix [] = error $ "needed comments are missing in " ++ name
 
-testProgram :: String -> TestSpec -> IO Test
-testProgram fp testSpec =
+testHaskellProgram :: String -> TestSpec -> IO Test
+testHaskellProgram fp testSpec =
   do
     let pgm = parseSmall fp (program testSpec)
     let parseTest =
@@ -100,3 +107,26 @@ testProgram fp testSpec =
     getError xs
       | "Error: " `isPrefixOf` xs = xs
       | otherwise = getError $ tail xs
+
+testKProgram :: String -> TestSpec -> IO Test
+testKProgram fp testSpec =
+  do
+    (exitCode, stdout, stderr) <-
+      readCreateProcessWithExitCode
+        (shell $ "krun --directory ../small-k -o none " ++ name testSpec)
+        $ input testSpec ++ "\n"
+    let parseTest =
+          case exitCode of
+            ExitFailure 113 -> TestCase $ assertEqual stderr (parsed testSpec) False
+            _ -> TestCase $ assertEqual "program parsed when it should not have" (parsed testSpec) True
+    let shouldRun = exitCode /= ExitFailure 113 && parsed testSpec
+    let runTest =
+          case exitCode of
+            ExitFailure 1 -> TestCase $ assertEqual "" {- TODO: Add actual error? -} (ran testSpec) False
+            ExitSuccess -> TestCase $ assertEqual "program ran when it should not have" (ran testSpec) True
+            ExitFailure i -> TestCase $ assertFailure $ "Unexpected exit-code: " ++ show i
+    let shouldCheckResult = shouldRun && exitCode == ExitSuccess && ran testSpec
+    let resultTest = TestCase $ assertEqual "program result was not as expected" (expected testSpec) (strip stdout)
+    return $
+      name testSpec
+        ~: TestList (["Parsed" ~: parseTest] ++ ["Ran" ~: runTest | shouldRun] ++ ["Output" ~: resultTest | shouldCheckResult])

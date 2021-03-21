@@ -29,6 +29,7 @@ dependencies:
 - silently
 - main-tester
 - bytestring
+- process
 
 library:
   source-dirs:
