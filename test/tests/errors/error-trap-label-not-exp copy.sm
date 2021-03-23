@@ -1,0 +1,12 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    trap {
+        var x = a + 1;
+a:
+        output x;
+    }
+}

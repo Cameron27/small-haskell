@@ -28,6 +28,7 @@ instance Pretty Dv where
   pretty (DLoc x) = printf "Loc(%d)" x
   pretty (DProc x) = "PROCEDURE"
   pretty (DFunc x) = "FUNCTION"
+  pretty (DCc x) = "CC"
   pretty (DInt x) = show x
   pretty (DDouble x) = printf "%f" x
   pretty (DBool True) = "true"
