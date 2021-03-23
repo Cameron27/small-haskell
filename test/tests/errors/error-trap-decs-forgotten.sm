@@ -1,0 +1,13 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    trap {
+        var x = 1;
+        escapeto a;
+a:
+        output x;
+    }
+}

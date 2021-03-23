@@ -1,0 +1,16 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    trap {
+        output 1;
+a:
+        output 4;
+    }
+
+    trap {
+        escapeto a;
+    }
+}

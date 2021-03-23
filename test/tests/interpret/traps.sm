@@ -1,0 +1,252 @@
+// true
+// true
+/**/
+/*
+1
+2
+3
+1
+2
+4
+1
+2
+5
+1
+2
+6
+1
+2
+4
+1
+1
+2
+2
+1
+2
+4
+5
+2
+1
+2
+3
+1
+2
+1
+3
+1
+2
+3
+1
+2
+3
+4
+1
+2
+5
+1
+2
+3
+4
+5
+1
+3
+*/
+
+program {
+    var c = 5;
+    var x = 1;
+    var y = 1;
+    var t = 1;
+
+    trap {
+        output 1;
+        output 2;
+        output 3;
+a:
+        output 4;
+b:
+        output 5;
+c:
+        output 6;
+    }
+
+    trap {
+        output 1;
+        output 2;
+        escapeto a;
+        output 3;
+a:
+        output 4;
+b:
+        output 5;
+c:
+        output 6;
+    }
+
+    trap {
+        output 1;
+        output 2;
+        escapeto b;
+        output 3;
+a:
+        output 4;
+b:
+        output 5;
+c:
+        output 6;
+    }
+
+    trap {
+        output 1;
+        output 2;
+        escapeto c;
+        output 3;
+a:
+        output 4;
+b:
+        output 5;
+c:
+        output 6;
+    }
+
+    trap {
+        output 1;
+        output 2;
+        escapeto a;
+        output 3;
+a:
+        output 4;
+a:
+        output 5;
+c:
+        output 6;
+    }
+
+    output x;
+    output y;
+    trap {
+        x = 2;
+        escapeto a;
+a:
+        y = 2;
+    }
+    output x;
+    output y;
+
+    trap {
+        output 1;
+        output 2;
+        escapeto a;
+        output 3;
+a:
+        output 4;
+        output 5;
+b:
+        output 6;
+        output 7;
+    }
+
+    trap {
+        var t = 2;
+        output t;
+a:
+    t = 3;
+    }
+    output t;
+
+    trap {
+        var t = 2;
+        output t;
+        escapeto a;
+a:
+    t = 3;
+    }
+    output t;
+
+    trap {
+        output 1;
+        if (true)
+            escapeto a;
+        else
+            escapeto b;
+a:
+        output 2;
+b:
+        output 3;
+    }
+
+    trap {
+        output 1;
+        if (false)
+            escapeto a;
+        else
+            escapeto b;
+a:
+        output 2;
+b:
+        output 3;
+    }
+
+    trap {
+        output 1;
+        output 2;
+    }
+
+    trap {
+        escapeto t;
+t:
+        output t;
+    }
+
+    trap {
+        output 1;
+        trap {
+            output 2;
+            escapeto a;
+a:
+            output 3;
+        }
+        output 4;
+a:
+        output 5;
+    }
+
+    trap {
+        output 1;
+        trap {
+            output 2;
+            escapeto a;
+b:
+            output 3;
+        }
+        output 4;
+a:
+        output 5;
+    }
+
+    trap {
+        output 1;
+        trap {
+            output 2;
+            escapeto b;
+b:
+            output 3;
+        }
+        output 4;
+        escapeto a;
+a:
+        output 5;
+    }
+
+    trap {
+        proc x(y) {
+            output y;
+            escapeto a;
+            output 2;
+        }
+
+        x(1);
+a:
+        output 3;
+    }
+}
