@@ -1,7 +1,7 @@
 module Interpreter.Types where
 
-import Classes
-import Data.HashMap.Internal.Strict
+import Common.Formatting
+import Data.HashMap.Strict
 import System.Exit
 import Text.Printf
 
@@ -22,6 +22,7 @@ data Dv
   | DDouble Double
   | DBool Bool
   | DString String
+  | DCc Cc
 
 instance Pretty Dv where
   pretty (DLoc x) = printf "Loc(%d)" x

@@ -1,8 +1,8 @@
 module Interpreter.Operations (evalOp) where
 
-import Classes
+import Common.Formatting
 import Data.Bits
-import Interpreter.Helper
+import Interpreter.Helper.Control
 import Interpreter.Types
 import Parser.Types
 import Text.Printf

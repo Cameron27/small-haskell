@@ -1,6 +1,7 @@
-module Parser.Helper where
+module Parser.Language where
 
 import Data.Functor.Identity
+import Parser.Types
 import Text.Parsec
 import Text.Parsec.Token
 import qualified Text.Parsec.Token as Token
@@ -28,7 +29,9 @@ tinyDef =
           "func",
           "read",
           "true",
-          "false"
+          "false",
+          "trap",
+          "escapeto"
         ],
       reservedOpNames =
         [ "*",
@@ -103,5 +106,9 @@ stringLiteral = Token.stringLiteral lexer
 semi :: ParsecT String u Identity String
 semi = Token.semi lexer
 
+symbol :: String -> ParsecT String u Identity String
+symbol = Token.symbol lexer
+
 whiteSpace :: ParsecT String u Identity ()
 whiteSpace = Token.whiteSpace lexer
+

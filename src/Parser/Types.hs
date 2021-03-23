@@ -1,6 +1,6 @@
 module Parser.Types where
 
-import Classes
+import Common.Formatting
 import Text.Printf
 
 type Id = String
@@ -46,7 +46,9 @@ data Com
   | Proc Exp Exp
   | If Exp Com Com
   | While Exp Com
-  | Block [Dec] [Com]
+  | Block Dec Com
+  | Trap [Com] [Id]
+  | Escape Id
   | Chain Com Com
   | Skip
   deriving (Show)

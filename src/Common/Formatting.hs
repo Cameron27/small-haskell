@@ -1,4 +1,4 @@
-module Classes where
+module Common.Formatting where
 
 class Pretty a where
   pretty :: a -> String

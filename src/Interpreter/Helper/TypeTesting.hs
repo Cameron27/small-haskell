@@ -1,34 +1,12 @@
-module Interpreter.Helper where
-
-import Classes
-import qualified Data.HashMap.Internal.Strict as HashMap
-import Data.Maybe
-import Interpreter.Types
-import Parser.Types
-import System.Exit
-import System.IO
-import Text.Printf
-
--- Helper Operations --
-
--- | @cond (x, y) b@ returns `x` if `b` is `True` and `y` if `b` is `False`.
-cond :: (a, a) -> Bool -> a
-cond (x, _) True = x
-cond (_, x) False = x
-
--- | @b ?> (x, y)@ returns `x` if `b` is `True` and `y` if `b` is `False`.
-(?>) :: Bool -> (a, a) -> a
-b ?> x = cond x b
-
--- | @putError err@ outputs the error message `err`.
-putError :: String -> Ans
-putError err = hPutStrLn stderr ("Error: " ++ err) >> return (ExitFailure 1)
-
--- | `err` is a continuation that always throws an error.
-err :: String -> Cc
-err err s = putError err >> return (ExitFailure 1)
+module Interpreter.Helper.TypeTesting where
 
 -- Type Conversions --
+
+import Common.Formatting
+import Interpreter.Helper.Control
+import Interpreter.Types
+import Parser.Types
+import Text.Printf
 
 -- | @svToDv v` returns the denotable value version of `v`.
 svToDv :: Sv -> Dv
@@ -164,73 +142,12 @@ isBool _ = False
 testBool :: Exp -> Ec -> Ec
 testBool e1 k e = isBool e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a bool." (pretty e1) (pretty e))
 
--- Store Functions --
+-- | @isCc e@ checks if `e` is a Cc.
+isCc :: Ev -> Bool
+isCc (DCc _) = True
+isCc _ = False
 
--- | @isUnused l s@ returns `True` iff the `l` is unused in `s`.
-isUnusedS :: Loc -> Store -> Bool
-isUnusedS l (Store s _) = isNothing $ HashMap.lookup l s
-
--- | @lookupS l s@ returns the value that is stored in `s` at `l`.
-lookupS :: Loc -> Store -> Sv
-lookupS l (Store s _) = case HashMap.lookup l s of
-  Just s -> s
-  Nothing -> error $ printf "Tried to lookup location \"Loc(%d)\" which has no value assigned to it." l
-
--- | @updateS l v s@ returns a store with `l` updated to `v`.
-updateS :: Loc -> Sv -> Store -> Store
-updateS l v (Store s x) = Store (HashMap.insert l v s) x
-
--- | @newLocS s@ returns an unused location in s.
-newLocS :: Store -> (Loc, Store)
-newLocS (Store s x) = (x, Store s (x + 1))
-
--- Environment Functions --
-
--- | @updateE r' r@ returns an environment which first checks @r'@ then `r` when a lookup is preformed.
-updateE :: Env -> Env -> Env
-updateE = HashMap.union
-
--- | @lookupE i r@ returns the value that is assigned to `i` in `r`.
-lookupE :: Ide -> Env -> Dv
-lookupE i r = case HashMap.lookup i r of
-  Just s -> s
-  Nothing -> error $ printf "Tried to lookup identifier \"%s\" which has no value assigned to it." i
-
--- | @newE i d@ returns a new environment with just `i` bound to `d`.
-newE :: Ide -> Dv -> Env
-newE i l = HashMap.fromList [(i, l)]
-
--- | @isUnboundE i r@ is `True` iff `i` is unbound in `r`.
-isUnboundE :: Ide -> Env -> Bool
-isUnboundE i r = case HashMap.lookup i r of
-  Just _ -> False
-  Nothing -> True
-
--- Other Functions --
-
--- | @cont k e s@ looks up the location `e` in `s` and passes the result, along with `s` into `k`.
-cont :: Ec -> Ec
-cont k e s =
-  isLoc e
-    ?> ( isUnusedS l s ?> (error $ printf "\"Loc(%d)\" is unused." l, k d s),
-         error $ printf "\"%s\" is not a location." (pretty e)
-       )
-  where
-    l = evToLoc e
-    d = svToDv $ lookupS l s
-
--- | @update l c e s@ stores `e` at `l` and passes the resulting store to `c`.
-update :: Loc -> Cc -> Ec
-update l c e s = isSv e ?> (c (updateS l (evToSv e) s), putError $ error $ printf "Tried to store the value \"%s\" which is not storable." (pretty e))
-
--- | @ref k e s@ gets an unused location in `s`, updates it with `e` then passes it, along with the updated store, to
--- `k`.
-ref :: Ec -> Ec
-ref k e s = update newLoc (k (DLoc newLoc)) e s'
-  where
-    (newLoc, s') = newLocS s
-
--- | @deref k e s@ checks if `e` is a location. If it is then the content of `e`, along with `s`, are passed to `k`,
--- otherwise it just passes `e` and `s` to `k`.
-deref :: Ec -> Ec
-deref k e s = isLoc e ?> (cont k e s, k e s)
+-- | @testCc e1 k e@ applies `e` to `k` if it is a Cc, otherwise it returns an error. `e1` is the expression to use in
+-- the error message.
+testCc :: Exp -> Ec -> Ec
+testCc e1 k e = isCc e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a Cc." (pretty e1) (pretty e))

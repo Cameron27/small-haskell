@@ -1,7 +1,7 @@
 module Parser.Small where
 
 import Data.List
-import Parser.Helper
+import Parser.Language
 import Parser.Types
 import Text.Parsec
 import Prelude hiding (exp)
@@ -58,17 +58,37 @@ com = do
       do
         keyword "while"
         e <- parens exp
-        While e <$> com
+        While e <$> com,
+      do
+        keyword "trap"
+        braces $ do
+          c <- block'
+          pairs <-
+            many
+              ( do
+                  i <- ide
+                  symbol ":"
+                  cs <- many1 $ try com
+                  return (i, chain cs)
+              )
+          let pairs' = unzip pairs
+          return $ Trap (c : snd pairs') (fst pairs'),
+      do
+        keyword "escapeto"
+        i <- ide
+        semi
+        return $ Escape i
     ]
 
+block' :: Parsec String () Com
+block' =
+  do
+    ds <- many $ try dec
+    cs <- many $ try com
+    return $ Block (chainDec ds) (chain cs)
+
 block :: Parsec String () Com
-block =
-  braces
-    ( do
-        ds <- many dec
-        cs <- many com
-        return $ Block ds cs
-    )
+block = braces block'
 
 dec :: Parsec String () Dec
 dec = do
@@ -102,6 +122,12 @@ dec = do
         i2 <- parens ide
         FuncDec i1 i2 <$> braces exp
     ]
+
+chain :: [Com] -> Com
+chain = foldr Chain Skip
+
+chainDec :: [Dec] -> Dec
+chainDec = foldr ChainDec SkipDec
 
 exp :: Parsec String () Exp
 exp = ternaryOp
