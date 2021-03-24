@@ -1,0 +1,48 @@
+// true
+// true
+/*
+a
+b
+*/
+/*
+3
+5
+10
+1
+3
+10
+5
+10
+15
+5
+10
+2
+5
+10
+1
+b
+*/
+
+program {
+    var x = 1;
+    var y = 2;
+    var t = true;
+    var f = false;
+
+    output jumpout j in 1 + 2; // 3
+    output jumpout j in (t ? j(5) : 5) + 5; //5
+    output jumpout j in (f ? j(5) : 5) + 5; // 10
+    output jumpout j in j(x); // 1
+    output jumpout j in j(x + y); // 3
+    output jumpout j in (t ? jumpout k in (t ? k(5) : 5) + 5 : 5) + 5; // 10
+    output jumpout j in (t ? jumpout k in (t ? j(5) : 5) + 5 : 5) + 5; // 5
+    output jumpout j in (t ? jumpout j in (t ? j(5) : 5) + 5 : 5) + 5; // 10
+    output jumpout j in (t ? jumpout k in (f ? k(5) : 5) + 5 : 5) + 5; // 15
+    output jumpout j in (t ? j(jumpout k in (t ? k(5) : 5) + 5) : 5) + 5; // 5
+    output jumpout j in (t ? j(jumpout k in (f ? k(5) : 5) + 5) : 5) + 5; // 10
+    output (jumpout j in j(1) + 1) + 1; // 2
+    output jumpout j in (jumpout k in (t ? j : k)(5)) + 5; // 5
+    output jumpout j in (jumpout k in (f ? j : k)(5)) + 5; // 10
+    output jumpout j in (jumpout j in j(read)) + j(1); // 1
+    output read;
+}

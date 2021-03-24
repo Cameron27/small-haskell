@@ -1,0 +1,9 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    var x = jumpout j in j(1);
+    var y = jumpout k in j(1);
+}
