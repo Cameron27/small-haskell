@@ -1,0 +1,12 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    var x = valof {
+        var a = 1;
+        var b = 1;
+        a = a + b;
+    };
+}

@@ -1,0 +1,14 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    proc x(y){
+        return y;
+    }
+
+    output valof {
+        x(1);
+    };
+}

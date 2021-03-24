@@ -1,0 +1,123 @@
+// true
+// true
+/**/
+/*
+1
+2
+1
+12
+10
+10
+0
+5
+1
+5
+1
+4
+*/
+
+program {
+    var a = 1;
+    var d = 4;
+
+    func allSum(x) {
+        valof {
+            var sum = 0;
+            var y = x;
+            while (y > 0) {
+                sum = sum + y;
+                y = y - 1;
+            }
+
+            return sum;
+        }
+    }
+
+    func allSum2(x) {
+        valof {
+            var sum = 0;
+            while (x > 0) {
+                sum = sum + x;
+                x = x - 1;
+            }
+
+            return sum;
+        }
+    }
+
+    func add1(x) {
+        x + 1
+    }
+
+    func add2(x) {
+        x + 2
+    }
+
+    output valof {
+        return a;
+    }; // 1
+
+    output valof {
+        var a = 2;
+        return a;
+    }; // 2
+    output a; // 1
+
+    output valof {
+        var x = valof {
+            var x = 5;
+            var y = 6;
+            x = x + y;
+            return x;
+        };
+
+        return x + 1;
+    }; // 12
+
+    output allSum(4); //10
+
+    output allSum2(d); // 10
+    output d; // 0
+
+    output valof {
+        proc x(y) {
+            return y;
+        }
+
+        x(5);
+    }; // 5
+
+    output valof {
+        proc x(y) {
+            const a = valof {
+                return y;
+            };
+        }
+
+        x(5);
+        return 1;
+    }; // 1
+
+    output valof {
+        proc x(y) {
+            return y;
+        }
+
+        var y = valof {
+            x(5);
+        };
+
+        return 10;
+    }; // 5
+
+    trap {
+        output valof {
+            output 1;
+            escapeto a;
+            output 2;
+            return 3;
+        };
+a:  
+        output 4;
+    } // 1\n4
+}
