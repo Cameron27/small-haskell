@@ -5,6 +5,8 @@
 1
 2
 1
+2
+1
 12
 10
 10
@@ -52,6 +54,14 @@ program {
     func add2(x) {
         x + 2
     }
+
+    output valof {
+        return 1;
+    }; // 1
+
+    output valof {
+        return 1 + 1;
+    }; // 2
 
     output valof {
         return a;
