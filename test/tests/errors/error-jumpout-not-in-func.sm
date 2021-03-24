@@ -1,0 +1,12 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    func a(b) {
+        b + j(5)
+    }
+
+    var x = jumpout j in a(1);
+}
