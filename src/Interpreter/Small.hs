@@ -32,6 +32,9 @@ evalExp Read r k s = do
 evalExp (I i1) r k s = isUnboundEnv i1 r ?> (putError $ printf "\"%s\" is unassigned\"" i1, k (lookupEnv i1 r) s)
 evalExp (Func e1 e2) r k s = evalExp e1 r (testFunc e1 (\f -> evalExp e2 r $ evToFunc f k)) s
 evalExp (IfExp e1 e2 e3) r k s = evalRVal e1 r (testBool e1 $ \e -> cond (evalExp e2 r k, evalExp e3 r k) $ evToBool e) s
+evalExp (Jumpout i1 e1) r k s = evalExp e1 (updateEnv (newEnv i1 jump) r) k s
+  where
+    jump = DFunc $ \_ e -> k e
 evalExp (Op o1 e1 e2) r k s = evalRVal e1 r (\e1 -> evalRVal e2 r (\e2 -> evalOp ef o1 (evToRv e1, evToRv e2) k)) s
   where
     ef = Op o1 e1 e2

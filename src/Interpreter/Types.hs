@@ -18,6 +18,7 @@ data Dv
   = DLoc Loc
   | DProc Procedure
   | DFunc Function
+  | DJump Jump
   | DInt Integer
   | DDouble Double
   | DBool Bool
@@ -28,6 +29,7 @@ instance Pretty Dv where
   pretty (DLoc x) = printf "Loc(%d)" x
   pretty (DProc x) = "PROCEDURE"
   pretty (DFunc x) = "FUNCTION"
+  pretty (DJump x) = "JUMP"
   pretty (DCc x) = "CC"
   pretty (DInt x) = show x
   pretty (DDouble x) = printf "%f" x
@@ -79,5 +81,7 @@ type Dc = Env -> Cc
 type Procedure = Cc -> Ec
 
 type Function = Ec -> Ec
+
+type Jump = Ev -> Ec -> Cc
 
 type Ans = IO ExitCode

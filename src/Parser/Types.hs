@@ -71,6 +71,7 @@ data Exp
   | I Id
   | Func Exp Exp
   | IfExp Exp Exp Exp
+  | Jumpout Id Exp
   | Op Opr Exp Exp
   deriving (Show)
 

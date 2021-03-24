@@ -31,7 +31,9 @@ tinyDef =
           "true",
           "false",
           "trap",
-          "escapeto"
+          "escapeto",
+          "jumpout",
+          "in"
         ],
       reservedOpNames =
         [ "*",
@@ -111,4 +113,3 @@ symbol = Token.symbol lexer
 
 whiteSpace :: ParsecT String u Identity ()
 whiteSpace = Token.whiteSpace lexer
-

@@ -59,6 +59,7 @@ com = do
         keyword "while"
         e <- parens exp
         While e <$> com,
+      -- Trap: trap {C I1: C1 ... In Cn}
       do
         keyword "trap"
         braces $ do
@@ -73,6 +74,7 @@ com = do
               )
           let pairs' = unzip pairs
           return $ Trap (c : snd pairs') (fst pairs'),
+      -- Escape: escapeto I ;
       do
         keyword "escapeto"
         i <- ide
@@ -80,6 +82,7 @@ com = do
         return $ Escape i
     ]
 
+-- Block Internals: D1 .. Dn C1 ... Cm
 block' :: Parsec String () Com
 block' =
   do
@@ -87,6 +90,7 @@ block' =
     cs <- many $ try com
     return $ Block (chainDec ds) (chain cs)
 
+-- Block: { D1 .. Dn C1 ... Cm }
 block :: Parsec String () Com
 block = braces block'
 
@@ -130,8 +134,21 @@ chainDec :: [Dec] -> Dec
 chainDec = foldr ChainDec SkipDec
 
 exp :: Parsec String () Exp
-exp = ternaryOp
+exp = jumpout
 
+-- Jumpout: jumpout I in E
+jumpout :: Parsec String () Exp
+jumpout =
+  choice
+    [ do
+        keyword "jumpout"
+        i <- ide
+        keyword "in"
+        Jumpout i <$> jumpout,
+      ternaryOp
+    ]
+
+-- Ternary: E1 ? E2 : E3
 ternaryOp :: Parsec String () Exp
 ternaryOp = do
   e1 <- orOp
