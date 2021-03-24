@@ -33,7 +33,9 @@ tinyDef =
           "trap",
           "escapeto",
           "jumpout",
-          "in"
+          "in",
+          "return",
+          "valof"
         ],
       reservedOpNames =
         [ "*",

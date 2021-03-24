@@ -68,7 +68,7 @@ instance Typeable Rv where
   typeStr (RBool _) = "bool"
   typeStr (RString _) = "string"
 
-type Env = HashMap Ide Dv
+data Env = Env (HashMap Ide Dv) Ec
 
 data Store = Store (HashMap Loc Sv) Loc deriving (Show)
 

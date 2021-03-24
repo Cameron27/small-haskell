@@ -41,7 +41,7 @@ com = do
         e <- exp
         semi
         return $ Output e,
-      -- If: if ( E ) { C1 } else { C2 }
+      -- If: if ( E ) C1 else C2
       do
         keyword "if"
         e <- parens exp
@@ -54,12 +54,12 @@ com = do
                 com
             )
         return $ If e c1 c2,
-      -- While: while ( E ) { C }
+      -- While: while ( E ) C
       do
         keyword "while"
         e <- parens exp
         While e <$> com,
-      -- Trap: trap {C I1: C1 ... In Cn}
+      -- Trap: trap { C (I1: C1)* }
       do
         keyword "trap"
         braces $ do
@@ -79,10 +79,16 @@ com = do
         keyword "escapeto"
         i <- ide
         semi
-        return $ Escape i
+        return $ Escape i,
+      -- Return: return E ;
+      do
+        keyword "return"
+        e <- exp
+        semi
+        return $ Return e
     ]
 
--- Block Internals: D1 .. Dn C1 ... Cm
+-- Block Internals: D* C*
 block' :: Parsec String () Com
 block' =
   do
@@ -90,7 +96,7 @@ block' =
     cs <- many $ try com
     return $ Block (chainDec ds) (chain cs)
 
--- Block: { D1 .. Dn C1 ... Cm }
+-- Block: { D* C* }
 block :: Parsec String () Com
 block = braces block'
 
@@ -113,13 +119,13 @@ dec = do
         e <- exp
         semi
         return $ Var i e,
-      -- Procedure: proc I1( I2 ) { C }
+      -- Procedure: proc I1( I2 ) { D* C* }
       do
         keyword "proc"
         i1 <- ide
         i2 <- parens ide
         ProcDec i1 i2 <$> block,
-      -- Function: func I1 ( I2 ) { C }
+      -- Function: func I1 ( I2 ) { E }
       do
         keyword "func"
         i1 <- ide
@@ -229,7 +235,11 @@ atom =
       -- Identifier
       I <$> ide,
       -- Parentheses: ( E )
-      parens exp
+      parens exp,
+      -- Valof: valof { D* C* }
+      do
+        keyword "valof"
+        Valof <$> block
     ]
 
 opChain :: [String] -> Parsec String () Exp -> Parsec String () Exp

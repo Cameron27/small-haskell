@@ -15,7 +15,7 @@ import Text.Printf
 evalPgm :: Pgm -> Ans
 evalPgm (Program c) = evalCom c env (\_ -> return ExitSuccess) store
   where
-    env = HashMap.empty
+    env = Env HashMap.empty (\e s -> putError "cannot return at top level")
     store = Store HashMap.empty 0
 
 evalRVal :: Exp -> Env -> Ec -> Cc
@@ -35,6 +35,9 @@ evalExp (IfExp e1 e2 e3) r k s = evalRVal e1 r (testBool e1 $ \e -> cond (evalEx
 evalExp (Jumpout i1 e1) r k s = evalExp e1 (updateEnv (newEnv i1 jump) r) k s
   where
     jump = DFunc $ \_ e -> k e
+evalExp (Valof c1) r k s = evalCom c1 (Env r' k) (err $ printf "no return encountered in %s" $ pretty (Valof c1)) s
+  where
+    (Env r' _) = r
 evalExp (Op o1 e1 e2) r k s = evalRVal e1 r (\e1 -> evalRVal e2 r (\e2 -> evalOp ef o1 (evToRv e1, evToRv e2) k)) s
   where
     ef = Op o1 e1 e2
@@ -50,6 +53,9 @@ evalCom (Trap cs is) r c = evalCom (head cs) (updateEnv (newEnvMulti is ccs) r) 
   where
     ccs = map (\c' -> DCc (evalCom c' r c)) $ tail cs
 evalCom (Escape i1) r c = evalExp (I i1) r $ testCc (I i1) (\(DCc c) -> c)
+evalCom (Return e1) r c = evalRVal e1 r k
+  where
+    (Env _ k) = r
 evalCom (Chain c1 c2) r c = evalCom c1 r $ evalCom c2 r c
 evalCom Skip r c = c
 
@@ -65,7 +71,7 @@ evalDec (FuncDec i1 i2 e1) r u = u (newEnv i1 func)
     func' k e = evalExp e1 (updateEnv (newEnv i2 e) r) k
     func = DFunc func'
 evalDec (ChainDec d1 d2) r u = evalDec d1 r (\r1 -> evalDec d2 (updateEnv r r1) (\r2 -> u (updateEnv r2 r1)))
-evalDec SkipDec r u = u HashMap.empty
+evalDec SkipDec r u = u (Env HashMap.empty emptyEc)
 
 interpretSmall :: Pgm -> Ans
 interpretSmall = evalPgm
