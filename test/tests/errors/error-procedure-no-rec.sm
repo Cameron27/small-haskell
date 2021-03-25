@@ -1,0 +1,12 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    proc sum(x) {
+        if (x == 0) {}
+        else {output x; sum(x - 1);}
+    }
+    sum(5);
+}

@@ -1,0 +1,11 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    func sum(x) {
+        x == 0 ? 0 : x + sum(x - 1)
+    }
+    output sum(5);
+}

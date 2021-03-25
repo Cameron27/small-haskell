@@ -22,6 +22,9 @@
 7
 6
 2
+15
+13
+1
 */
 
 program {
@@ -65,6 +68,17 @@ program {
     func override(a, a) {
         a + a
     }
+    rec func recSum(x) {
+        x <= 0 ? 0 : x + recSum(x - 1)
+    }
+    rec func fib(x) {
+        x <= 1 ? 1 :
+            x == 2 ? 1 :
+                fib(x - 1) + fib(x - 2)
+    }
+    rec func recOverride(recOverride, y) {
+        y == 1 ? 1 : recOverride(1, y - 1)
+    }
 
     output add10(5); // 15
     output sign(-10); // -1
@@ -88,4 +102,7 @@ program {
     output aOut(); // 7
     output bOut(); // 6
     output override(1, 2); // 2
+    output recSum(5); // 15
+    output fib(7); // 13
+    output recOverride(1, 5); // 1
 }
