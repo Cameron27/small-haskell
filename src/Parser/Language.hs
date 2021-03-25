@@ -35,7 +35,8 @@ tinyDef =
           "jumpout",
           "in",
           "return",
-          "valof"
+          "valof",
+          "rec"
         ],
       reservedOpNames =
         [ "*",

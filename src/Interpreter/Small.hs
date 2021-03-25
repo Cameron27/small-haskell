@@ -82,10 +82,16 @@ evalDec (ProcDec i1 i2 c1) r u = u (newEnv i1 procd)
   where
     procd' c e = evalCom c1 (updateEnv (newEnvMulti i2 e) r) c
     procd = DProc procd' (length i2)
+evalDec (RecProcDec i1 i2 c1) r u = u (newEnv i1 procd)
+  where
+    procd = DProc (\c e -> evalCom c1 (updateEnv (newEnvMulti (i1 : i2) (procd : e)) r) c) (length i2)
 evalDec (FuncDec i1 i2 e1) r u = u (newEnv i1 func)
   where
     func' k e = evalExp e1 (updateEnv (newEnvMulti i2 e) r) k
     func = DFunc func' (length i2)
+evalDec (RecFuncDec i1 i2 e1) r u = u (newEnv i1 func)
+  where
+    func = DFunc (\k e -> evalExp e1 (updateEnv (newEnvMulti (i1 : i2) (func : e)) r) k) (length i2)
 evalDec (ChainDec d1 d2) r u = evalDec d1 r (\r1 -> evalDec d2 (updateEnv r1 r) (\r2 -> u (updateEnv r2 r1)))
 evalDec SkipDec r u = u (Env HashMap.empty emptyEc)
 

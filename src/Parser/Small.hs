@@ -28,7 +28,7 @@ com = do
               do
                 op "="
                 Assign e1 <$> exp,
-              -- Procedure: E1 ( E2 ) ;
+              -- Procedure: E ( E1, ..., En ) ;
               case e1 of
                 Func e2 e3 -> return $ Proc e2 e3
                 _ -> fail ""
@@ -119,18 +119,38 @@ dec = do
         e <- exp
         semi
         return $ Var i e,
-      -- Procedure: proc I1( I2 ) { D* C* }
+      -- Procedure: (rec)? proc I( I1, ..., In ) { D* C* }
       do
-        keyword "proc"
+        isRec <-
+          try $
+            choice
+              [ do
+                  keyword "proc"
+                  return False,
+                do
+                  keyword "rec"
+                  keyword "proc"
+                  return True
+              ]
         i1 <- ide
         i2 <- parens $ commaSep ide
-        ProcDec i1 i2 <$> block,
-      -- Function: func I1 ( I2 ) { E }
+        (if isRec then RecProcDec else ProcDec) i1 i2 <$> block,
+      -- Function: (rec)? func I ( I1, ..., In ) { E }
       do
-        keyword "func"
+        isRec <-
+          try $
+            choice
+              [ do
+                  keyword "func"
+                  return False,
+                do
+                  keyword "rec"
+                  keyword "func"
+                  return True
+              ]
         i1 <- ide
         i2 <- parens $ commaSep ide
-        FuncDec i1 i2 <$> braces exp
+        (if isRec then RecFuncDec else FuncDec) i1 i2 <$> braces exp
     ]
 
 chain :: [Com] -> Com
@@ -195,7 +215,7 @@ additiveOps = opChain ["+", "-"] multiplicativeOps
 multiplicativeOps :: Parsec String () Exp
 multiplicativeOps = opChain ["*", "/", "%"] function
 
--- Function: E1 ( E2 )
+-- Function: E ( E1, ..., En )
 function :: Parsec String () Exp
 function = do
   e1 <- atom

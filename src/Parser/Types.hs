@@ -76,7 +76,9 @@ data Dec
   = Const Id Exp
   | Var Id Exp
   | ProcDec Id [Id] Com
+  | RecProcDec Id [Id] Com
   | FuncDec Id [Id] Exp
+  | RecFuncDec Id [Id] Exp
   | ChainDec Dec Dec
   | SkipDec
   deriving (Show)
@@ -85,7 +87,9 @@ instance Pretty Dec where
   pretty (Const x y) = printf "const %s = %s;" x (pretty y)
   pretty (Var x y) = printf "var %s = %s;" x (pretty y)
   pretty (ProcDec x y z) = printf "proc %s(%s) %s" x (intercalate ", " y) (pretty z)
+  pretty (RecProcDec x y z) = printf "proc %s(%s) %s" x (intercalate ", " y) (pretty z)
   pretty (FuncDec x y z) = printf "func %s(%s) { %s }" x (intercalate ", " y) (pretty z)
+  pretty (RecFuncDec x y z) = printf "rec func %s(%s) { %s }" x (intercalate ", " y) (pretty z)
   pretty (ChainDec x y) = printf "%s %s" (pretty x) (pretty y)
   pretty SkipDec = ""
   pretty _ = "PRETTY_DEC"
