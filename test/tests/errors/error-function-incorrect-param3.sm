@@ -1,0 +1,12 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    func x(a, b, c) {
+        "t"
+    }
+
+    output x(1, 2, 3, 4);
+}

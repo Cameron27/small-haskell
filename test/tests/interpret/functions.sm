@@ -13,11 +13,22 @@
 20
 11
 2
+1
+2
+1
+1
+1
+8
+7
+6
+2
 */
 
 program {
     var a = 5;
     const b = 6;
+    var i = 1;
+    var j = 2;
     func add10(x) {
         x + 10
     }
@@ -36,17 +47,45 @@ program {
     func d(x) {
         add10
     }
+    func copy(x, y) {
+        valof {
+            y = x;
+            return x;
+        }
+    }
+    func add(x, y) {
+        x + y
+    }
+    func aOut() {
+        a
+    }
+    func bOut() {
+        b
+    }
+    func override(a, a) {
+        a + a
+    }
 
-    output add10(5);
-    output sign(-10);
-    output sign(324);
-    output sign(-34.2);
-    output sign(34.3);
-    output add11(1.5);
+    output add10(5); // 15
+    output sign(-10); // -1
+    output sign(324); // 1
+    output sign(-34.2); // -1
+    output sign(34.3); // 1
+    output add11(1.5); // 12.5
     a = 6;
-    output add11(1.5);
-    output double(1.5);
-    output d(4)(10);
-    output (true ? add10 : double)(1);
-    output (false ? add10 : double)(1);
+    output add11(1.5); // 13.5
+    output double(1.5); // 3.0
+    output d(4)(10); // 20
+    output (true ? add10 : double)(1); // 11
+    output (false ? add10 : double)(1); // 2
+    output i; // 1
+    output j; // 2
+    output copy(i, j); // 1
+    output i; // 1
+    output j; // 1
+    output add(1 * 4, 8 / 2); // 8
+    a = 7;
+    output aOut(); // 7
+    output bOut(); // 6
+    output override(1, 2); // 2
 }

@@ -19,6 +19,7 @@
 1
 1
 4
+tt
 */
 
 program {
@@ -54,4 +55,9 @@ program {
     output d;
     b = 4;
     output b;
+    {
+        var a = "t";
+        var b = a + "t";
+        output b;
+    }
 }
