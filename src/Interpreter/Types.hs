@@ -16,8 +16,8 @@ type Bv = Rv
 
 data Dv
   = DLoc Loc
-  | DProc Procedure
-  | DFunc Function
+  | DProc Procedure Int
+  | DFunc Function Int
   | DJump Jump
   | DInt Integer
   | DDouble Double
@@ -27,8 +27,8 @@ data Dv
 
 instance Pretty Dv where
   pretty (DLoc x) = printf "Loc(%d)" x
-  pretty (DProc x) = "PROCEDURE"
-  pretty (DFunc x) = "FUNCTION"
+  pretty (DProc x i) = "PROCEDURE" ++ show i
+  pretty (DFunc x i) = "FUNCTION" ++ show i
   pretty (DJump x) = "JUMP"
   pretty (DCc x) = "CC"
   pretty (DInt x) = show x
@@ -37,21 +37,11 @@ instance Pretty Dv where
   pretty (DBool False) = "false"
   pretty (DString x) = x
 
-instance Show Dv where
-  show (DLoc x) = "DLoc " ++ show x
-  show (DProc _) = "DProc _"
-  show (DFunc _) = "DFunc _"
-  show (DInt x) = "DInt " ++ show x
-  show (DDouble x) = "DDouble " ++ show x
-  show (DBool x) = "DBool " ++ show x
-  show (DString x) = "DString " ++ show x
-
 data Sv
   = SInt Integer
   | SDouble Double
   | SBool Bool
   | SString String
-  deriving (Show)
 
 type Ev = Dv
 
@@ -60,7 +50,6 @@ data Rv
   | RDouble Double
   | RBool Bool
   | RString String
-  deriving (Show)
 
 instance Typeable Rv where
   typeStr (RInt _) = "int"
@@ -70,7 +59,7 @@ instance Typeable Rv where
 
 data Env = Env (HashMap Ide Dv) Ec
 
-data Store = Store (HashMap Loc Sv) Loc deriving (Show)
+data Store = Store (HashMap Loc Sv) Loc
 
 type Cc = Store -> Ans
 
@@ -78,9 +67,9 @@ type Ec = Ev -> Cc
 
 type Dc = Env -> Cc
 
-type Procedure = Cc -> Ec
+type Procedure = Cc -> [Ev] -> Cc
 
-type Function = Ec -> Ec
+type Function = Ec -> [Ev] -> Cc
 
 type Jump = Ev -> Ec -> Cc
 

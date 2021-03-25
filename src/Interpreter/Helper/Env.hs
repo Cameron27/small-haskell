@@ -5,7 +5,7 @@ import Interpreter.Types
 import Text.Printf
 
 -- | @updateE r' r@ returns an environment which first checks @r'@ then `r` when a lookup is preformed. Keeps the return
--- address from r.
+-- address from `r`.
 updateEnv :: Env -> Env -> Env
 updateEnv (Env r' _) (Env r k) = Env (HashMap.union r' r) k
 

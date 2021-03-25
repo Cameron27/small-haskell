@@ -110,6 +110,9 @@ stringLiteral = Token.stringLiteral lexer
 semi :: ParsecT String u Identity String
 semi = Token.semi lexer
 
+commaSep :: ParsecT String u Identity a -> ParsecT String u Identity [a]
+commaSep = Token.commaSep lexer
+
 symbol :: String -> ParsecT String u Identity String
 symbol = Token.symbol lexer
 

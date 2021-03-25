@@ -123,13 +123,13 @@ dec = do
       do
         keyword "proc"
         i1 <- ide
-        i2 <- parens ide
+        i2 <- parens $ commaSep ide
         ProcDec i1 i2 <$> block,
       -- Function: func I1 ( I2 ) { E }
       do
         keyword "func"
         i1 <- ide
-        i2 <- parens ide
+        i2 <- parens $ commaSep ide
         FuncDec i1 i2 <$> braces exp
     ]
 
@@ -202,7 +202,7 @@ function = do
   option
     e1
     ( do
-        calls <- many $ parens exp
+        calls <- many $ parens $ commaSep exp
         return $ foldl Func e1 calls
     )
 

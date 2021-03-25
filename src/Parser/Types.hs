@@ -1,6 +1,7 @@
 module Parser.Types where
 
 import Common.Formatting
+import Data.List
 import Text.Printf
 
 type Id = String
@@ -43,7 +44,7 @@ newtype Pgm = Program Com deriving (Show)
 data Com
   = Assign Exp Exp
   | Output Exp
-  | Proc Exp Exp
+  | Proc Exp [Exp]
   | If Exp Com Com
   | While Exp Com
   | Block Dec Com
@@ -57,7 +58,7 @@ data Com
 instance Pretty Com where
   pretty (Assign x y) = printf "%s = %s;" (pretty x) (pretty y)
   pretty (Output x) = printf "output %s;" (pretty x)
-  pretty (Proc x y) = printf "proc %s(%s)" (pretty x) (pretty y)
+  pretty (Proc x y) = printf "%s(%s)" (pretty x) (intercalate ", " $ map pretty y)
   pretty (If x y z) = printf "if (%s) %s else %s" (pretty x) (pretty y) (pretty z)
   pretty (While x y) = printf "while (%s) %y" (pretty x) (pretty y)
   pretty (Block x y) = printf "{ %s %s }" (pretty x) (pretty y)
@@ -74,8 +75,8 @@ instance Pretty Com where
 data Dec
   = Const Id Exp
   | Var Id Exp
-  | ProcDec Id Id Com
-  | FuncDec Id Id Exp
+  | ProcDec Id [Id] Com
+  | FuncDec Id [Id] Exp
   | ChainDec Dec Dec
   | SkipDec
   deriving (Show)
@@ -83,8 +84,8 @@ data Dec
 instance Pretty Dec where
   pretty (Const x y) = printf "const %s = %s;" x (pretty y)
   pretty (Var x y) = printf "var %s = %s;" x (pretty y)
-  pretty (ProcDec x y z) = printf "proc %s(%s) %s" x y (pretty z)
-  pretty (FuncDec x y z) = printf "func %s(%s) { %s }" x y (pretty z)
+  pretty (ProcDec x y z) = printf "proc %s(%s) %s" x (intercalate ", " y) (pretty z)
+  pretty (FuncDec x y z) = printf "func %s(%s) { %s }" x (intercalate ", " y) (pretty z)
   pretty (ChainDec x y) = printf "%s %s" (pretty x) (pretty y)
   pretty SkipDec = ""
   pretty _ = "PRETTY_DEC"
@@ -96,7 +97,7 @@ data Exp
   | String String
   | Read
   | I Id
-  | Func Exp Exp
+  | Func Exp [Exp]
   | IfExp Exp Exp Exp
   | Jumpout Id Exp
   | Valof Com
@@ -111,7 +112,7 @@ instance Pretty Exp where
   pretty (String x) = show x
   pretty Read = "read"
   pretty (I x) = x
-  pretty (Func x y) = printf "%s(%s)" (pretty x) (pretty y)
+  pretty (Func x y) = printf "%s(%s)" (pretty x) (intercalate ", " $ map pretty y)
   pretty (IfExp x y z) = printf "%s ? %s : %s" (pretty x) (pretty y) (pretty z)
   pretty (Jumpout x y) = printf "jumpout %s in %s" x (pretty y)
   pretty (Valof x) = printf "valof %s" (pretty x)

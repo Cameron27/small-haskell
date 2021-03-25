@@ -54,7 +54,7 @@ evToLoc = dvToLoc
 
 -- | @dvToFunc d` returns the function `d` represents.
 dvToFunc :: Dv -> Function
-dvToFunc (DFunc x) = x
+dvToFunc (DFunc x _) = x
 dvToFunc e = error $ printf "Tried to convert \"%s\" to a function." (pretty e)
 
 -- | @evToFunc e` returns the function `e` represents.
@@ -63,7 +63,7 @@ evToFunc = dvToFunc
 
 -- | @dvToFunc d` returns the procedure `d` represents.
 dvToProc :: Dv -> Procedure
-dvToProc (DProc x) = x
+dvToProc (DProc x _) = x
 dvToProc e = error $ printf "Tried to convert \"%s\" to a procedure." (pretty e)
 
 -- | @evToFunc e` returns the procedure `e` represents.
@@ -114,23 +114,41 @@ isSv _ = False
 
 -- | @isFunc e@ checks if `e` is a function.
 isFunc :: Ev -> Bool
-isFunc (DFunc _) = True
+isFunc (DFunc _ _) = True
 isFunc _ = False
 
 -- | @testFunc e1 k e@ applies `e` to `k` if it is a function, otherwise it returns an error. `e1` is the expression to
 -- use in the error message.
-testFunc :: Exp -> Ec -> Ec
-testFunc e1 k e = isFunc e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a function." (pretty e1) (pretty e))
+testFunc :: Int -> Exp -> Ec -> Ec
+testFunc count e1 k e =
+  isFunc e
+    ?> ( (n == count)
+           ?> ( k e,
+                err $ printf "wrong number of arguments supplied to function in \"%s\", expected %d." (pretty e1) n
+              ),
+         err $ printf "\"%s\", evaluated as \"%s\", is not a function." (pretty e1) (pretty e)
+       )
+  where
+    (DFunc _ n) = e
 
 -- | @isProc e@ checks if `e` is a procedure.
 isProc :: Ev -> Bool
-isProc (DProc _) = True
+isProc (DProc _ _) = True
 isProc _ = False
 
 -- | @testProc e1 k e@ applies `e` to `k` if it is a procedure, otherwise it returns an error. `e1` is the expression to
 -- use in the error message.
-testProc :: Exp -> Ec -> Ec
-testProc e1 k e = isProc e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a procedure." (pretty e1) (pretty e))
+testProc :: Int -> Com -> Ec -> Ec
+testProc count e1 k e =
+  isProc e
+    ?> ( (n == count)
+           ?> ( k e,
+                err $ printf "wrong number of arguments supplied to procedure in \"%s\", expected %d." (pretty e1) n
+              ),
+         err $ printf "\"%s\", evaluated as \"%s\", is not a procedure." (pretty e1) (pretty e)
+       )
+  where
+    (DProc _ n) = e
 
 -- | @isBool e@ checks if `e` is a bool.
 isBool :: Ev -> Bool
