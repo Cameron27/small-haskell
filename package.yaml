@@ -1,10 +1,10 @@
 name:                small-haskell
 version:             0.1.0.0
-github:              "githubuser/small-haskell"
-license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2021 Author name here"
+github:              "Cameron27/small-haskell"
+license:             MIT
+author:              "Cameron Salisbury"
+maintainer:          "cam2772@gmail.com"
+copyright:           "2021 Cameron Salisbury"
 
 extra-source-files:
 - README.md
