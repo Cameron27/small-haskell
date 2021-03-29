@@ -1,0 +1,77 @@
+// true
+// true
+/**/
+/*
+1
+1
+2
+2
+3
+3
+4
+4
+4
+5
+5
+5
+5
+1
+5
+7
+5
+4
+4
+4
+Loc\(.\)
+4
+Loc\(.\)
+*/
+
+program {
+    ref _1 = 1;
+    const two = 2;
+    ref _2 = two;
+    var three = 3;
+    ref x = three;
+    ref y = three;
+    var four = 4;
+    ref z = four;
+    ref zz = z;
+    const constz = z;
+    var varz = z;
+
+    output cont _1; // 1
+    output _1; // 1
+    output cont _2; // 2
+    output _2; // 2
+    output cont x; // 3
+    output cont y; // 3
+
+    cont x = 4;
+    output three; // 4
+    output cont x; // 4
+    output cont y; // 4
+
+    three = 5;
+    output three; // 5
+    output cont x; // 5
+    output cont y; // 5
+
+    x = 1;
+    output three; // 5
+    output cont x; // 1
+    output cont y; // 5
+
+    output cont y + 2; // 7
+
+    output cont (true ? y : z); // 5
+    output cont (false ? y : z); // 4
+
+    output cont cont zz; // 4
+    output cont four; // 4
+
+    output z;
+
+    output constz;
+    output varz;
+}

@@ -1,0 +1,12 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    func x(y) {
+        y
+    }
+
+    ref z = x;
+}
