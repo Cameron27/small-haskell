@@ -17,6 +17,7 @@ import System.IO.Silently
 import System.Process
 import Test.HUnit
 import Test.Main
+import Text.Regex.TDFA
 
 data TestSpec = TestSpec {name :: String, parsed :: Bool, ran :: Bool, input :: String, expected :: String, program :: String} deriving (Show)
 
@@ -100,9 +101,15 @@ testHaskellProgram testSpec =
             Left err -> TestCase $ assertEqual (show err) (ran testSpec) False
             Right res -> TestCase $ assertEqual "program ran when it should not have" (ran testSpec) True
     let shouldCheckResult = shouldRun && isRight result && ran testSpec
+    let regex = expected testSpec
     let resultTest =
           case result of
-            Right res -> TestCase $ assertEqual "program result was not as expected" (expected testSpec) (strip res)
+            -- Right res -> TestCase $ assertEqual "program result was not as expected" (expected testSpec) (strip res)
+            Right res ->
+              TestCase $
+                assertBool
+                  ("program result was not as expected\nexpected: " ++ show (expected testSpec) ++ "\n but got: " ++ show (strip res))
+                  (strip res =~ regex)
     return $
       name testSpec
         ~: TestList (["Parsed" ~: parseTest] ++ ["Ran" ~: runTest | shouldRun] ++ ["Output" ~: resultTest | shouldCheckResult])
@@ -130,7 +137,12 @@ testKProgram testSpec =
             ExitSuccess -> TestCase $ assertEqual "program ran when it should not have" (ran testSpec) True
             ExitFailure i -> TestCase $ assertFailure $ "Unexpected exit-code: " ++ show i
     let shouldCheckResult = shouldRun && exitCode == ExitSuccess && ran testSpec
-    let resultTest = TestCase $ assertEqual "program result was not as expected" (expected testSpec) (strip stdout)
+    let regex = expected testSpec
+    let resultTest =
+          TestCase $
+            assertBool
+              ("program result was not as expected\nexpected: " ++ show (expected testSpec) ++ "\n but got: " ++ show (strip stdout))
+              (strip stdout =~ regex)
     return $
       name testSpec
         ~: TestList (["Parsed" ~: parseTest] ++ ["Ran" ~: runTest | shouldRun] ++ ["Output" ~: resultTest | shouldCheckResult])
