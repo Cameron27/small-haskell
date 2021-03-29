@@ -75,6 +75,7 @@ instance Pretty Com where
 data Dec
   = Const Id Exp
   | Var Id Exp
+  | Ref Id Exp
   | ProcDec Id [Id] Com
   | RecProcDec Id [Id] Com
   | FuncDec Id [Id] Exp
@@ -86,6 +87,7 @@ data Dec
 instance Pretty Dec where
   pretty (Const x y) = printf "const %s = %s;" x (pretty y)
   pretty (Var x y) = printf "var %s = %s;" x (pretty y)
+  pretty (Ref x y) = printf "ref %s = %s;" x (pretty y)
   pretty (ProcDec x y z) = printf "proc %s(%s) %s" x (intercalate ", " y) (pretty z)
   pretty (RecProcDec x y z) = printf "proc %s(%s) %s" x (intercalate ", " y) (pretty z)
   pretty (FuncDec x y z) = printf "func %s(%s) { %s }" x (intercalate ", " y) (pretty z)
@@ -105,6 +107,7 @@ data Exp
   | IfExp Exp Exp Exp
   | Jumpout Id Exp
   | Valof Com
+  | Cont Exp
   | Op Opr Exp Exp
   deriving (Show)
 
@@ -120,5 +123,6 @@ instance Pretty Exp where
   pretty (IfExp x y z) = printf "%s ? %s : %s" (pretty x) (pretty y) (pretty z)
   pretty (Jumpout x y) = printf "jumpout %s in %s" x (pretty y)
   pretty (Valof x) = printf "valof %s" (pretty x)
+  pretty (Cont x) = printf "cont %s" (pretty x)
   pretty (Op x y z) = printf "%s %s %s" (pretty y) (pretty x) (pretty z)
   pretty _ = "PRETTY_EXP"

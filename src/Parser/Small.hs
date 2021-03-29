@@ -119,6 +119,14 @@ dec = do
         e <- exp
         semi
         return $ Var i e,
+      -- Reference: ref I = E ;
+      do
+        keyword "ref"
+        i <- ide
+        op "="
+        e <- exp
+        semi
+        return $ Ref i e,
       -- Procedure: (rec)? proc I( I1, ..., In ) { D* C* }
       do
         isRec <-
@@ -259,7 +267,11 @@ atom =
       -- Valof: valof { D* C* }
       do
         keyword "valof"
-        Valof <$> block
+        Valof <$> block,
+      -- Continuation: cont E
+      do
+        keyword "cont"
+        Cont <$> atom
     ]
 
 opChain :: [String] -> Parsec String () Exp -> Parsec String () Exp

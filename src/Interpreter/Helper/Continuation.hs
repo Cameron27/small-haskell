@@ -20,7 +20,7 @@ cont k e s =
 
 -- | @update l c e s@ stores `e` at `l` and passes the resulting store to `c`.
 update :: Loc -> Cc -> Ec
-update l c e s = isSv e ?> (c (updateStore l (evToSv e) s), putError $ error $ printf "Tried to store the value \"%s\" which is not storable." (pretty e))
+update l c e s = isSv e ?> (c (updateStore l (evToSv e) s), putError $ printf "tried to store the value \"%s\" which is not storable." (pretty e))
 
 -- | @ref k e s@ gets an unused location in `s`, updates it with `e` then passes it, along with the updated store, to
 -- `k`.

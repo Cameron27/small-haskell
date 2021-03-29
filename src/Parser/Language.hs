@@ -36,7 +36,9 @@ tinyDef =
           "in",
           "return",
           "valof",
-          "rec"
+          "rec",
+          "ref",
+          "cont"
         ],
       reservedOpNames =
         [ "*",

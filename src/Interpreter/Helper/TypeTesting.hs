@@ -14,6 +14,7 @@ svToDv (SInt x) = DInt x
 svToDv (SDouble x) = DDouble x
 svToDv (SString x) = DString x
 svToDv (SBool x) = DBool x
+svToDv (SLoc x) = DLoc x
 
 -- | @svToEv v` returns the expressible value version of `v`.
 svToEv :: Sv -> Ev
@@ -25,6 +26,7 @@ dvToSv (DInt x) = SInt x
 dvToSv (DDouble x) = SDouble x
 dvToSv (DString x) = SString x
 dvToSv (DBool x) = SBool x
+dvToSv (DLoc x) = SLoc x
 dvToSv e = error $ printf "Tried to convert \"%s\" to a storable value." (pretty e)
 
 -- | @evToSv e` returns the denotable value version of `e`.
@@ -37,6 +39,7 @@ dvToRv (DInt x) = RInt x
 dvToRv (DDouble x) = RDouble x
 dvToRv (DBool x) = RBool x
 dvToRv (DString x) = RString x
+dvToRv (DLoc x) = RLoc x
 dvToRv e = error $ printf "Tried to convert \"%s\" to a right hand value." (pretty e)
 
 -- | @evToRv e` returns the right hand value version of `e`.
@@ -97,12 +100,13 @@ isRv (DInt _) = True
 isRv (DDouble _) = True
 isRv (DBool _) = True
 isRv (DString _) = True
+isRv (DLoc _) = True
 isRv _ = False
 
 -- | @testRv e1 k e@ applies `e` to `k` if it is a right hand value, otherwise it returns an error. `e1` is the
 -- expression to use in the error message.
 testRv :: Exp -> Ec -> Ec
-testRv e1 k e = isRv e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", a right hand value." (pretty e1) (pretty e))
+testRv e1 k e = isRv e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", a not right hand value." (pretty e1) (pretty e))
 
 -- | @isSv e@ checks if `e` is a storable value.
 isSv :: Ev -> Bool
@@ -110,6 +114,7 @@ isSv (DInt _) = True
 isSv (DDouble _) = True
 isSv (DBool _) = True
 isSv (DString _) = True
+isSv (DLoc _) = True
 isSv _ = False
 
 -- | @isFunc e@ checks if `e` is a function.

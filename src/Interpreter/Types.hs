@@ -42,6 +42,7 @@ data Sv
   | SDouble Double
   | SBool Bool
   | SString String
+  | SLoc Loc
 
 type Ev = Dv
 
@@ -50,12 +51,14 @@ data Rv
   | RDouble Double
   | RBool Bool
   | RString String
+  | RLoc Loc
 
 instance Typeable Rv where
   typeStr (RInt _) = "int"
   typeStr (RDouble _) = "double"
   typeStr (RBool _) = "bool"
   typeStr (RString _) = "string"
+  typeStr (RLoc _) = "location"
 
 data Env = Env (HashMap Ide Dv) Ec
 

@@ -46,6 +46,7 @@ evalExp (Jumpout i1 e1) r k s = evalExp e1 (updateEnv (newEnv i1 jump) r) k s
 evalExp (Valof c1) r k s = evalCom c1 (Env r' k) (err $ printf "no return encountered in %s" $ pretty (Valof c1)) s
   where
     (Env r' _) = r
+evalExp (Cont e1) r k s = (evalExp e1 r $ testLoc e1 $ cont k) s
 evalExp (Op o1 e1 e2) r k s = evalRVal e1 r (\e1 -> evalRVal e2 r (\e2 -> evalOp ef o1 (evToRv e1, evToRv e2) k)) s
   where
     ef = Op o1 e1 e2
@@ -78,6 +79,7 @@ evalCom Skip r c = c
 evalDec :: Dec -> Env -> Dc -> Cc
 evalDec (Const i1 e1) r u = evalRVal e1 r (u . newEnv i1)
 evalDec (Var i1 e1) r u = evalRVal e1 r $ ref (u . newEnv i1)
+evalDec (Ref i1 e1) r u = evalExp e1 r $ ref (u . newEnv i1)
 evalDec (ProcDec i1 i2 c1) r u = u (newEnv i1 procd)
   where
     procd' c e = evalCom c1 (updateEnv (newEnvMulti i2 e) r) c
