@@ -104,12 +104,11 @@ testHaskellProgram testSpec =
     let regex = expected testSpec
     let resultTest =
           case result of
-            -- Right res -> TestCase $ assertEqual "program result was not as expected" (expected testSpec) (strip res)
             Right res ->
               TestCase $
                 assertBool
                   ("program result was not as expected\nexpected: " ++ show (expected testSpec) ++ "\n but got: " ++ show (strip res))
-                  (strip res =~ regex)
+                  ((strip res =~ regex) == strip res)
     return $
       name testSpec
         ~: TestList (["Parsed" ~: parseTest] ++ ["Ran" ~: runTest | shouldRun] ++ ["Output" ~: resultTest | shouldCheckResult])
@@ -142,7 +141,7 @@ testKProgram testSpec =
           TestCase $
             assertBool
               ("program result was not as expected\nexpected: " ++ show (expected testSpec) ++ "\n but got: " ++ show (strip stdout))
-              (strip stdout =~ regex)
+              ((strip stdout =~ regex) == strip stdout)
     return $
       name testSpec
         ~: TestList (["Parsed" ~: parseTest] ++ ["Ran" ~: runTest | shouldRun] ++ ["Output" ~: resultTest | shouldCheckResult])

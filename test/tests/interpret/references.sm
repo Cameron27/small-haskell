@@ -25,6 +25,12 @@
 Loc\(.\)
 4
 Loc\(.\)
+1
+1
+2
+2
+3
+3
 */
 
 program {
@@ -39,6 +45,9 @@ program {
     ref zz = z;
     const constz = z;
     var varz = z;
+    var a = 1;
+    ref aa = a;
+    const b = aa;
 
     output cont _1; // 1
     output _1; // 1
@@ -74,4 +83,13 @@ program {
 
     output constz;
     output varz;
+
+    output a; // 1
+    output b; // 1
+    a = 2;
+    output a; // 2
+    output b; // 2
+    b = 3;
+    output a; // 3
+    output b; // 3
 }
