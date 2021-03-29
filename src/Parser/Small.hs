@@ -221,7 +221,17 @@ additiveOps = opChain ["+", "-"] multiplicativeOps
 
 -- Multiplication: E1 * E2 (or similar)
 multiplicativeOps :: Parsec String () Exp
-multiplicativeOps = opChain ["*", "/", "%"] function
+multiplicativeOps = opChain ["*", "/", "%"] unary
+
+-- Continuation: cont E
+unary :: Parsec String () Exp
+unary =
+  choice
+    [ function,
+      do
+        keyword "cont"
+        Cont <$> unary
+    ]
 
 -- Function: E ( E1, ..., En )
 function :: Parsec String () Exp
@@ -267,11 +277,7 @@ atom =
       -- Valof: valof { D* C* }
       do
         keyword "valof"
-        Valof <$> block,
-      -- Continuation: cont E
-      do
-        keyword "cont"
-        Cont <$> atom
+        Valof <$> block
     ]
 
 opChain :: [String] -> Parsec String () Exp -> Parsec String () Exp

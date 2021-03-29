@@ -31,6 +31,7 @@ Loc\(.\)
 2
 3
 3
+1
 */
 
 program {
@@ -48,6 +49,14 @@ program {
     var a = 1;
     ref aa = a;
     const b = aa;
+    var d = 1;
+    ref e = d;
+    func f(x) {
+        valof {
+            ref y = x;
+            return y;
+        }
+    }
 
     output cont _1; // 1
     output _1; // 1
@@ -92,4 +101,6 @@ program {
     b = 3;
     output a; // 3
     output b; // 3
+
+    output cont f(e); // 1
 }
