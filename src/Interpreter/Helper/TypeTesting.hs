@@ -46,14 +46,32 @@ dvToRv e = error $ printf "Tried to convert \"%s\" to a right hand value." (pret
 evToRv :: Ev -> Rv
 evToRv = dvToRv
 
--- | @ecToLoc d` returns the location `d` represents.
+-- | @dvToLoc d` returns the location `d` represents.
 dvToLoc :: Dv -> Loc
 dvToLoc (DLoc x) = x
 dvToLoc e = error $ printf "Tried to convert \"%s\" to a location." (pretty e)
 
--- | @ecToLoc e` returns the location `e` represents.
+-- | @evToLoc e` returns the location `e` represents.
 evToLoc :: Ev -> Loc
 evToLoc = dvToLoc
+
+-- | @dvToInt d` returns the integer `d` represents.
+dvToInt :: Dv -> Integer
+dvToInt (DInt x) = x
+dvToInt e = error $ printf "Tried to convert \"%s\" to a integer." (pretty e)
+
+-- | @evToInt e` returns the integer `e` represents.
+evToInt :: Ev -> Loc
+evToInt = dvToInt
+
+-- | @dvToArray d` returns the array `d` represents.
+dvToArray :: Dv -> Array
+dvToArray (DArray x) = x
+dvToArray e = error $ printf "Tried to convert \"%s\" to an array." (pretty e)
+
+-- | @evToArray e` returns the array `e` represents.
+evToArray :: Ev -> Array
+evToArray = dvToArray
 
 -- | @dvToFunc d` returns the function `d` represents.
 dvToFunc :: Dv -> Function
@@ -92,7 +110,17 @@ isLoc _ = False
 -- | @testLoc e1 k e@ applies `e` to `k` if it is a location, otherwise it returns an error. `e1` is the expression to
 -- use in the error message.
 testLoc :: Exp -> Ec -> Ec
-testLoc e1 k e = isLoc e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a variable." (pretty e1) (pretty e))
+testLoc e1 k e = isLoc e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a location." (pretty e1) (pretty e))
+
+-- | @isInt d@ checks if `d` is an integer.
+isInt :: Dv -> Bool
+isInt (DInt _) = True
+isInt _ = False
+
+-- | @testInt e1 k e@ applies `e` to `k` if it is a integer, otherwise it returns an error. `e1` is the expression to
+-- use in the error message.
+testInt :: Exp -> Ec -> Ec
+testInt e1 k e = isInt e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not an integer." (pretty e1) (pretty e))
 
 -- | @isRv e@ checks if `e` is a right hand value.
 isRv :: Ev -> Bool
@@ -106,7 +134,7 @@ isRv _ = False
 -- | @testRv e1 k e@ applies `e` to `k` if it is a right hand value, otherwise it returns an error. `e1` is the
 -- expression to use in the error message.
 testRv :: Exp -> Ec -> Ec
-testRv e1 k e = isRv e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", a not right hand value." (pretty e1) (pretty e))
+testRv e1 k e = isRv e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a right hand value." (pretty e1) (pretty e))
 
 -- | @isSv e@ checks if `e` is a storable value.
 isSv :: Ev -> Bool
@@ -121,6 +149,16 @@ isSv _ = False
 isFunc :: Ev -> Bool
 isFunc (DFunc _ _) = True
 isFunc _ = False
+
+-- | @isArray e@ checks if `e` is an array.
+isArray :: Ev -> Bool
+isArray (DArray _) = True
+isArray _ = False
+
+-- | @testArray e1 k e@ applies `e` to `k` if it is an array, otherwise it returns an error. `e1` is the expression to
+-- use in the error message.
+testArray :: Exp -> Ec -> Ec
+testArray e1 k e = isArray e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not an array." (pretty e1) (pretty e))
 
 -- | @testFunc e1 k e@ applies `e` to `k` if it is a function, otherwise it returns an error. `e1` is the expression to
 -- use in the error message.

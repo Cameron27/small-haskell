@@ -38,7 +38,8 @@ tinyDef =
           "valof",
           "rec",
           "ref",
-          "cont"
+          "cont",
+          "array"
         ],
       reservedOpNames =
         [ "*",
@@ -97,6 +98,9 @@ parens = Token.parens lexer
 
 braces :: ParsecT String u Identity a -> ParsecT String u Identity a
 braces = Token.braces lexer
+
+brackets :: ParsecT String u Identity a -> ParsecT String u Identity a
+brackets = Token.brackets lexer
 
 integer :: ParsecT String u Identity Integer
 integer = Token.integer lexer

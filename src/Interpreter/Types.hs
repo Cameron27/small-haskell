@@ -16,6 +16,7 @@ type Bv = Rv
 
 data Dv
   = DLoc Loc
+  | DArray Array
   | DProc Procedure Int
   | DFunc Function Int
   | DJump Jump
@@ -27,6 +28,7 @@ data Dv
 
 instance Pretty Dv where
   pretty (DLoc x) = printf "Loc(%d)" x
+  pretty (DArray (Array x y _)) = printf "ARRAY[%d:%d]" x y
   pretty (DProc x i) = "PROCEDURE" ++ show i
   pretty (DFunc x i) = "FUNCTION" ++ show i
   pretty (DJump x) = "JUMP"
@@ -69,6 +71,8 @@ type Cc = Store -> Ans
 type Ec = Ev -> Cc
 
 type Dc = Env -> Cc
+
+data Array = Array Integer Integer [Loc]
 
 type Procedure = Cc -> [Ev] -> Cc
 

@@ -127,6 +127,20 @@ dec = do
         e <- exp
         semi
         return $ Ref i e,
+      -- Array: array I [ E1 : E2 ] ;
+      do
+        keyword "array"
+        i <- ide
+        es <-
+          brackets
+            ( do
+                e1 <- exp
+                op ":"
+                e2 <- exp
+                return (e1, e2)
+            )
+        semi
+        return $ uncurry (ArrayDec i) es,
       -- Procedure: (rec)? proc I( I1, ..., In ) { D* C* }
       do
         isRec <-
@@ -227,11 +241,20 @@ multiplicativeOps = opChain ["*", "/", "%"] unary
 unary :: Parsec String () Exp
 unary =
   choice
-    [ function,
+    [ arrayAccess,
       do
         keyword "cont"
         Cont <$> unary
     ]
+
+-- Array Access: E1[E2]
+arrayAccess :: Parsec String () Exp
+arrayAccess =
+  do
+    e1 <- function
+    option
+      e1
+      $ ArrayAccess e1 <$> brackets exp
 
 -- Function: E ( E1, ..., En )
 function :: Parsec String () Exp
