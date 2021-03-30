@@ -1,0 +1,8 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    array x[-3:-4];
+}

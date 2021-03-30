@@ -1,0 +1,9 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    array x[0:4];
+    x[-1] = 1;
+}
