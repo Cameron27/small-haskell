@@ -1,0 +1,11 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    record person(name, age);
+    with person do
+        age = 22;
+    output age;
+}

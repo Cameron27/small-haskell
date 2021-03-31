@@ -1,0 +1,9 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    var person = "Tim";
+    output person.name;
+}

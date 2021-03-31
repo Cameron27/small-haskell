@@ -1,0 +1,9 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    record person(name, age);
+    ref x = person;
+}

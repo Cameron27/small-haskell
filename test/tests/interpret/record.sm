@@ -1,0 +1,93 @@
+// true
+// true
+/**/
+/*
+Bob
+22
+Bill
+23
+24
+Bob Smith
+Bill
+Bob Smith
+Ted
+Bob Smith
+Bob Smith
+Ted
+Ted
+5
+1
+5
+1
+2
+2
+*/
+
+program {
+    record person(name, age);
+    record person2(name, age);
+    record override(param, param);
+    record empty();
+    var name = "Bill";
+    func id(x) {
+        x
+    }
+    proc updateAge(p, n) {
+        p.age = n;
+    }
+
+    with person do {
+        name = "Bob";
+        age = 22;
+    }
+
+    output person.name; // Bob
+    output person.age; // 22
+    output name; // Bill
+
+    person.age = 1 + person.age;
+    output person.age; // 23
+    person.age = person.age + 1;
+    output person.age; // 24
+
+    id(person).name = id(person).name + " Smith";
+    with id(person) do
+        output name; // Bob Smith
+    output name; // Bill
+
+    {
+        var personName = person.name;
+
+        output personName; // Bob Smith
+        personName = "Ted";
+        output personName; // Ted
+        output person.name; // Bob Smith
+    }
+
+    {
+        ref personName = person.name;
+
+        output cont personName; // Bob Smith
+        cont personName = "Ted";
+        output cont personName; // Ted
+        output person.name; // Ted
+    }
+
+    updateAge(person, 5);
+    output person.age; // 5
+
+    {
+        var x = 1;
+        output person.x; // 1
+    }
+
+    output person2.person.age;
+
+    override.param = 1;
+    output override.param;
+    with override do {
+        param = 2;
+        output param;
+    }
+    output override.param;
+}
