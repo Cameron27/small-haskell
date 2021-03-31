@@ -65,7 +65,7 @@ program {
     }
 
     {
-        ref personName = person.name;
+        var personName = ref person.name;
 
         output cont personName; // Bob Smith
         cont personName = "Ted";

@@ -1,9 +1,0 @@
-// true
-// false
-/**/
-/**/
-
-program {
-    array x[1:2];
-    var y = x;
-}

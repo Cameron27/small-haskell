@@ -8,5 +8,5 @@ program {
         output y;
     }
 
-    ref z = x;
+    var z = ref x;
 }

@@ -1,0 +1,43 @@
+// true
+// true
+/**/
+/*
+Bob
+22
+23
+24
+Bob Smith
+Bob
+*/
+
+program {
+    const person = record(name, age);
+    var person2 = record(name, age);
+    func id(x) {
+        x
+    }
+    const dog = record(name, age, owner);
+
+    with person do {
+        name = "Bob";
+        age = 22;
+    }
+
+    output person.name; // Bob
+    output person.age; // 22
+
+    person2.age = 1 + person.age;
+    output person2.age; // 23
+    person2.age = person2.age + 1;
+    output person2.age; // 24
+
+    id(person2).name = id(person).name + " Smith";
+    with id(person2) do
+        output name; // Bob Smith
+
+    dog.name = "Sparky";
+    dog.age = 3;
+    dog.owner = person;
+
+    output dog.owner.name; // Bob;
+}

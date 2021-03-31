@@ -1,0 +1,86 @@
+// true
+// true
+/**/
+/*
+5
+4
+3
+2
+1
+this is a test
+1\.25
+1\.5
+test
+2
+1
+4
+5
+*/
+
+program {
+    const x = array[0:4];
+    var y = array[true ? -3 : 1:-1];
+    var a = 2;
+    var z = array[a * a + 1:4 + 3];
+    var grid = array[0:1];
+    var cycle = array[-1:0];
+    var one = array[0:1];
+    var two = one;
+
+    x[0] = 5;
+    x[1] = 4;
+    x[2] = 3;
+    x[3] = 2;
+    x[4] = 1;
+
+    output x[0]; // 5
+    output x[1]; // 4
+    output x[2]; // 3
+    output x[3]; // 2
+    output x[4]; // 1
+
+    y[-3] = "this ";
+    y[-2] = "is a ";
+    y[-1] = "test";
+    output y[-3] + y[-2] + y[-1]; // this is a test
+
+    z[5] = 1.25;
+    z[6] = true;
+    z[7] = 1.5;
+
+    output z[6] ? z[5] : z[7]; // 1.25
+    z[6] = 5;
+    output (true ? z : y)[6] < 2 ? z[5] : z[7]; // 1.5
+
+    {
+        proc update(xs, n, v) {
+            xs[n] = v;
+        }
+
+        update(z, 5, "test");
+        output z[5]; // test
+    }
+
+    grid[0] = array[0:1];
+    grid[0][0] = 1;
+    grid[0][1] = 2;
+
+    {
+        const temp = array[0:1];
+        temp[0] = 3;
+        temp[1] = 4;
+        grid[1] = temp;
+    }
+
+    output grid[0][1]; // 2
+
+    cycle[-1] = cycle;
+    cycle[0] = 1;
+    output cycle[-1][-1][-1][-1][-1][0]; // 1
+
+    one[0] = 4;
+    one[1] = 5;
+
+    output two[0]; // 4
+    output two[1]; // 5
+}

@@ -1,0 +1,43 @@
+// true
+// true
+/**/
+/*
+1
+1
+2
+2
+3
+3
+4
+4
+4
+5
+5
+5
+*/
+
+program {
+    var _1 = ref 1;
+    const two = 2;
+    var _2 = ref two;
+    var three = 3;
+    var x = ref three;
+    const y = ref three;
+
+    output cont _1; // 1
+    output _1; // 1
+    output cont _2; // 2
+    output _2; // 2
+    output cont x; // 3
+    output y; // 3
+
+    cont x = 4;
+    output three; // 4
+    output cont x; // 4
+    output y; // 4
+
+    three = 5;
+    output three; // 5
+    output cont x; // 5
+    output y; // 5
+}
