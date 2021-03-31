@@ -126,14 +126,6 @@ dec = do
         e <- exp
         semi
         return $ Var i e,
-      -- Reference: ref I = E ;
-      do
-        keyword "ref"
-        i <- ide
-        op "="
-        e <- exp
-        semi
-        return $ Ref i e,
       -- Array: array I [ E1 : E2 ] ;
       do
         keyword "array"
@@ -251,14 +243,19 @@ additiveOps = opChain ["+", "-"] multiplicativeOps
 multiplicativeOps :: Parsec String () Exp
 multiplicativeOps = opChain ["*", "/", "%"] unary
 
--- Continuation: cont E
+-- Unary: [a-z]+ E
 unary :: Parsec String () Exp
 unary =
   choice
     [ arrayAccess,
+      -- Continuation: cont E
       do
         keyword "cont"
-        Cont <$> unary
+        Cont <$> unary,
+      -- Reference: ref E
+      do
+        keyword "ref"
+        RefExp <$> unary
     ]
 
 -- Array Access: E1[E2]
@@ -268,7 +265,10 @@ arrayAccess =
     e1 <- dot
     option
       e1
-      $ ArrayAccess e1 <$> brackets exp
+      ( do
+          es <- many1 $ brackets exp
+          return $ foldl ArrayAccess e1 es
+      )
 
 -- Dot: E1.E2
 dot :: Parsec String () Exp
@@ -323,7 +323,23 @@ atom =
       -- Valof: valof { D* C* }
       do
         keyword "valof"
-        Valof <$> block
+        Valof <$> block,
+      -- Array: array[ E1 : E2 ]
+      do
+        keyword "array"
+        es <-
+          brackets
+            ( do
+                e1 <- exp
+                op ":"
+                e2 <- exp
+                return (e1, e2)
+            )
+        return $ uncurry ArrayExp es,
+      -- Record: record( I1, ..., In )
+      do
+        keyword "record"
+        RecordExp <$> parens (commaSep ide)
     ]
 
 opChain :: [String] -> Parsec String () Exp -> Parsec String () Exp

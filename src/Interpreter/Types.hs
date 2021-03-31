@@ -45,6 +45,8 @@ data Sv
   | SBool Bool
   | SString String
   | SLoc Loc
+  | SArray Array
+  | SRecord Record
 
 type Ev = Dv
 
@@ -54,6 +56,8 @@ data Rv
   | RBool Bool
   | RString String
   | RLoc Loc
+  | RArray Array
+  | RRecord Record
 
 instance Typeable Rv where
   typeStr (RInt _) = "int"

@@ -16,6 +16,8 @@ svToDv (SDouble x) = DDouble x
 svToDv (SString x) = DString x
 svToDv (SBool x) = DBool x
 svToDv (SLoc x) = DLoc x
+svToDv (SArray x) = DArray x
+svToDv (SRecord x) = DRecord x
 
 -- | @svToEv v` returns the expressible value version of `v`.
 svToEv :: Sv -> Ev
@@ -28,6 +30,8 @@ dvToSv (DDouble x) = SDouble x
 dvToSv (DString x) = SString x
 dvToSv (DBool x) = SBool x
 dvToSv (DLoc x) = SLoc x
+dvToSv (DArray x) = SArray x
+dvToSv (DRecord x) = SRecord x
 dvToSv e = error $ printf "Tried to convert \"%s\" to a storable value." (pretty e)
 
 -- | @evToSv e` returns the denotable value version of `e`.
@@ -41,6 +45,8 @@ dvToRv (DDouble x) = RDouble x
 dvToRv (DBool x) = RBool x
 dvToRv (DString x) = RString x
 dvToRv (DLoc x) = RLoc x
+dvToRv (DArray x) = RArray x
+dvToRv (DRecord x) = RRecord x
 dvToRv e = error $ printf "Tried to convert \"%s\" to a right hand value." (pretty e)
 
 -- | @evToRv e` returns the right hand value version of `e`.
@@ -142,6 +148,8 @@ isRv (DDouble _) = True
 isRv (DBool _) = True
 isRv (DString _) = True
 isRv (DLoc _) = True
+isRv (DArray _) = True
+isRv (DRecord _) = True
 isRv _ = False
 
 -- | @testRv e1 k e@ applies `e` to `k` if it is a right hand value, otherwise it returns an error. `e1` is the
@@ -156,6 +164,8 @@ isSv (DDouble _) = True
 isSv (DBool _) = True
 isSv (DString _) = True
 isSv (DLoc _) = True
+isSv (DArray _) = True
+isSv (DRecord _) = True
 isSv _ = False
 
 -- | @isFunc e@ checks if `e` is a function.

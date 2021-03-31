@@ -32,6 +32,25 @@ evalExp Read r k s = do
   input <- getLine
   k (DString input) s
 evalExp (I i1) r k s = isUnboundEnv i1 r ?> (putError $ printf "\"%s\" is unassigned\"" i1, k (lookupEnv i1 r) s)
+evalExp (RefExp e1) r k s = (evalExp e1 r $ ref k) s
+evalExp (ArrayExp e1 e2) r k s =
+  ( evalRVal e1 r $
+      testInt
+        e1
+        ( \n1 ->
+            evalRVal e2 r $
+              testInt
+                e2
+                (\n2 -> newArray (dvToInt n1, dvToInt n2) k)
+        )
+  )
+    s
+evalExp (RecordExp is) r k s = k (DRecord record) s'
+  where
+    (ls', s') = newLocsStore (toInteger $ length is) s
+    ls = map DLoc ls'
+    (Env record' _) = newEnvMulti is ls
+    record = Record record'
 evalExp (Func e1 e2) r k s = evalExp e1 r (testFunc (length e2) (Func e1 e2) chainEval) s
   where
     params = map (: []) e2
@@ -50,13 +69,13 @@ evalExp (Valof c1) r k s = evalCom c1 (Env r' k) (err $ printf "no return encoun
     (Env r' _) = r
 evalExp (Cont e1) r k s = (evalExp e1 r $ testLoc e1 $ cont k) s
 evalExp (ArrayAccess e1 e2) r k s =
-  ( evalExp e1 r $
+  ( evalRVal e1 r $
       testArray
         e1
         (\e1 -> evalRVal e2 r $ testInt e2 $ arrayAccess (dvToArray e1) k)
   )
     s
-evalExp (Dot e1 e2) r k s = (evalExp e1 r $ testRecord e1 (\r' -> evalExp e2 (updateEnv (recordToEnv $ dvToRecord r') r) k)) s
+evalExp (Dot e1 e2) r k s = (evalRVal e1 r $ testRecord e1 (\r' -> evalExp e2 (updateEnv (recordToEnv $ dvToRecord r') r) k)) s
 evalExp (Op o1 e1 e2) r k s = evalRVal e1 r (\e1 -> evalRVal e2 r (\e2 -> evalOp ef o1 (evToRv e1, evToRv e2) k)) s
   where
     ef = Op o1 e1 e2
@@ -83,14 +102,13 @@ evalCom (Escape i1) r c = evalExp (I i1) r $ testCc (I i1) (\(DCc c) -> c)
 evalCom (Return e1) r c = evalRVal e1 r k
   where
     (Env _ k) = r
-evalCom (WithDo e1 c1) r c = evalExp e1 r $ testRecord e1 (\r' -> evalCom c1 (updateEnv (recordToEnv $ dvToRecord r') r) c)
+evalCom (WithDo e1 c1) r c = evalRVal e1 r $ testRecord e1 (\r' -> evalCom c1 (updateEnv (recordToEnv $ dvToRecord r') r) c)
 evalCom (Chain c1 c2) r c = evalCom c1 r $ evalCom c2 r c
 evalCom Skip r c = c
 
 evalDec :: Dec -> Env -> Dc -> Cc
 evalDec (Const i1 e1) r u s = evalRVal e1 r (u . newEnv i1) s
 evalDec (Var i1 e1) r u s = (evalRVal e1 r $ ref (u . newEnv i1)) s
-evalDec (Ref i1 e1) r u s = (evalExp e1 r $ ref (u . newEnv i1)) s
 evalDec (ArrayDec i1 e1 e2) r u s =
   ( evalRVal e1 r $
       testInt

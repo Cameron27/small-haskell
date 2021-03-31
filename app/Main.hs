@@ -17,5 +17,6 @@ main = do
   parsedProgram <- case parsedProgram' of
     Right p -> return p
     Left err -> die $show err
+  print parsedProgram
   exitCode <- interpretSmall parsedProgram
   exitWith exitCode

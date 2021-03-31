@@ -77,7 +77,6 @@ instance Pretty Com where
 data Dec
   = Const Id Exp
   | Var Id Exp
-  | Ref Id Exp
   | ArrayDec Id Exp Exp
   | RecordDec Id [Id]
   | ProcDec Id [Id] Com
@@ -91,7 +90,6 @@ data Dec
 instance Pretty Dec where
   pretty (Const x y) = printf "const %s = %s;" x (pretty y)
   pretty (Var x y) = printf "var %s = %s;" x (pretty y)
-  pretty (Ref x y) = printf "ref %s = %s;" x (pretty y)
   pretty (ArrayDec x y z) = printf "array %s[%s:%s];" x (pretty y) (pretty z)
   pretty (RecordDec x y) = printf "record %s(%s);" x (intercalate ", " y)
   pretty (ProcDec x y z) = printf "proc %s(%s) %s" x (intercalate ", " y) (pretty z)
@@ -109,6 +107,9 @@ data Exp
   | String String
   | Read
   | I Id
+  | RefExp Exp
+  | ArrayExp Exp Exp
+  | RecordExp [Id]
   | Func Exp [Exp]
   | IfExp Exp Exp Exp
   | Jumpout Id Exp
@@ -127,6 +128,9 @@ instance Pretty Exp where
   pretty (String x) = show x
   pretty Read = "read"
   pretty (I x) = x
+  pretty (RefExp x) = printf "ref %s" (pretty x)
+  pretty (ArrayExp x y) = printf "array[%s:%s]" (pretty x) (pretty y)
+  pretty (RecordExp x) = printf "record(%s)" (intercalate ", " x)
   pretty (Func x y) = printf "%s(%s)" (pretty x) (intercalate ", " $ map pretty y)
   pretty (IfExp x y z) = printf "%s ? %s : %s" (pretty x) (pretty y) (pretty z)
   pretty (Jumpout x y) = printf "jumpout %s in %s" x (pretty y)
