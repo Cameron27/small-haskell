@@ -1,6 +1,8 @@
 module Parser.Small where
 
+import Common.Formatting
 import Data.List
+import Debug.Trace
 import Parser.Language
 import Parser.Types
 import Text.Parsec
@@ -85,7 +87,12 @@ com = do
         keyword "return"
         e <- exp
         semi
-        return $ Return e
+        return $ Return e,
+      do
+        keyword "with"
+        e <- exp
+        keyword "do"
+        WithDo e <$> com
     ]
 
 -- Block Internals: D* C*
@@ -141,6 +148,13 @@ dec = do
             )
         semi
         return $ uncurry (ArrayDec i) es,
+      -- Record: record I( I1, ..., In ) ;
+      do
+        keyword "record"
+        i1 <- ide
+        i2 <- parens $ commaSep ide
+        semi
+        return $ RecordDec i1 i2,
       -- Procedure: (rec)? proc I( I1, ..., In ) { D* C* }
       do
         isRec <-
@@ -251,10 +265,19 @@ unary =
 arrayAccess :: Parsec String () Exp
 arrayAccess =
   do
-    e1 <- function
+    e1 <- dot
     option
       e1
       $ ArrayAccess e1 <$> brackets exp
+
+-- Dot: E1.E2
+dot :: Parsec String () Exp
+dot = do
+  e1 <- function
+  es <- many $ do
+    op "."
+    function
+  return $ foldl Dot e1 es
 
 -- Function: E ( E1, ..., En )
 function :: Parsec String () Exp

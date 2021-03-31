@@ -51,6 +51,7 @@ data Com
   | Trap [Com] [Id]
   | Escape Id
   | Return Exp
+  | WithDo Exp Com
   | Chain Com Com
   | Skip
   deriving (Show)
@@ -68,6 +69,7 @@ instance Pretty Com where
       tags = foldl (\s (c, i) -> s ++ printf "%s: %s" i (pretty c)) "" tags'
   pretty (Escape x) = printf "escapeto %s;" x
   pretty (Return x) = printf "return %s;" (pretty x)
+  pretty (WithDo x y) = printf "with %s do %s" (pretty x) (pretty y)
   pretty (Chain x y) = printf "%s %s" (pretty x) (pretty y)
   pretty Skip = ""
   pretty _ = "PRETTY_COM"
@@ -77,6 +79,7 @@ data Dec
   | Var Id Exp
   | Ref Id Exp
   | ArrayDec Id Exp Exp
+  | RecordDec Id [Id]
   | ProcDec Id [Id] Com
   | RecProcDec Id [Id] Com
   | FuncDec Id [Id] Exp
@@ -90,6 +93,7 @@ instance Pretty Dec where
   pretty (Var x y) = printf "var %s = %s;" x (pretty y)
   pretty (Ref x y) = printf "ref %s = %s;" x (pretty y)
   pretty (ArrayDec x y z) = printf "array %s[%s:%s];" x (pretty y) (pretty z)
+  pretty (RecordDec x y) = printf "record %s(%s);" x (intercalate ", " y)
   pretty (ProcDec x y z) = printf "proc %s(%s) %s" x (intercalate ", " y) (pretty z)
   pretty (RecProcDec x y z) = printf "proc %s(%s) %s" x (intercalate ", " y) (pretty z)
   pretty (FuncDec x y z) = printf "func %s(%s) { %s }" x (intercalate ", " y) (pretty z)
@@ -111,6 +115,7 @@ data Exp
   | Valof Com
   | Cont Exp
   | ArrayAccess Exp Exp
+  | Dot Exp Exp
   | Op Opr Exp Exp
   deriving (Show)
 
@@ -126,7 +131,8 @@ instance Pretty Exp where
   pretty (IfExp x y z) = printf "%s ? %s : %s" (pretty x) (pretty y) (pretty z)
   pretty (Jumpout x y) = printf "jumpout %s in %s" x (pretty y)
   pretty (Valof x) = printf "valof %s" (pretty x)
-  pretty (Cont x) = printf "%s[%s]" (pretty x)
-  pretty (ArrayAccess x y) = printf "cont %s" (pretty x) (pretty y)
+  pretty (Cont x) = printf "cont %s" (pretty x)
+  pretty (ArrayAccess x y) = printf "%s[%s]" (pretty x) (pretty y)
+  pretty (Dot x y) = printf "%s.%s" (pretty x) (pretty y)
   pretty (Op x y z) = printf "%s %s %s" (pretty y) (pretty x) (pretty z)
   pretty _ = "PRETTY_EXP"

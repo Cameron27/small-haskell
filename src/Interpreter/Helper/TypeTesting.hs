@@ -4,6 +4,7 @@ module Interpreter.Helper.TypeTesting where
 
 import Common.Formatting
 import Interpreter.Helper.Control
+import Interpreter.Helper.Env
 import Interpreter.Types
 import Parser.Types
 import Text.Printf
@@ -61,7 +62,7 @@ dvToInt (DInt x) = x
 dvToInt e = error $ printf "Tried to convert \"%s\" to a integer." (pretty e)
 
 -- | @evToInt e` returns the integer `e` represents.
-evToInt :: Ev -> Loc
+evToInt :: Ev -> Integer
 evToInt = dvToInt
 
 -- | @dvToArray d` returns the array `d` represents.
@@ -72,6 +73,18 @@ dvToArray e = error $ printf "Tried to convert \"%s\" to an array." (pretty e)
 -- | @evToArray e` returns the array `e` represents.
 evToArray :: Ev -> Array
 evToArray = dvToArray
+
+-- | @dvToRecord d` returns the record `d` represents.
+dvToRecord :: Dv -> Record
+dvToRecord (DRecord x) = x
+dvToRecord e = error $ printf "Tried to convert \"%s\" to an record." (pretty e)
+
+-- | @evToRecord e` returns the record `e` represents.
+evToRecord :: Ev -> Record
+evToRecord = dvToRecord
+
+recordToEnv :: Record -> Env
+recordToEnv (Record x) = Env x emptyEc
 
 -- | @dvToFunc d` returns the function `d` represents.
 dvToFunc :: Dv -> Function
@@ -159,6 +172,16 @@ isArray _ = False
 -- use in the error message.
 testArray :: Exp -> Ec -> Ec
 testArray e1 k e = isArray e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not an array." (pretty e1) (pretty e))
+
+-- | @isRecord e@ checks if `e` is a record.
+isRecord :: Ev -> Bool
+isRecord (DRecord _) = True
+isRecord _ = False
+
+-- | @testRecord e1 k e@ applies `e` to `k` if it is a record, otherwise it returns an error. `e1` is the expression to
+-- use in the error message.
+testRecord :: Exp -> Ec -> Ec
+testRecord e1 k e = isRecord e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not an record." (pretty e1) (pretty e))
 
 -- | @testFunc e1 k e@ applies `e` to `k` if it is a function, otherwise it returns an error. `e1` is the expression to
 -- use in the error message.

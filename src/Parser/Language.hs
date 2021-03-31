@@ -39,7 +39,10 @@ tinyDef =
           "rec",
           "ref",
           "cont",
-          "array"
+          "array",
+          "record",
+          "with",
+          "do"
         ],
       reservedOpNames =
         [ "*",
@@ -58,7 +61,8 @@ tinyDef =
           "|",
           "=",
           "?",
-          ":"
+          ":",
+          "."
         ],
       caseSensitive = True
     }
