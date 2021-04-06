@@ -1,0 +1,22 @@
+// true
+// true
+/**/
+/*
+1
+3
+2
+1
+*/
+
+program {
+    var x = 3;
+
+    repeat
+        output 1;
+    until (true) // 1
+
+    repeat {
+        output x;
+        x = x - 1;
+    } until (x == 0) // 3/n2/n1
+}

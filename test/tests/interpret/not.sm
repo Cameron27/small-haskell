@@ -1,0 +1,27 @@
+// true
+// true
+/**/
+/*
+true
+false
+true
+false
+false
+false
+*/
+
+program {
+    func x(a) {
+        a
+    }
+    array a[0:0];
+
+    output !false; // true
+    output !true; // false
+    output !true | true; // true
+    output !(true | true); // false
+    output !x(true); // false
+
+    a[0] = 1 == 1;
+    output !a[0];
+}
