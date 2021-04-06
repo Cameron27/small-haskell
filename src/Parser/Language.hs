@@ -42,7 +42,14 @@ tinyDef =
           "array",
           "record",
           "with",
-          "do"
+          "do",
+          "file",
+          "withbuffer",
+          "eof",
+          "reset",
+          "rewrite",
+          "get",
+          "put"
         ],
       reservedOpNames =
         [ "*",

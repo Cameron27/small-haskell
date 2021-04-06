@@ -18,10 +18,23 @@ svToDv (SBool x) = DBool x
 svToDv (SLoc x) = DLoc x
 svToDv (SArray x) = DArray x
 svToDv (SRecord x) = DRecord x
+svToDv (SFile x) = DFile x
+svToDv v = error $ printf "Tried to convert \"%s\" to a denotable value." (pretty v)
 
 -- | @svToEv v` returns the expressible value version of `v`.
 svToEv :: Sv -> Ev
 svToEv = svToDv
+
+-- | @svToRv v` returns the denotable value version of `v`.
+svToRv :: Sv -> Rv
+svToRv (SInt x) = RInt x
+svToRv (SDouble x) = RDouble x
+svToRv (SString x) = RString x
+svToRv (SBool x) = RBool x
+svToRv (SLoc x) = RLoc x
+svToRv (SArray x) = RArray x
+svToRv (SRecord x) = RRecord x
+svToRv v = error $ printf "Tried to convert \"%s\" to a denotable value." (pretty v)
 
 -- | @dvToSv d` returns the storable value version of `d`.
 dvToSv :: Dv -> Sv
@@ -32,13 +45,14 @@ dvToSv (DBool x) = SBool x
 dvToSv (DLoc x) = SLoc x
 dvToSv (DArray x) = SArray x
 dvToSv (DRecord x) = SRecord x
+dvToSv (DFile x) = SFile x
 dvToSv e = error $ printf "Tried to convert \"%s\" to a storable value." (pretty e)
 
--- | @evToSv e` returns the denotable value version of `e`.
+-- | @evToSv e@ returns the denotable value version of `e`.
 evToSv :: Ev -> Sv
 evToSv = dvToSv
 
--- | @dvToRv d` returns the right hand value version of `d`.
+-- | @dvToRv d@ returns the right hand value version of `d`.
 dvToRv :: Dv -> Rv
 dvToRv (DInt x) = RInt x
 dvToRv (DDouble x) = RDouble x
@@ -49,75 +63,87 @@ dvToRv (DArray x) = RArray x
 dvToRv (DRecord x) = RRecord x
 dvToRv e = error $ printf "Tried to convert \"%s\" to a right hand value." (pretty e)
 
--- | @evToRv e` returns the right hand value version of `e`.
+-- | @evToRv e@ returns the right hand value version of `e`.
 evToRv :: Ev -> Rv
 evToRv = dvToRv
 
--- | @dvToLoc d` returns the location `d` represents.
+-- | @rvToSv e@ returns the storable version of `e`.
+rvToSv :: Rv -> Sv
+rvToSv (RInt x) = SInt x
+rvToSv (RDouble x) = SDouble x
+rvToSv (RBool x) = SBool x
+rvToSv (RString x) = SString x
+rvToSv (RLoc x) = SLoc x
+rvToSv (RArray x) = SArray x
+rvToSv (RRecord x) = SRecord x
+rvToSv e = error $ printf "Tried to convert \"%s\" to a right hand value." "CANNOT PRETTY"
+
+-- | @dvToLoc d@ returns the location `d` represents.
 dvToLoc :: Dv -> Loc
 dvToLoc (DLoc x) = x
 dvToLoc e = error $ printf "Tried to convert \"%s\" to a location." (pretty e)
 
--- | @evToLoc e` returns the location `e` represents.
+-- | @evToLoc e@ returns the location `e` represents.
 evToLoc :: Ev -> Loc
 evToLoc = dvToLoc
 
--- | @dvToInt d` returns the integer `d` represents.
+-- | @dvToInt d@ returns the integer `d` represents.
 dvToInt :: Dv -> Integer
 dvToInt (DInt x) = x
 dvToInt e = error $ printf "Tried to convert \"%s\" to a integer." (pretty e)
 
--- | @evToInt e` returns the integer `e` represents.
+-- | @evToInt e@ returns the integer `e` represents.
 evToInt :: Ev -> Integer
 evToInt = dvToInt
 
--- | @dvToArray d` returns the array `d` represents.
+-- | @dvToArray d@ returns the array `d` represents.
 dvToArray :: Dv -> Array
 dvToArray (DArray x) = x
 dvToArray e = error $ printf "Tried to convert \"%s\" to an array." (pretty e)
 
--- | @evToArray e` returns the array `e` represents.
+-- | @evToArray e@ returns the array `e` represents.
 evToArray :: Ev -> Array
 evToArray = dvToArray
 
--- | @dvToRecord d` returns the record `d` represents.
+-- | @dvToRecord d@ returns the record `d` represents.
 dvToRecord :: Dv -> Record
 dvToRecord (DRecord x) = x
 dvToRecord e = error $ printf "Tried to convert \"%s\" to an record." (pretty e)
 
--- | @evToRecord e` returns the record `e` represents.
+-- | @evToRecord e@ returns the record `e` represents.
 evToRecord :: Ev -> Record
 evToRecord = dvToRecord
 
-recordToEnv :: Record -> Env
-recordToEnv (Record x) = Env x emptyEc
-
--- | @dvToFunc d` returns the function `d` represents.
+-- | @dvToFunc d@ returns the function `d` represents.
 dvToFunc :: Dv -> Function
 dvToFunc (DFunc x _) = x
 dvToFunc e = error $ printf "Tried to convert \"%s\" to a function." (pretty e)
 
--- | @evToFunc e` returns the function `e` represents.
+-- | @evToFunc e@ returns the function `e` represents.
 evToFunc :: Ev -> Function
 evToFunc = dvToFunc
 
--- | @dvToFunc d` returns the procedure `d` represents.
+-- | @dvToFunc d@ returns the procedure `d` represents.
 dvToProc :: Dv -> Procedure
 dvToProc (DProc x _) = x
 dvToProc e = error $ printf "Tried to convert \"%s\" to a procedure." (pretty e)
 
--- | @evToFunc e` returns the procedure `e` represents.
+-- | @evToFunc e@ returns the procedure `e` represents.
 evToProc :: Ev -> Procedure
 evToProc = dvToProc
 
--- | @dvToBool d` returns the bool `d` represents.
+-- | @dvToBool d@ returns the bool `d` represents.
 dvToBool :: Dv -> Bool
 dvToBool (DBool x) = x
 dvToBool e = error $ printf "Tried to convert \"%s\" to a bool." (pretty e)
 
--- | @evToBool e` returns the bool `e` represents.
+-- | @evToBool e@ returns the bool `e` represents.
 evToBool :: Ev -> Bool
 evToBool = dvToBool
+
+-- | @recordToEnv r@ returns the environment `r` represents.
+recordToEnv :: Record -> Env
+recordToEnv (Record r) = Env r emptyEc
 
 -- Type Checks --
 
@@ -126,20 +152,20 @@ isLoc :: Dv -> Bool
 isLoc (DLoc _) = True
 isLoc _ = False
 
--- | @testLoc e1 k e@ applies `e` to `k` if it is a location, otherwise it returns an error. `e1` is the expression to
+-- | @testLoc src k e@ applies `e` to `k` if it is a location, otherwise it returns an error. `src` is the expression to
 -- use in the error message.
 testLoc :: Exp -> Ec -> Ec
-testLoc e1 k e = isLoc e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a location." (pretty e1) (pretty e))
+testLoc src k e = isLoc e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a location." (pretty src) (pretty e))
 
 -- | @isInt d@ checks if `d` is an integer.
 isInt :: Dv -> Bool
 isInt (DInt _) = True
 isInt _ = False
 
--- | @testInt e1 k e@ applies `e` to `k` if it is a integer, otherwise it returns an error. `e1` is the expression to
+-- | @testInt src k e@ applies `e` to `k` if it is a integer, otherwise it returns an error. `src` is the expression to
 -- use in the error message.
 testInt :: Exp -> Ec -> Ec
-testInt e1 k e = isInt e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not an integer." (pretty e1) (pretty e))
+testInt src k e = isInt e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not an integer." (pretty src) (pretty e))
 
 -- | @isRv e@ checks if `e` is a right hand value.
 isRv :: Ev -> Bool
@@ -152,10 +178,10 @@ isRv (DArray _) = True
 isRv (DRecord _) = True
 isRv _ = False
 
--- | @testRv e1 k e@ applies `e` to `k` if it is a right hand value, otherwise it returns an error. `e1` is the
+-- | @testRv src k e@ applies `e` to `k` if it is a right hand value, otherwise it returns an error. `src` is the
 -- expression to use in the error message.
 testRv :: Exp -> Ec -> Ec
-testRv e1 k e = isRv e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a right hand value." (pretty e1) (pretty e))
+testRv src k e = isRv e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a right hand value." (pretty src) (pretty e))
 
 -- | @isSv e@ checks if `e` is a storable value.
 isSv :: Ev -> Bool
@@ -178,31 +204,31 @@ isArray :: Ev -> Bool
 isArray (DArray _) = True
 isArray _ = False
 
--- | @testArray e1 k e@ applies `e` to `k` if it is an array, otherwise it returns an error. `e1` is the expression to
+-- | @testArray src k e@ applies `e` to `k` if it is an array, otherwise it returns an error. `src` is the expression to
 -- use in the error message.
 testArray :: Exp -> Ec -> Ec
-testArray e1 k e = isArray e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not an array." (pretty e1) (pretty e))
+testArray src k e = isArray e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not an array." (pretty src) (pretty e))
 
 -- | @isRecord e@ checks if `e` is a record.
 isRecord :: Ev -> Bool
 isRecord (DRecord _) = True
 isRecord _ = False
 
--- | @testRecord e1 k e@ applies `e` to `k` if it is a record, otherwise it returns an error. `e1` is the expression to
+-- | @testRecord src k e@ applies `e` to `k` if it is a record, otherwise it returns an error. `src` is the expression to
 -- use in the error message.
 testRecord :: Exp -> Ec -> Ec
-testRecord e1 k e = isRecord e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not an record." (pretty e1) (pretty e))
+testRecord src k e = isRecord e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not an record." (pretty src) (pretty e))
 
--- | @testFunc e1 k e@ applies `e` to `k` if it is a function, otherwise it returns an error. `e1` is the expression to
+-- | @testFunc src k e@ applies `e` to `k` if it is a function, otherwise it returns an error. `src` is the expression to
 -- use in the error message.
 testFunc :: Int -> Exp -> Ec -> Ec
-testFunc count e1 k e =
+testFunc count src k e =
   isFunc e
     ?> ( (n == count)
            ?> ( k e,
-                err $ printf "wrong number of arguments supplied to function in \"%s\", expected %d." (pretty e1) n
+                err $ printf "wrong number of arguments supplied to function in \"%s\", expected %d." (pretty src) n
               ),
-         err $ printf "\"%s\", evaluated as \"%s\", is not a function." (pretty e1) (pretty e)
+         err $ printf "\"%s\", evaluated as \"%s\", is not a function." (pretty src) (pretty e)
        )
   where
     (DFunc _ n) = e
@@ -212,16 +238,16 @@ isProc :: Ev -> Bool
 isProc (DProc _ _) = True
 isProc _ = False
 
--- | @testProc e1 k e@ applies `e` to `k` if it is a procedure, otherwise it returns an error. `e1` is the expression to
+-- | @testProc src k e@ applies `e` to `k` if it is a procedure, otherwise it returns an error. `src` is the expression to
 -- use in the error message.
 testProc :: Int -> Com -> Ec -> Ec
-testProc count e1 k e =
+testProc count src k e =
   isProc e
     ?> ( (n == count)
            ?> ( k e,
-                err $ printf "wrong number of arguments supplied to procedure in \"%s\", expected %d." (pretty e1) n
+                err $ printf "wrong number of arguments supplied to procedure in \"%s\", expected %d." (pretty src) n
               ),
-         err $ printf "\"%s\", evaluated as \"%s\", is not a procedure." (pretty e1) (pretty e)
+         err $ printf "\"%s\", evaluated as \"%s\", is not a procedure." (pretty src) (pretty e)
        )
   where
     (DProc _ n) = e
@@ -231,17 +257,17 @@ isBool :: Ev -> Bool
 isBool (DBool _) = True
 isBool _ = False
 
--- | @testBool e1 k e@ applies `e` to `k` if it is a bool, otherwise it returns an error. `e1` is the expression to use in
+-- | @testBool src k e@ applies `e` to `k` if it is a bool, otherwise it returns an error. `src` is the expression to use in
 -- the error message.
 testBool :: Exp -> Ec -> Ec
-testBool e1 k e = isBool e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a bool." (pretty e1) (pretty e))
+testBool src k e = isBool e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a bool." (pretty src) (pretty e))
 
 -- | @isCc e@ checks if `e` is a Cc.
 isCc :: Ev -> Bool
 isCc (DCc _) = True
 isCc _ = False
 
--- | @testCc e1 k e@ applies `e` to `k` if it is a Cc, otherwise it returns an error. `e1` is the expression to use in
+-- | @testCc src k e@ applies `e` to `k` if it is a Cc, otherwise it returns an error. `src` is the expression to use in
 -- the error message.
 testCc :: Exp -> Ec -> Ec
-testCc e1 k e = isCc e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a Cc." (pretty e1) (pretty e))
+testCc src k e = isCc e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a Cc." (pretty src) (pretty e))

@@ -1,4 +1,4 @@
-module Interpreter.Operations (evalOp) where
+module Interpreter.BasicOperations (evalOp) where
 
 import Common.Formatting
 import Data.Bits

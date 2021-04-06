@@ -52,6 +52,10 @@ data Com
   | Escape Id
   | Return Exp
   | WithDo Exp Com
+  | ResetF Exp
+  | RewriteF Exp
+  | GetF Exp
+  | PutF Exp
   | Chain Com Com
   | Skip
   deriving (Show)
@@ -70,6 +74,10 @@ instance Pretty Com where
   pretty (Escape x) = printf "escapeto %s;" x
   pretty (Return x) = printf "return %s;" (pretty x)
   pretty (WithDo x y) = printf "with %s do %s" (pretty x) (pretty y)
+  pretty (ResetF x) = printf "resetf %s" (pretty x)
+  pretty (RewriteF x) = printf "rewritef %s" (pretty x)
+  pretty (GetF x) = printf "getf %s" (pretty x)
+  pretty (PutF x) = printf "putf %s" (pretty x)
   pretty (Chain x y) = printf "%s %s" (pretty x) (pretty y)
   pretty Skip = ""
   pretty _ = "PRETTY_COM"
@@ -79,6 +87,7 @@ data Dec
   | Var Id Exp
   | ArrayDec Id Exp Exp
   | RecordDec Id [Id]
+  | FileDec Id Id
   | ProcDec Id [Id] Com
   | RecProcDec Id [Id] Com
   | FuncDec Id [Id] Exp
@@ -92,6 +101,7 @@ instance Pretty Dec where
   pretty (Var x y) = printf "var %s = %s;" x (pretty y)
   pretty (ArrayDec x y z) = printf "array %s[%s:%s];" x (pretty y) (pretty z)
   pretty (RecordDec x y) = printf "record %s(%s);" x (intercalate ", " y)
+  pretty (FileDec x y) = printf "file %s withbuffer %s;" x y
   pretty (ProcDec x y z) = printf "proc %s(%s) %s" x (intercalate ", " y) (pretty z)
   pretty (RecProcDec x y z) = printf "proc %s(%s) %s" x (intercalate ", " y) (pretty z)
   pretty (FuncDec x y z) = printf "func %s(%s) { %s }" x (intercalate ", " y) (pretty z)
@@ -117,6 +127,7 @@ data Exp
   | Cont Exp
   | ArrayAccess Exp Exp
   | Dot Exp Exp
+  | Eof Exp
   | Op Opr Exp Exp
   deriving (Show)
 
@@ -139,4 +150,5 @@ instance Pretty Exp where
   pretty (ArrayAccess x y) = printf "%s[%s]" (pretty x) (pretty y)
   pretty (Dot x y) = printf "%s.%s" (pretty x) (pretty y)
   pretty (Op x y z) = printf "%s %s %s" (pretty y) (pretty x) (pretty z)
+  pretty (Eof x) = printf "eof %s" (pretty x)
   pretty _ = "PRETTY_EXP"

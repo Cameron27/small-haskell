@@ -2,13 +2,14 @@ module Interpreter.Small where
 
 import Common.Formatting
 import qualified Data.HashMap.Strict as HashMap
+import Interpreter.BasicOperations
+import Interpreter.FileOperations
 import Interpreter.Helper.Array
 import Interpreter.Helper.Continuation
 import Interpreter.Helper.Control
 import Interpreter.Helper.Env
 import Interpreter.Helper.Store
 import Interpreter.Helper.TypeTesting
-import Interpreter.Operations
 import Interpreter.Types
 import Parser.Types
 import System.Exit
@@ -76,13 +77,18 @@ evalExp (ArrayAccess e1 e2) r k s =
   )
     s
 evalExp (Dot e1 e2) r k s = (evalRVal e1 r $ testRecord e1 (\r' -> evalExp e2 (updateEnv (recordToEnv $ dvToRecord r') r) k)) s
+evalExp (Eof e1) r k s = evalEof evalExp e1 r k s
 evalExp (Op o1 e1 e2) r k s = evalRVal e1 r (\e1 -> evalRVal e2 r (\e2 -> evalOp ef o1 (evToRv e1, evToRv e2) k)) s
   where
     ef = Op o1 e1 e2
 
 evalCom :: Com -> Env -> Cc -> Cc
 evalCom (Assign e1 e2) r c = evalExp e1 r $ testLoc e1 (\l -> evalRVal e2 r $ update (evToLoc l) c)
-evalCom (Output e1) r c = evalRVal e1 r (\e s -> putStrLn (pretty e) >> c s)
+evalCom (Output e1) r c = evalRVal e1 r (\e s -> putStrLn (print e) >> c s)
+  where
+    print e = case e of
+      DString s -> s
+      e -> pretty e
 evalCom (Proc e1 e2) r c = evalExp e1 r $ testProc (length e2) (Proc e1 e2) chainEval
   where
     params = map (: []) e2
@@ -103,6 +109,10 @@ evalCom (Return e1) r c = evalRVal e1 r k
   where
     (Env _ k) = r
 evalCom (WithDo e1 c1) r c = evalRVal e1 r $ testRecord e1 (\r' -> evalCom c1 (updateEnv (recordToEnv $ dvToRecord r') r) c)
+evalCom (ResetF e1) r c = evalResetF evalExp e1 r c
+evalCom (RewriteF e1) r c = evalRewriteF evalExp e1 r c
+evalCom (GetF e1) r c = evalGetF evalExp e1 r c
+evalCom (PutF e1) r c = evalPutF evalExp e1 r c
 evalCom (Chain c1 c2) r c = evalCom c1 r $ evalCom c2 r c
 evalCom Skip r c = c
 
@@ -141,6 +151,11 @@ evalDec (FuncDec i1 i2 e1) r u s = u (newEnv i1 func) s
 evalDec (RecFuncDec i1 i2 e1) r u s = u (newEnv i1 func) s
   where
     func = DFunc (\k e -> evalExp e1 (updateEnv (newEnvMulti (i1 : i2) (func : e)) r) k) (length i2)
+evalDec (FileDec i1 i2) r u s = u (newEnvMulti [i1, i2] ls) (updateStore l1 (Just $ SFile $ File [] 1 l2) s')
+  where
+    (ls', s') = newLocsStore 2 s
+    ls = map DLoc ls'
+    [l1, l2] = ls'
 evalDec (ChainDec d1 d2) r u s = evalDec d1 r (\r1 -> evalDec d2 (updateEnv r1 r) (\r2 -> u (updateEnv r2 r1))) s
 evalDec SkipDec r u s = u (Env HashMap.empty emptyEc) s
 

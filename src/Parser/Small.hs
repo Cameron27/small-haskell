@@ -1,4 +1,4 @@
-module Parser.Small where
+module Parser.Small (parseSmall) where
 
 import Common.Formatting
 import Data.List
@@ -92,7 +92,31 @@ com = do
         keyword "with"
         e <- exp
         keyword "do"
-        WithDo e <$> com
+        WithDo e <$> com,
+      -- Reset File: resetf E
+      do
+        keyword "reset"
+        e <- exp
+        semi
+        return $ ResetF e,
+      -- Rewrite File: rewritef E
+      do
+        keyword "rewrite"
+        e <- exp
+        semi
+        return $ RewriteF e,
+      -- Get File: getf E
+      do
+        keyword "get"
+        e <- exp
+        semi
+        return $ GetF e,
+      -- Put File: putf E
+      do
+        keyword "put"
+        e <- exp
+        semi
+        return $ PutF e
     ]
 
 -- Block Internals: D* C*
@@ -147,6 +171,14 @@ dec = do
         i2 <- parens $ commaSep ide
         semi
         return $ RecordDec i1 i2,
+      -- File: file I1 withbuffer I2 ;
+      do
+        keyword "file"
+        i1 <- ide
+        keyword "withbuffer"
+        i2 <- ide
+        semi
+        return $ FileDec i1 i2,
       -- Procedure: (rec)? proc I( I1, ..., In ) { D* C* }
       do
         isRec <-
@@ -247,16 +279,22 @@ multiplicativeOps = opChain ["*", "/", "%"] unary
 unary :: Parsec String () Exp
 unary =
   choice
-    [ arrayAccess,
-      -- Continuation: cont E
-      do
-        keyword "cont"
-        Cont <$> unary,
-      -- Reference: ref E
-      do
-        keyword "ref"
-        RefExp <$> unary
-    ]
+    ( arrayAccess :
+      map
+        unaryOp
+        [ -- Continuation: cont E
+          ("cont", Cont),
+          -- Reference: ref E
+          ("ref", RefExp),
+          -- End of File: eof E
+          ("eof", Eof)
+        ]
+    )
+  where
+    unaryOp :: (String, Exp -> Exp) -> Parsec String () Exp
+    unaryOp (kw, e) = do
+      keyword kw
+      e <$> unary
 
 -- Array Access: E1[E2]
 arrayAccess :: Parsec String () Exp
