@@ -1,0 +1,86 @@
+// true
+// true
+/**/
+/*
+1
+2
+3
+4
+5
+1
+2
+3
+4
+5
+6
+1
+2
+5
+*/
+
+program {
+    file f withbuffer buff;
+    file f2 withbuffer buff2;
+    file f3 withbuffer f3;
+    var x = 0;
+    func last(f, buff) {
+        valof {
+            var res = 0;
+            reset f;
+            while (true ^ eof f) {
+                res = buff;
+                get f;
+            }
+
+            return res;
+        }
+    }
+
+    while (x < 5) {
+        x = x + 1;
+        buff = x;
+        put f;
+    }
+
+    reset f;
+
+    while (true ^ eof f) {
+        output buff;
+        get f;
+    } // 1\n2\n3\n4\n5
+
+    buff = 6;
+    put f;
+    reset f;
+
+    while (true ^ eof f) {
+        output buff;
+        get f;
+    } // 1\n2\n3\n4\n5\n6
+
+    rewrite f;
+    buff = 1;
+    put f;
+    buff = 2;
+    put f;
+    reset f;
+
+    while (true ^ eof f) {
+        output buff;
+        get f;
+    } // 1\n2
+
+    x = 0;
+    while (x < 5) {
+        x = x + 1;
+        buff2 = x;
+        put f2;
+    }
+
+    reset f2;
+    get f2;
+
+    output last(f2, buff2); // 5
+
+    reset f3;
+}

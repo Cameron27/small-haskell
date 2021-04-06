@@ -1,0 +1,11 @@
+// true
+// false
+/**/
+/**/
+
+program{
+    file f withbuffer bf;
+    bf = 1;
+    put f;
+    put f;
+}

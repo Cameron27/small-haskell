@@ -1,0 +1,10 @@
+// true
+// false
+/**/
+/**/
+
+program{
+    file f withbuffer bf;
+    var x = 1;
+    put x;
+}

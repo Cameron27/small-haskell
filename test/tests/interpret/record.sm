@@ -21,6 +21,7 @@ Ted
 1
 2
 2
+Ted
 */
 
 program {
@@ -90,4 +91,6 @@ program {
         output param;
     }
     output override.param;
+
+    output person.(1 < 2 ? name : age);
 }
