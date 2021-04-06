@@ -61,6 +61,13 @@ com = do
         keyword "while"
         e <- parens exp
         While e <$> com,
+      -- Repeat: repeat C until ( E )
+      do
+        keyword "repeat"
+        c <- com
+        keyword "until"
+        e <- parens exp
+        return $ Repeat e c,
       -- Trap: trap { C (I1: C1)* }
       do
         keyword "trap"
@@ -257,17 +264,26 @@ unary =
   choice
     ( arrayAccess :
       map
-        unaryOp
+        unaryKey
         [ -- Continuation: cont E
           ("cont", Cont),
           -- Reference: ref E
           ("ref", RefExp)
         ]
+        ++ map
+          unaryOp
+          [ -- Not: ! E
+            ("!", Not)
+          ]
     )
   where
-    unaryOp :: (String, Exp -> Exp) -> Parsec String () Exp
-    unaryOp (kw, e) = do
+    unaryKey :: (String, Exp -> Exp) -> Parsec String () Exp
+    unaryKey (kw, e) = do
       keyword kw
+      e <$> unary
+    unaryOp :: (String, Exp -> Exp) -> Parsec String () Exp
+    unaryOp (opr, e) = do
+      op opr
       e <$> unary
 
 -- Array Access: E1[E2]

@@ -78,6 +78,7 @@ evalExp (ArrayAccess e1 e2) r k s =
   )
     s
 evalExp (Dot e1 e2) r k s = (evalRVal e1 r $ testRecord e1 (\r' -> evalExp e2 (updateEnv (recordToEnv $ dvToRecord r') r) k)) s
+evalExp (Not e1) r k s = (evalRVal e1 r $ testBool e1 (\e -> k (DBool (not $ dvToBool e)))) s
 evalExp (Op o1 e1 e2) r k s = evalRVal e1 r (\e1 -> evalRVal e2 r (\e2 -> evalOp ef o1 (evToRv e1, evToRv e2) k)) s
   where
     ef = Op o1 e1 e2
@@ -100,6 +101,7 @@ evalCom (Proc e1 e2) r c = evalExp e1 r $ testProc (length e2) (Proc e1 e2) chai
         []
 evalCom (If e1 c1 c2) r c = evalRVal e1 r $ testBool e1 $ \e -> cond (evalCom c1 r c, evalCom c2 r c) $evToBool e
 evalCom (While e1 c1) r c = evalRVal e1 r $ testBool e1 $ \e -> cond (evalCom c1 r $ evalCom (While e1 c1) r c, c) $evToBool e
+evalCom (Repeat e1 c1) r c = evalCom c1 r $ evalRVal e1 r $ testBool e1 (\e -> dvToBool e ?> (c, evalCom (Repeat e1 c1) r c))
 evalCom (Block d1 c1) r c = evalDec d1 r (\r' -> evalCom c1 (updateEnv r' r) c)
 evalCom (Trap cs is) r c = evalCom (head cs) (updateEnv (newEnvMulti is ccs) r) c
   where

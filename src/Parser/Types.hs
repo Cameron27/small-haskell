@@ -47,6 +47,7 @@ data Com
   | Proc Exp [Exp]
   | If Exp Com Com
   | While Exp Com
+  | Repeat Exp Com
   | Block Dec Com
   | Trap [Com] [Id]
   | Escape Id
@@ -61,7 +62,8 @@ instance Pretty Com where
   pretty (Output x) = printf "output %s;" (pretty x)
   pretty (Proc x y) = printf "%s(%s)" (pretty x) (intercalate ", " $ map pretty y)
   pretty (If x y z) = printf "if (%s) %s else %s" (pretty x) (pretty y) (pretty z)
-  pretty (While x y) = printf "while (%s) %y" (pretty x) (pretty y)
+  pretty (While x y) = printf "while (%s) %s" (pretty x) (pretty y)
+  pretty (Repeat x y) = printf "repeat %s until (%s)" (pretty y) (pretty x)
   pretty (Block x y) = printf "{ %s %s }" (pretty x) (pretty y)
   pretty (Trap x y) = printf "trap { %s %s }" (pretty (head x)) tags
     where
@@ -119,6 +121,7 @@ data Exp
   | Cont Exp
   | ArrayAccess Exp Exp
   | Dot Exp Exp
+  | Not Exp
   | Op Opr Exp Exp
   deriving (Show)
 
@@ -140,5 +143,6 @@ instance Pretty Exp where
   pretty (Cont x) = printf "cont %s" (pretty x)
   pretty (ArrayAccess x y) = printf "%s[%s]" (pretty x) (pretty y)
   pretty (Dot x y) = printf "%s.%s" (pretty x) (pretty y)
+  pretty (Not x) = printf "!%s" (pretty x)
   pretty (Op x y z) = printf "%s %s %s" (pretty y) (pretty x) (pretty z)
   pretty _ = "PRETTY_EXP"

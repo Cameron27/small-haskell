@@ -44,7 +44,9 @@ tinyDef =
           "with",
           "do",
           "file",
-          "withbuffer"
+          "withbuffer",
+          "repeat",
+          "until"
         ],
       reservedOpNames =
         [ "*",
@@ -64,7 +66,8 @@ tinyDef =
           "=",
           "?",
           ":",
-          "."
+          ".",
+          "!"
         ],
       caseSensitive = True
     }
