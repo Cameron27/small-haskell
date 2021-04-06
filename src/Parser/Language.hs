@@ -44,12 +44,7 @@ tinyDef =
           "with",
           "do",
           "file",
-          "withbuffer",
-          "eof",
-          "reset",
-          "rewrite",
-          "get",
-          "put"
+          "withbuffer"
         ],
       reservedOpNames =
         [ "*",

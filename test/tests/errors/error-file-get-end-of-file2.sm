@@ -6,8 +6,8 @@
 program{
     file f withbuffer bf;
     bf = 1;
-    put f;
-    reset f;
-    get f;
-    get f;
+    put(f);
+    reset(f);
+    get(f);
+    get(f);
 }

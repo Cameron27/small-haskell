@@ -3,6 +3,7 @@ module Interpreter.Small where
 import Common.Formatting
 import qualified Data.HashMap.Strict as HashMap
 import Interpreter.BasicOperations
+import Interpreter.DefaultEnvironment
 import Interpreter.FileOperations
 import Interpreter.Helper.Array
 import Interpreter.Helper.Continuation
@@ -18,7 +19,7 @@ import Text.Printf
 evalPgm :: Pgm -> Ans
 evalPgm (Program c) = evalCom c env (\_ -> return ExitSuccess) store
   where
-    env = Env HashMap.empty (\e s -> putError "cannot return at top level")
+    env = defaultEnv
     store = Store HashMap.empty 0
 
 evalRVal :: Exp -> Env -> Ec -> Cc
@@ -77,7 +78,6 @@ evalExp (ArrayAccess e1 e2) r k s =
   )
     s
 evalExp (Dot e1 e2) r k s = (evalRVal e1 r $ testRecord e1 (\r' -> evalExp e2 (updateEnv (recordToEnv $ dvToRecord r') r) k)) s
-evalExp (Eof e1) r k s = evalEof evalExp e1 r k s
 evalExp (Op o1 e1 e2) r k s = evalRVal e1 r (\e1 -> evalRVal e2 r (\e2 -> evalOp ef o1 (evToRv e1, evToRv e2) k)) s
   where
     ef = Op o1 e1 e2
@@ -109,10 +109,6 @@ evalCom (Return e1) r c = evalRVal e1 r k
   where
     (Env _ k) = r
 evalCom (WithDo e1 c1) r c = evalRVal e1 r $ testRecord e1 (\r' -> evalCom c1 (updateEnv (recordToEnv $ dvToRecord r') r) c)
-evalCom (ResetF e1) r c = evalResetF evalExp e1 r c
-evalCom (RewriteF e1) r c = evalRewriteF evalExp e1 r c
-evalCom (GetF e1) r c = evalGetF evalExp e1 r c
-evalCom (PutF e1) r c = evalPutF evalExp e1 r c
 evalCom (Chain c1 c2) r c = evalCom c1 r $ evalCom c2 r c
 evalCom Skip r c = c
 

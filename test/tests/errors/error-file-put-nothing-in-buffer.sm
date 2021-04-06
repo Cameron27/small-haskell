@@ -5,5 +5,5 @@
 
 program{
     file f withbuffer bf;
-    put f;
+    put(f);
 }

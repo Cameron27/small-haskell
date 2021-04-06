@@ -52,10 +52,6 @@ data Com
   | Escape Id
   | Return Exp
   | WithDo Exp Com
-  | ResetF Exp
-  | RewriteF Exp
-  | GetF Exp
-  | PutF Exp
   | Chain Com Com
   | Skip
   deriving (Show)
@@ -74,10 +70,6 @@ instance Pretty Com where
   pretty (Escape x) = printf "escapeto %s;" x
   pretty (Return x) = printf "return %s;" (pretty x)
   pretty (WithDo x y) = printf "with %s do %s" (pretty x) (pretty y)
-  pretty (ResetF x) = printf "resetf %s" (pretty x)
-  pretty (RewriteF x) = printf "rewritef %s" (pretty x)
-  pretty (GetF x) = printf "getf %s" (pretty x)
-  pretty (PutF x) = printf "putf %s" (pretty x)
   pretty (Chain x y) = printf "%s %s" (pretty x) (pretty y)
   pretty Skip = ""
   pretty _ = "PRETTY_COM"
@@ -127,7 +119,6 @@ data Exp
   | Cont Exp
   | ArrayAccess Exp Exp
   | Dot Exp Exp
-  | Eof Exp
   | Op Opr Exp Exp
   deriving (Show)
 
@@ -150,5 +141,4 @@ instance Pretty Exp where
   pretty (ArrayAccess x y) = printf "%s[%s]" (pretty x) (pretty y)
   pretty (Dot x y) = printf "%s.%s" (pretty x) (pretty y)
   pretty (Op x y z) = printf "%s %s %s" (pretty y) (pretty x) (pretty z)
-  pretty (Eof x) = printf "eof %s" (pretty x)
   pretty _ = "PRETTY_EXP"

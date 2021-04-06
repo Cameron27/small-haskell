@@ -5,9 +5,5 @@
 
 program{
     file f withbuffer bf;
-    bf = 1;
-    put(f);
-    reset(f);
-    bf = 1;
-    put(f);
+    reset(f, bf);
 }

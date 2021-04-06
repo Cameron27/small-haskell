@@ -6,5 +6,5 @@
 program{
     file f withbuffer bf;
     var x = 1;
-    rewrite x;
+    rewrite(x);
 }

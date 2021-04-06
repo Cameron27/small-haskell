@@ -92,31 +92,7 @@ com = do
         keyword "with"
         e <- exp
         keyword "do"
-        WithDo e <$> com,
-      -- Reset File: resetf E
-      do
-        keyword "reset"
-        e <- exp
-        semi
-        return $ ResetF e,
-      -- Rewrite File: rewritef E
-      do
-        keyword "rewrite"
-        e <- exp
-        semi
-        return $ RewriteF e,
-      -- Get File: getf E
-      do
-        keyword "get"
-        e <- exp
-        semi
-        return $ GetF e,
-      -- Put File: putf E
-      do
-        keyword "put"
-        e <- exp
-        semi
-        return $ PutF e
+        WithDo e <$> com
     ]
 
 -- Block Internals: D* C*
@@ -285,9 +261,7 @@ unary =
         [ -- Continuation: cont E
           ("cont", Cont),
           -- Reference: ref E
-          ("ref", RefExp),
-          -- End of File: eof E
-          ("eof", Eof)
+          ("ref", RefExp)
         ]
     )
   where
