@@ -102,6 +102,7 @@ evalCom (Proc e1 e2) r c = evalExp e1 r $ testProc (length e2) (Proc e1 e2) chai
 evalCom (If e1 c1 c2) r c = evalRVal e1 r $ testBool e1 $ \e -> cond (evalCom c1 r c, evalCom c2 r c) $evToBool e
 evalCom (While e1 c1) r c = evalRVal e1 r $ testBool e1 $ \e -> cond (evalCom c1 r $ evalCom (While e1 c1) r c, c) $evToBool e
 evalCom (Repeat e1 c1) r c = evalCom c1 r $ evalRVal e1 r $ testBool e1 (\e -> dvToBool e ?> (c, evalCom (Repeat e1 c1) r c))
+evalCom (For i1 f1 c1) r c = evalExp (I i1) r $ testLoc (I i1) (\l -> evalFor f1 r (\c' [e] -> update (dvToLoc l) (evalCom c1 r c') e) c)
 evalCom (Block d1 c1) r c = evalDec d1 r (\r' -> evalCom c1 (updateEnv r' r) c)
 evalCom (Trap cs is) r c = evalCom (head cs) (updateEnv (newEnvMulti is ccs) r) c
   where
@@ -156,6 +157,38 @@ evalDec (FileDec i1 i2) r u s = u (newEnvMulti [i1, i2] ls) (updateStore l1 (Jus
     [l1, l2] = ls'
 evalDec (ChainDec d1 d2) r u s = evalDec d1 r (\r1 -> evalDec d2 (updateEnv r1 r) (\r2 -> u (updateEnv r2 r1))) s
 evalDec SkipDec r u s = u (Env HashMap.empty emptyEc) s
+
+evalFor :: For -> Env -> Procedure -> Cc -> Cc
+evalFor (ExpFor e1) r p c = evalRVal e1 r $ \e -> p c [e]
+evalFor (WhileFor e1 e2) r p c =
+  evalRVal
+    e1
+    r
+    ( \e ->
+        evalRVal e2 r $
+          testBool
+            e2
+            (\b -> dvToBool b ?> (p (evalFor (WhileFor e1 e2) r p c) [e], c))
+    )
+evalFor (StepFor e1 e2 e3) r p c = evalRVal e1 r $ testInt e1 $ step (evalRVal e2 r, evalRVal e3 r) p c . dvToInt
+  where
+    step :: (Ec -> Cc, Ec -> Cc) -> Procedure -> Cc -> Integer -> Cc
+    step (w1, w2) p c n =
+      w1 $
+        testInt
+          e2
+          ( \n1 ->
+              w2 $
+                testInt
+                  e3
+                  ( \n2 ->
+                      ((n - dvToInt n2) * signum (dvToInt n1) < 1)
+                        ?> ( p (step (w1, w2) p c (n + dvToInt n1)) [DInt n],
+                             c
+                           )
+                  )
+          )
+evalFor (ChainFor f1 f2) r p c = evalFor f1 r p $ evalFor f2 r p c
 
 interpretSmall :: Pgm -> Ans
 interpretSmall = evalPgm

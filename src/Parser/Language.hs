@@ -46,7 +46,9 @@ tinyDef =
           "file",
           "withbuffer",
           "repeat",
-          "until"
+          "until",
+          "for",
+          "step"
         ],
       reservedOpNames =
         [ "*",
@@ -128,6 +130,9 @@ semi = Token.semi lexer
 
 commaSep :: ParsecT String u Identity a -> ParsecT String u Identity [a]
 commaSep = Token.commaSep lexer
+
+commaSep1 :: ParsecT String u Identity a -> ParsecT String u Identity [a]
+commaSep1 = Token.commaSep1 lexer
 
 symbol :: String -> ParsecT String u Identity String
 symbol = Token.symbol lexer

@@ -68,6 +68,18 @@ com = do
         keyword "until"
         e <- parens exp
         return $ Repeat e c,
+      -- For: for ( I = F ) C
+      do
+        keyword "for"
+        (i, f) <-
+          parens
+            ( do
+                i <- ide
+                op "="
+                f <- for
+                return (i, f)
+            )
+        For i f <$> com,
       -- Trap: trap { C (I1: C1)* }
       do
         keyword "trap"
@@ -101,6 +113,9 @@ com = do
         keyword "do"
         WithDo e <$> com
     ]
+
+chain :: [Com] -> Com
+chain = foldr Chain Skip
 
 -- Block Internals: D* C*
 block' :: Parsec String () Com
@@ -195,9 +210,6 @@ dec = do
         i2 <- parens $ commaSep ide
         (if isRec then RecFuncDec else FuncDec) i1 i2 <$> braces exp
     ]
-
-chain :: [Com] -> Com
-chain = foldr Chain Skip
 
 chainDec :: [Dec] -> Dec
 chainDec = foldr ChainDec SkipDec
@@ -391,6 +403,31 @@ opMap "!=" = NEqual
 opMap "&" = And
 opMap "^" = Xor
 opMap "|" = Or
+
+for :: Parsec String () For
+for = do
+  fs <- commaSep1 $
+    do
+      -- E
+      e1 <- exp
+      option
+        (ExpFor e1)
+        ( choice
+            [ -- E while E
+              do
+                keyword "while"
+                WhileFor e1 <$> exp,
+              -- E step E until E
+              do
+                keyword "step"
+                e2 <- exp
+                keyword "until"
+                StepFor e1 e2 <$> exp
+            ]
+        )
+  case fs of
+    [f] -> return f
+    fs -> return $ foldr1 ChainFor fs
 
 stripComments :: String -> String
 stripComments = notComment

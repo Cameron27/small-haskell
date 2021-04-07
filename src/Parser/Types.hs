@@ -48,6 +48,7 @@ data Com
   | If Exp Com Com
   | While Exp Com
   | Repeat Exp Com
+  | For Id For Com
   | Block Dec Com
   | Trap [Com] [Id]
   | Escape Id
@@ -64,6 +65,7 @@ instance Pretty Com where
   pretty (If x y z) = printf "if (%s) %s else %s" (pretty x) (pretty y) (pretty z)
   pretty (While x y) = printf "while (%s) %s" (pretty x) (pretty y)
   pretty (Repeat x y) = printf "repeat %s until (%s)" (pretty y) (pretty x)
+  pretty (For x y z) = printf "for (%s = %s) %s" x (pretty y) (pretty z)
   pretty (Block x y) = printf "{ %s %s }" (pretty x) (pretty y)
   pretty (Trap x y) = printf "trap { %s %s }" (pretty (head x)) tags
     where
@@ -146,3 +148,17 @@ instance Pretty Exp where
   pretty (Not x) = printf "!%s" (pretty x)
   pretty (Op x y z) = printf "%s %s %s" (pretty y) (pretty x) (pretty z)
   pretty _ = "PRETTY_EXP"
+
+data For
+  = ExpFor Exp
+  | WhileFor Exp Exp
+  | StepFor Exp Exp Exp
+  | ChainFor For For
+  deriving (Show)
+
+instance Pretty For where
+  pretty (ExpFor x) = pretty x
+  pretty (WhileFor x y) = printf "%s while %s" (pretty x) (pretty y)
+  pretty (StepFor x y z) = printf "%s step %s until %s" (pretty x) (pretty y) (pretty z)
+  pretty (ChainFor x y) = printf "%s, %s" (pretty x) (pretty y)
+  pretty _ = "PRETTY_FOR"
