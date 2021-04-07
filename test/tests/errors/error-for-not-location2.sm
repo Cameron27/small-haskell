@@ -1,0 +1,9 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    const x = 0;
+    for (x = 0 while false) {}
+}
