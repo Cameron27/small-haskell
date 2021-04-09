@@ -148,6 +148,14 @@ dec = do
         e <- exp
         semi
         return $ Var i e,
+      -- Own: own I = E ;
+      do
+        keyword "own"
+        i <- ide
+        op "="
+        e <- exp
+        semi
+        return $ Own i e,
       -- Array: array I [ E1 : E2 ] ;
       do
         keyword "array"

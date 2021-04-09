@@ -17,4 +17,5 @@ defaultEnv =
           ("eof", DFunc eofFunc 1)
         ]
     )
+    HashMap.empty
     (\e s -> putError "cannot return at top level")

@@ -1,7 +1,9 @@
 module Interpreter.Types where
 
 import Common.Formatting
+import Data.Bits
 import qualified Data.HashMap.Strict as HashMap
+import Data.Hashable
 import Data.List
 import System.Exit
 import Text.Printf
@@ -9,6 +11,24 @@ import Text.Printf
 type Ide = String
 
 type Loc = Integer
+
+data Posn = Posn Int | PosnChain Posn Int
+
+(!) :: Posn -> Int -> Posn
+p ! i = PosnChain p i
+
+instance Show Posn where
+  show (Posn i) = show i
+  show (PosnChain p i) = show p ++ "." ++ show i
+
+instance Eq Posn where
+  Posn i1 == Posn i2 = i1 == i2
+  PosnChain p1 i1 == PosnChain p2 i2 = i1 == i2 && p1 == p2
+  _ == _ = False
+
+instance Hashable Posn where
+  hashWithSalt n (Posn i) = hashWithSalt n i
+  hashWithSalt n (PosnChain p i) = hashWithSalt n p `xor` hashWithSalt n i
 
 data Dv
   = DInt Integer
@@ -24,20 +44,20 @@ data Dv
   | DJump Jump
   | DCc Cc
 
-instance Pretty Dv where
-  pretty (DInt x) = show x
-  pretty (DDouble x) = printf "%f" x
-  pretty (DBool True) = "true"
-  pretty (DBool False) = "false"
-  pretty (DString x) = show x
-  pretty (DLoc x) = printf "Loc(%d)" x
-  pretty (DArray (Array x y _)) = printf "ARRAY[%d:%d]" x y
-  pretty (DRecord (Record x)) = printf "RECORD(%s)" (intercalate "," (HashMap.keys x))
-  pretty (DFile _) = "FILESTATE"
-  pretty (DProc _ y) = printf "PROCEDURE%d" y
-  pretty (DFunc _ y) = printf "FUNCTION%d" y
-  pretty (DJump _) = "JUMP"
-  pretty (DCc _) = "CC"
+instance Show Dv where
+  show (DInt x) = show x
+  show (DDouble x) = printf "%f" x
+  show (DBool True) = "true"
+  show (DBool False) = "false"
+  show (DString x) = show x
+  show (DLoc x) = printf "Loc(%d)" x
+  show (DArray (Array x y _)) = printf "ARRAY[%d:%d]" x y
+  show (DRecord (Record x)) = printf "RECORD(%s)" (intercalate "," (HashMap.keys x))
+  show (DFile _) = "FILESTATE"
+  show (DProc _ y) = printf "PROCEDURE%d" y
+  show (DFunc _ y) = printf "FUNCTION%d" y
+  show (DJump _) = "JUMP"
+  show (DCc _) = "CC"
 
 data Sv
   = SInt Integer
@@ -49,16 +69,16 @@ data Sv
   | SRecord Record
   | SFile File
 
-instance Pretty Sv where
-  pretty (SInt x) = show x
-  pretty (SDouble x) = printf "%f" x
-  pretty (SBool True) = "true"
-  pretty (SBool False) = "false"
-  pretty (SString x) = show x
-  pretty (SLoc x) = printf "Loc(%d)" x
-  pretty (SArray (Array x y _)) = printf "ARRAY[%d:%d]" x y
-  pretty (SRecord (Record x)) = printf "RECORD(%s)" (intercalate "," (HashMap.keys x))
-  pretty (SFile x) = "FILE"
+instance Show Sv where
+  show (SInt x) = show x
+  show (SDouble x) = printf "%f" x
+  show (SBool True) = "true"
+  show (SBool False) = "false"
+  show (SString x) = show x
+  show (SLoc x) = printf "Loc(%d)" x
+  show (SArray (Array x y _)) = printf "ARRAY[%d:%d]" x y
+  show (SRecord (Record x)) = printf "RECORD(%s)" (intercalate "," (HashMap.keys x))
+  show (SFile x) = "FILE"
 
 type Ev = Dv
 
@@ -80,7 +100,7 @@ instance Typeable Rv where
   typeStr (RArray (Array x y _)) = printf "array[%s:%s]" x y
   typeStr (RRecord (Record x)) = printf "record(%s)" (intercalate "," (HashMap.keys x))
 
-data Env = Env (HashMap.HashMap Ide Dv) Ec
+data Env = Env (HashMap.HashMap Ide Dv) (HashMap.HashMap (Ide, Posn) Dv) Ec
 
 data Store = Store (HashMap.HashMap Loc Sv) Loc
 

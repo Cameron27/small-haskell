@@ -12,7 +12,7 @@ cont :: Ec -> Ec
 cont k e s =
   isLoc e
     ?> ( isUnusedStore l s ?> (putError $ printf "\"Loc(%d)\" is unbound." l, k d s),
-         error $ printf "\"%s\" is not a location." (pretty e)
+         error $ printf "\"%s\" is not a location." (show e)
        )
   where
     l = evToLoc e
@@ -20,7 +20,7 @@ cont k e s =
 
 -- | @update l c e s@ stores `e` at `l` and passes the resulting store to `c`.
 update :: Loc -> Cc -> Ec
-update l c e s = isSv e ?> (c (updateStore l (Just $ evToSv e) s), putError $ printf "tried to store the value \"%s\" which is not storable." (pretty e))
+update l c e s = isSv e ?> (c (updateStore l (Just $ evToSv e) s), putError $ printf "tried to store the value \"%s\" which is not storable." (show e))
 
 -- | @ref k e s@ gets an unused location in `s`, updates it with `e` then passes it, along with the updated store, to
 -- `k`.
