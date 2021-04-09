@@ -108,7 +108,7 @@ testHaskellProgram testSpec =
               TestCase $
                 assertBool
                   ("program result was not as expected\nexpected: " ++ show (expected testSpec) ++ "\n but got: " ++ show (strip res))
-                  ((strip res =~ regex) == strip res)
+                  (if not $ null regex then (strip res =~ regex) == strip res else "" == strip res)
     return $
       name testSpec
         ~: TestList (["Parsed" ~: parseTest] ++ ["Ran" ~: runTest | shouldRun] ++ ["Output" ~: resultTest | shouldCheckResult])

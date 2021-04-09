@@ -1,0 +1,109 @@
+// true
+// false
+/**/
+/**/
+
+program {
+    const x = 1;
+    var x = 1;
+    own x = 1;
+    array x[0:5];
+    record x(a, b, c);
+    file f withbuffer b;
+    proc x(a, b) {
+        output a + b;
+    }
+    rec proc x(a, b) {
+        output a + b;
+    }
+    func x_9(a, b) {
+        a + b
+    }
+    rec func x(a, b) {
+        a + b
+    }
+    x = y;
+    output x;
+    x(1, 2);
+    if (x) {
+        x = y;
+    } else {
+        x = y;
+    }
+    while (x) {
+        x = y;
+    }
+    repeat {
+        x = y;
+    } until (x)
+    for (x = 1,a while b,1 step 2 until 10) {
+        output x;
+    }
+    trap {
+        output x;
+        escapeto a;
+a:
+        a = x;
+b:
+        b = x;
+    }
+    with x do {
+        a = 1;
+        b = 2;
+    }
+
+    x = 1;
+    _x = -1;
+    x23 = 0x5F;
+    X_3 = 0x5f;
+    x = -0x5F;
+    x = -0x5f;
+    x = 0X5F;
+    x = 0X5f;
+    x = -0X5F;
+    x = -0X5f;
+    x = 0o52;
+    x = -0o52;
+    x = 0O52;
+    x = -0O52;
+    x = true;
+    x = false;
+    x = 1.2;
+    x = -1.2;
+    x = 1.2e2;
+    x = -1.2e2;
+    x = 1.2E+2;
+    x = -1.2E-2;
+    x = "";
+    x = "test";
+    x = "test\ntest";
+    x = read;
+    x = x;
+    x = ref x;
+    x = array[1:5];
+    x = record(a, b, c);
+    x = a(5);
+    x = true ? 5 : 1;
+    x = jumpout j in 6 + j(5);
+    x = valof {
+        return a;
+    };
+    x = cont x;
+    x = x[5];
+    x = x.y;
+    x = !4;
+    x = 1 * 2;
+    x = 1 / 2;
+    x = 1 % 2;
+    x = 1 + 2;
+    x = 1 - 2;
+    x = 1 < 2;
+    x = 1 <= 2;
+    x = 1 > 2;
+    x = 1 >= 2;
+    x = 1 == 2;
+    x = 1 != 2;
+    x = 1 & 2;
+    x = 1 ^ 2;
+    x = 1 | 2;
+}

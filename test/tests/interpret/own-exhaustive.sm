@@ -1,0 +1,242 @@
+// true
+// true
+/**/
+/*
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+*/
+
+program {
+    var a = 1;
+    var b = record(b1, b2, b3);
+    var c = array[0:1];
+    var d = record(d1);
+    proc add(a, b) {
+        var x = a + b;
+        output x;
+    }
+    func add2(a, b) {
+        a + b
+    }
+    
+    // assign
+    valof {
+        own x = 1;
+        a = x;
+        return ref a;
+    } = valof{own x = 0; return x;};
+    output a;
+
+
+    // output
+    output valof {
+        own x = 1;
+        return x;
+    };
+
+    // proc
+    (valof {
+        own x = true;
+        return x;
+    } ? add : 1)(valof{own x = 1; return x;}, valof{own x = 1; return x;});
+
+    // if
+    if(valof{own x = true; return x;}) {
+        a = valof{own x = 1; return x;};
+        output 3;
+    } else {
+        a = valof{own x = 1; return x;};
+    }
+    if(valof{own x = false; return x;}) {
+        a = valof{own x = 1; return x;};
+    } else {
+        a = valof{own x = 1; return x;};
+        output 4;
+    }
+
+    // while
+    a = true;
+    while (valof{own x = true; x = a; return x;}) {
+        a = valof{own x = false; return x;};
+        output 5;
+    }
+
+    // repeat
+    a = true;
+    repeat {
+        a = !a;
+        output valof{own x = 1; x = a; return x;} ? 7 : 6;
+    } until (valof{own x = 1; x = a; return x;})
+
+    // for
+    for (a = valof{own x = 1; return x;},valof{own x = 2; return x;} step valof{own x = 1; return x;} until valof{own x = 4; return x;},valof{own x = 5; return x;} while valof{own x = 1; x = a; return x == 4;}) {
+        output a + valof{own x = 7; return x;};
+    }
+
+    // block
+    {
+        var x = valof{own x = 13; return x;};
+        output valof{own y = 6; y = x; return y;};
+    }
+
+    // trap
+    trap {
+        var a = valof{own x = 14; return x;};
+        output a;
+        escapeto f;
+f:
+        output valof{own x = 15; return x;};
+g:
+        output valof{own x = 17; return x;};
+    }
+
+    trap {
+        var a = valof{own x = 16; return x;};
+        output a;
+        escapeto g;
+f:
+        output valof{own x = 15; return x;};
+g:
+        output valof{own x = 17; return x;};
+    }
+
+    // return
+    output valof{own x = 18; return valof{own y = 1; y = x; return y;};};
+
+    // with
+    b.b1 = 19;
+    with valof{own x = 16; x = b; return x;} do
+        output valof{own x = 1; x = b1; return x;};
+
+    {
+        // const
+        const a = valof{own x = 20; return x;};
+
+        // var
+        var b = valof{own x = 21; return x;};
+
+        // own
+        own c = valof{own x = 22; return x;};
+
+        // array
+        array d[valof{own x = 0; return x;}:valof{own x = 1; return x;}];
+
+        // proc
+        proc e(a) {
+            output valof{own x = 0; x = a; return x;};
+        }
+
+        // rec proc
+        rec proc f(a) {
+            if (a != 28) {
+                output valof{own x = 0; x = a; return x;};
+                e(a + 1);
+            }
+        }
+
+        // func
+        func g(a) {
+            valof{own x = 0; x = a; return x;}
+        }
+
+        // rec func
+        rec func h(a) {
+            valof{own x = 0; x = a; return x;} == 29 ? 29 : h(a + 1)
+        }
+
+        output a;
+        output b;
+        output c;
+        d[0] = 23;
+        d[1] = 24;
+        output d[0];
+        output d[1];
+        e(25);
+        f(26);
+        output g(28);
+        output h(1);
+    }
+
+    // ref
+    output ref valof{own x = 30; return x;}; 
+
+    // array
+    {
+        var x = array[valof{own x = 0; return x;}:valof{own x = 1; return x;}];
+        x[0] = 31;
+        output x[0];
+    }
+
+    // function
+    output (valof{own x = true; return x;} ? add2 : 1)(valof{own x = 2; return x;}, valof{own x = 30; return x;});
+
+    // if exp
+    output valof{own x = true; return x;} ? valof{own x = 33; return x;} : valof{own x = 34; return x;};
+    output valof{own x = false; return x;} ? valof{own x = 33; return x;} : valof{own x = 34; return x;};
+
+    // jumpout
+    output jumpout j in 1 + j(valof{own x = 35; return x;});
+
+    // valof
+    output valof{own x = 36; return x;};
+
+    // cont
+    output cont valof{own x = 37; return ref ref x;};
+
+    // array access
+    c[valof{own x = 0; return x;}] = 38;
+    c[valof{own x = 1; return x;}] = 39;
+    output c[0];
+    output c[1];
+
+    // dot
+    d.d1 = 40;
+    output valof{own x = 1; x = d; return x;}.valof{own x = 1; x = d1; return x;};
+
+    // not
+    output !valof{own x = false; return x;} ? 41 : 1;
+
+    // op
+    output valof{own x = 40; return x;} * valof{own x = 3; return x;} + valof{own x = -40; return x;} - valof{own x = 38; return x;};
+}
