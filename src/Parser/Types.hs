@@ -39,7 +39,8 @@ instance Pretty Opr where
   pretty Xor = "^"
   pretty Or = "|"
 
-newtype Pgm = Program Com deriving (Show)
+data Pgm = Program Com [(Int, Exp)]
+  deriving (Show)
 
 data Com
   = Assign Exp Exp
@@ -81,7 +82,7 @@ instance Pretty Com where
 data Dec
   = Const Id Exp
   | Var Id Exp
-  | Own Id Exp
+  | Own Id Exp Int
   | ArrayDec Id Exp Exp
   | RecordDec Id [Id]
   | FileDec Id Id
@@ -96,7 +97,7 @@ data Dec
 instance Pretty Dec where
   pretty (Const x y) = printf "const %s = %s;" x (pretty y)
   pretty (Var x y) = printf "var %s = %s;" x (pretty y)
-  pretty (Own x y) = printf "own %s = %s;" x (pretty y)
+  pretty (Own x y _) = printf "own %s = %s;" x (pretty y)
   pretty (ArrayDec x y z) = printf "array %s[%s:%s];" x (pretty y) (pretty z)
   pretty (RecordDec x y) = printf "record %s(%s);" x (intercalate ", " y)
   pretty (FileDec x y) = printf "file %s withbuffer %s;" x y

@@ -16,18 +16,18 @@ lookupEnv i (Env r _ _) = case HashMap.lookup i r of
   Just s -> s
   Nothing -> error $ printf "Tried to lookup identifier \"%s\" which has no value assigned to it.\n%s" i (show r)
 
--- | @lookupEnv (i, w) r@ returns the value that is assigned to `(i, w)` in `r`.
-lookupEnvOwn :: (Ide, Posn) -> Env -> Dv
+-- | @lookupEnv i r@ returns the value that is assigned to `i` in `r`.
+lookupEnvOwn :: Int -> Env -> Dv
 lookupEnvOwn i (Env _ w _) = case HashMap.lookup i w of
   Just s -> s
-  Nothing -> error $ printf "Tried to lookup identifier \"(%s, %s)\" which has no value assigned to it.\n%s" (fst i) (show $ snd i) (show w)
+  _ -> error $ printf "Tried to lookup identifier \"%s\" which has no value assigned to it.\n%s" (show i) (show w)
 
 -- | @newEnv i d@ returns a new environment with just `i` bound to `d`.
 newEnv :: Ide -> Dv -> Env
 newEnv i l = Env (HashMap.fromList [(i, l)]) HashMap.empty emptyEc
 
--- | @newEnvOwn (i, w) d@ returns a new environment with just `(i, w)` bound to `d`.
-newEnvOwn :: (Ide, Posn) -> Dv -> Env
+-- | @newEnvOwn i d@ returns a new environment with just `i` bound to `d`.
+newEnvOwn :: Int -> Dv -> Env
 newEnvOwn i l = Env HashMap.empty (HashMap.fromList [(i, l)]) emptyEc
 
 -- | @newEnvMulti is ds@ returns a new environment with each `i` in `is` bound to the corresponding `d` in `ds`. If the
@@ -40,6 +40,12 @@ isUnboundEnv :: Ide -> Env -> Bool
 isUnboundEnv i (Env r _ _) = case HashMap.lookup i r of
   Just _ -> False
   Nothing -> True
+
+-- | @isUnboundEnv i r@ is `True` iff `i` is unbound in `r`.
+isUnboundEnvOwn :: Int -> Env -> Bool
+isUnboundEnvOwn i (Env _ w _) = case HashMap.lookup i w of
+  Just _ -> False
+  _ -> True
 
 emptyEc :: Ec
 emptyEc _ _ = error "This should not be the return address."

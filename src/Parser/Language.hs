@@ -139,3 +139,17 @@ symbol = Token.symbol lexer
 
 whiteSpace :: ParsecT String u Identity ()
 whiteSpace = Token.whiteSpace lexer
+
+data ParseEnv = ParseEnv Int [(Int, Exp)]
+
+getUniqueId :: ParsecT s ParseEnv Identity Int
+getUniqueId = do
+  (ParseEnv i _) <- getState
+  modifyState (\(ParseEnv n owns) -> ParseEnv (n + 1) owns)
+  return i
+
+getOwnId :: Exp -> ParsecT s ParseEnv Identity Int
+getOwnId e = do
+  i <- getUniqueId
+  modifyState (\(ParseEnv n owns) -> ParseEnv n (owns ++ [(i, e)]))
+  return i

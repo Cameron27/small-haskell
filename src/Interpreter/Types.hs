@@ -12,24 +12,6 @@ type Ide = String
 
 type Loc = Integer
 
-data Posn = Posn Int | PosnChain Posn Int
-
-(!) :: Posn -> Int -> Posn
-p ! i = PosnChain p i
-
-instance Show Posn where
-  show (Posn i) = show i
-  show (PosnChain p i) = show p ++ "." ++ show i
-
-instance Eq Posn where
-  Posn i1 == Posn i2 = i1 == i2
-  PosnChain p1 i1 == PosnChain p2 i2 = i1 == i2 && p1 == p2
-  _ == _ = False
-
-instance Hashable Posn where
-  hashWithSalt n (Posn i) = hashWithSalt n i
-  hashWithSalt n (PosnChain p i) = hashWithSalt n p `xor` hashWithSalt n i
-
 data Dv
   = DInt Integer
   | DDouble Double
@@ -100,9 +82,13 @@ instance Typeable Rv where
   typeStr (RArray (Array x y _)) = printf "array[%s:%s]" x y
   typeStr (RRecord (Record x)) = printf "record(%s)" (intercalate "," (HashMap.keys x))
 
-data Env = Env (HashMap.HashMap Ide Dv) (HashMap.HashMap (Ide, Posn) Dv) Ec
+data Env = Env (HashMap.HashMap Ide Dv) (HashMap.HashMap Int Dv) Ec
+
+instance Show Env where
+  show (Env r w _) = printf "Env %s %s" (show r) (show w)
 
 data Store = Store (HashMap.HashMap Loc Sv) Loc
+  deriving (Show)
 
 type Cc = Store -> Ans
 

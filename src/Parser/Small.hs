@@ -1,6 +1,7 @@
 module Parser.Small (parseSmall) where
 
 import Common.Formatting
+import Data.Functor.Identity
 import Data.List
 import Debug.Trace
 import Parser.Language
@@ -8,15 +9,17 @@ import Parser.Types
 import Text.Parsec
 import Prelude hiding (exp)
 
-pgm :: Parsec String () Pgm
+pgm :: ParsecT String ParseEnv Identity Pgm
 pgm =
   -- program C
   do
     spaces
     keyword "program"
-    Program <$> com
+    c <- com
+    (ParseEnv _ owns) <- getState
+    return $ Program c owns
 
-com :: Parsec String () Com
+com :: ParsecT String ParseEnv Identity Com
 com = do
   choice
     [ -- Block: { D* C* }
@@ -118,7 +121,7 @@ chain :: [Com] -> Com
 chain = foldr Chain Skip
 
 -- Block Internals: D* C*
-block' :: Parsec String () Com
+block' :: ParsecT String ParseEnv Identity Com
 block' =
   do
     ds <- many $ try dec
@@ -126,10 +129,10 @@ block' =
     return $ Block (chainDec ds) (chain cs)
 
 -- Block: { D* C* }
-block :: Parsec String () Com
+block :: ParsecT String ParseEnv Identity Com
 block = braces block'
 
-dec :: Parsec String () Dec
+dec :: ParsecT String ParseEnv Identity Dec
 dec = do
   choice
     [ -- Constant: const I = E ;
@@ -155,7 +158,7 @@ dec = do
         op "="
         e <- exp
         semi
-        return $ Own i e,
+        Own i e <$> getOwnId e,
       -- Array: array I [ E1 : E2 ] ;
       do
         keyword "array"
@@ -222,11 +225,11 @@ dec = do
 chainDec :: [Dec] -> Dec
 chainDec = foldr ChainDec SkipDec
 
-exp :: Parsec String () Exp
+exp :: ParsecT String ParseEnv Identity Exp
 exp = jumpout
 
 -- Jumpout: jumpout I in E
-jumpout :: Parsec String () Exp
+jumpout :: ParsecT String ParseEnv Identity Exp
 jumpout =
   choice
     [ do
@@ -238,7 +241,7 @@ jumpout =
     ]
 
 -- Ternary: E1 ? E2 : E3
-ternaryOp :: Parsec String () Exp
+ternaryOp :: ParsecT String ParseEnv Identity Exp
 ternaryOp = do
   e1 <- orOp
   option
@@ -251,35 +254,35 @@ ternaryOp = do
     )
 
 -- Or: E1 | E2
-orOp :: Parsec String () Exp
+orOp :: ParsecT String ParseEnv Identity Exp
 orOp = opChain ["|"] xorOp
 
 -- XOr: E1 ^ E2
-xorOp :: Parsec String () Exp
+xorOp :: ParsecT String ParseEnv Identity Exp
 xorOp = opChain ["^"] andOp
 
 -- And: E1 & E2
-andOp :: Parsec String () Exp
+andOp :: ParsecT String ParseEnv Identity Exp
 andOp = opChain ["&"] equalityOps
 
 -- Equals: E1 == E2 (or similar)
-equalityOps :: Parsec String () Exp
+equalityOps :: ParsecT String ParseEnv Identity Exp
 equalityOps = opChain ["==", "!="] relationalOps
 
 -- Relation: E1 < E2 (or similar)
-relationalOps :: Parsec String () Exp
+relationalOps :: ParsecT String ParseEnv Identity Exp
 relationalOps = opChain [">=", "<=", ">", "<"] additiveOps
 
 -- Addition E1 + E2 (or similar)
-additiveOps :: Parsec String () Exp
+additiveOps :: ParsecT String ParseEnv Identity Exp
 additiveOps = opChain ["+", "-"] multiplicativeOps
 
 -- Multiplication: E1 * E2 (or similar)
-multiplicativeOps :: Parsec String () Exp
+multiplicativeOps :: ParsecT String ParseEnv Identity Exp
 multiplicativeOps = opChain ["*", "/", "%"] unary
 
 -- Unary: [a-z]+ E
-unary :: Parsec String () Exp
+unary :: ParsecT String ParseEnv Identity Exp
 unary =
   choice
     ( arrayAccess :
@@ -297,17 +300,17 @@ unary =
           ]
     )
   where
-    unaryKey :: (String, Exp -> Exp) -> Parsec String () Exp
+    unaryKey :: (String, Exp -> Exp) -> ParsecT String ParseEnv Identity Exp
     unaryKey (kw, e) = do
       keyword kw
       e <$> unary
-    unaryOp :: (String, Exp -> Exp) -> Parsec String () Exp
+    unaryOp :: (String, Exp -> Exp) -> ParsecT String ParseEnv Identity Exp
     unaryOp (opr, e) = do
       op opr
       e <$> unary
 
 -- Array Access: E1[E2]
-arrayAccess :: Parsec String () Exp
+arrayAccess :: ParsecT String ParseEnv Identity Exp
 arrayAccess =
   do
     e1 <- dot
@@ -319,7 +322,7 @@ arrayAccess =
       )
 
 -- Dot: E1.E2
-dot :: Parsec String () Exp
+dot :: ParsecT String ParseEnv Identity Exp
 dot = do
   e1 <- function
   es <- many $ do
@@ -328,7 +331,7 @@ dot = do
   return $ foldl Dot e1 es
 
 -- Function: E ( E1, ..., En )
-function :: Parsec String () Exp
+function :: ParsecT String ParseEnv Identity Exp
 function = do
   e1 <- atom
   option
@@ -338,7 +341,7 @@ function = do
         return $ foldl Func e1 calls
     )
 
-atom :: Parsec String () Exp
+atom :: ParsecT String ParseEnv Identity Exp
 atom =
   choice
     [ -- Read: read
@@ -390,7 +393,7 @@ atom =
         RecordExp <$> parens (commaSep ide)
     ]
 
-opChain :: [String] -> Parsec String () Exp -> Parsec String () Exp
+opChain :: [String] -> ParsecT String ParseEnv Identity Exp -> ParsecT String ParseEnv Identity Exp
 opChain ops lowerParser = do
   e1 <- lowerParser
   es <- many $ do op <- opChoice ops; e <- lowerParser; return (opMap op, e)
@@ -412,7 +415,7 @@ opMap "&" = And
 opMap "^" = Xor
 opMap "|" = Or
 
-for :: Parsec String () For
+for :: ParsecT String ParseEnv Identity For
 for = do
   fs <- commaSep1 $
     do
@@ -466,6 +469,6 @@ stripComments = notComment
       | otherwise = head xs : inStringLiteral (tail xs)
 
 parseSmall :: SourceName -> String -> Either ParseError Pgm
-parseSmall fp input = parse pgm fp input'
+parseSmall fp input = runIdentity $ runParserT pgm (ParseEnv 0 []) fp input'
   where
     input' = stripComments input
