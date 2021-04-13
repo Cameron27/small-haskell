@@ -33,6 +33,7 @@ dependencies:
 - parallel-io
 - regex-tdfa
 - hashable
+- parseargs
 
 library:
   source-dirs:
