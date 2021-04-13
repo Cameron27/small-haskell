@@ -109,7 +109,7 @@ instance Pretty Dec where
   pretty _ = "PRETTY_DEC"
 
 data Exp
-  = Int Integer
+  = Int Int
   | Double Double
   | Bool Bool
   | String String

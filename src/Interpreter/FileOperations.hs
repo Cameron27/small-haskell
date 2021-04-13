@@ -9,7 +9,7 @@ import Interpreter.Types
 import Parser.Types
 import Text.Printf
 
-data Filestate = Filestate [Rv] Integer (Maybe Rv)
+data Filestate = Filestate [Rv] Int (Maybe Rv)
 
 eofFunc :: Function
 eofFunc k [e1] =
@@ -18,7 +18,7 @@ eofFunc k [e1] =
       ( \l s ->
           if not $ isUnusedStore (dvToLoc l) s
             then case svToDv $ lookupStore (dvToLoc l) s of
-              (DFile (File es n _)) -> k (DBool (n > toInteger (length es))) s
+              (DFile (File es n _)) -> k (DBool (n > length es)) s
               notFile -> putError $ printf "\"%s\", evaluated as \"%s\", is not a file." (show e1) (show notFile)
             else putError $ printf "\"%s\" is unbound." (show l)
       )
@@ -56,16 +56,16 @@ getf :: Filestate -> Either String Filestate
 getf (Filestate es n e)
   | n > esLength = Left "cannot get value from beyond end of file."
   | n == esLength = Right (Filestate es (n + 1) Nothing)
-  | n < esLength = Right (Filestate es (n + 1) (Just $ es !! fromInteger n))
+  | n < esLength = Right (Filestate es (n + 1) (Just $ es !! n))
   where
-    esLength = toInteger $ length es
+    esLength = length es
 
 getFProc :: Procedure
 getFProc c [e1] = doFile getf c e1
 
 putf :: Filestate -> Either String Filestate
 putf (Filestate es n e) =
-  if n == toInteger (length es) + 1
+  if n == length es + 1
     then case e of
       Just e -> Right $ Filestate (es ++ [e]) (n + 1) Nothing
       Nothing -> Left "value must be in buffer to put into file."

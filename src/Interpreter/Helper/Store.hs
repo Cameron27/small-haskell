@@ -31,5 +31,5 @@ newLocStore :: Store -> (Loc, Store)
 newLocStore (Store s x) = (x, Store s (x + 1))
 
 -- | @newLocsStore n s@ returns an `n` unused location in `s`.
-newLocsStore :: Integer -> Store -> ([Loc], Store)
+newLocsStore :: Int -> Store -> ([Loc], Store)
 newLocsStore n (Store s x) = ([x .. x + n - 1], Store s (x + n))

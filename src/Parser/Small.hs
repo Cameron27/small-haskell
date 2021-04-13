@@ -6,6 +6,7 @@ import Debug.Trace
 import Parser.Language
 import Parser.Types
 import Text.Parsec
+import Text.Printf
 import Prelude hiding (exp)
 
 pgm :: Parsec String () Pgm
@@ -359,8 +360,10 @@ atom =
             )
         x <- naturalOrFloat
         case x of
-          Left i -> return $ Int (if negate then - i else i)
-          Right f -> return $ Double (if negate then - f else f),
+          Right x -> case x of
+            Left i -> return $ Int (if negate then - i else i)
+            Right f -> return $ Double (if negate then - f else f)
+          Left i -> fail $ printf "Integer %d is too large." i,
       -- String
       String
         <$> stringLiteral,

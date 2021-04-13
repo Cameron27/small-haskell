@@ -7,7 +7,7 @@ import Interpreter.Helper.TypeTesting
 import Interpreter.Types
 import Text.Printf
 
-newArray :: (Integer, Integer) -> Ec -> Cc
+newArray :: (Int, Int) -> Ec -> Cc
 newArray (n1, n2) k s =
   (n1 > n2)
     ?> ( putError $ printf "the array bounds [%d:%d] are invalid." n1 n2,

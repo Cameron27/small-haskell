@@ -49,7 +49,7 @@ evalExp (ArrayExp e1 e2) w r k s =
     s
 evalExp (RecordExp is) w r k s = k (DRecord record) s'
   where
-    (ls', s') = newLocsStore (toInteger $ length is) s
+    (ls', s') = newLocsStore (length is) s
     ls = map DLoc ls'
     (Env record' _ _) = newEnvMulti is ls
     record = Record record'
@@ -138,7 +138,7 @@ evalDec (ArrayDec i1 e1 e2) w r u s =
     s
 evalDec (RecordDec i1 is) w r u s = u (newEnv i1 (DRecord record)) s'
   where
-    (ls', s') = newLocsStore (toInteger $ length is) s
+    (ls', s') = newLocsStore (length is) s
     ls = map DLoc ls'
     (Env record' _ _) = newEnvMulti is ls
     record = Record record'
@@ -179,7 +179,7 @@ evalFor (WhileFor e1 e2) w r p c =
     )
 evalFor (StepFor e1 e2 e3) w r p c = evalRVal e1 (w ! 1) r $ testInt e1 $ step (evalRVal e2 (w ! 2) r, evalRVal e3 (w ! 3) r) p c . dvToInt
   where
-    step :: (Ec -> Cc, Ec -> Cc) -> Procedure -> Cc -> Integer -> Cc
+    step :: (Ec -> Cc, Ec -> Cc) -> Procedure -> Cc -> Int -> Cc
     step (w1, w2) p c n =
       w1 $
         testInt

@@ -10,7 +10,7 @@ import Text.Printf
 
 type Ide = String
 
-type Loc = Integer
+type Loc = Int
 
 data Posn = Posn Int | PosnChain Posn Int
 
@@ -31,7 +31,7 @@ instance Hashable Posn where
   hashWithSalt n (PosnChain p i) = hashWithSalt n p `xor` hashWithSalt n i
 
 data Dv
-  = DInt Integer
+  = DInt Int
   | DDouble Double
   | DBool Bool
   | DString String
@@ -60,7 +60,7 @@ instance Show Dv where
   show (DCc _) = "CC"
 
 data Sv
-  = SInt Integer
+  = SInt Int
   | SDouble Double
   | SBool Bool
   | SString String
@@ -83,7 +83,7 @@ instance Show Sv where
 type Ev = Dv
 
 data Rv
-  = RInt Integer
+  = RInt Int
   | RDouble Double
   | RBool Bool
   | RString String
@@ -110,11 +110,11 @@ type Ec = Ev -> Cc
 
 type Dc = Env -> Cc
 
-data Array = Array Integer Integer [Loc]
+data Array = Array Int Int [Loc]
 
 newtype Record = Record (HashMap.HashMap Ide Dv)
 
-data File = File [Rv] Integer Loc
+data File = File [Rv] Int Loc
 
 type Procedure = Cc -> [Ev] -> Cc
 

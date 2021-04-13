@@ -89,12 +89,12 @@ evToLoc :: Ev -> Loc
 evToLoc = dvToLoc
 
 -- | @dvToInt d@ returns the integer `d` represents.
-dvToInt :: Dv -> Integer
+dvToInt :: Dv -> Int
 dvToInt (DInt x) = x
 dvToInt e = error $ printf "Tried to convert \"%s\" to a integer." (show e)
 
 -- | @evToInt e@ returns the integer `e` represents.
-evToInt :: Ev -> Integer
+evToInt :: Ev -> Int
 evToInt = dvToInt
 
 -- | @dvToArray d@ returns the array `d` represents.

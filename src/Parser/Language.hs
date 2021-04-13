@@ -113,14 +113,16 @@ braces = Token.braces lexer
 brackets :: ParsecT String u Identity a -> ParsecT String u Identity a
 brackets = Token.brackets lexer
 
-integer :: ParsecT String u Identity Integer
-integer = Token.integer lexer
-
 float :: ParsecT String u Identity Double
 float = Token.float lexer
 
-naturalOrFloat :: ParsecT String u Identity (Either Integer Double)
-naturalOrFloat = Token.naturalOrFloat lexer
+naturalOrFloat :: ParsecT String u Identity (Either Integer (Either Int Double))
+naturalOrFloat = do
+  n <- Token.naturalOrFloat lexer
+  case n of
+    Left i | i > toInteger (minBound :: Int) && i < toInteger (maxBound :: Int) -> return $ Right $ Left $ fromInteger i
+    Left i | otherwise -> return $ Left i
+    Right i -> return $ Right $ Right i
 
 stringLiteral :: ParsecT String u Identity String
 stringLiteral = Token.stringLiteral lexer
