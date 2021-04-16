@@ -48,7 +48,11 @@ tinyDef =
           "repeat",
           "until",
           "for",
-          "step"
+          "step",
+          "int",
+          "float",
+          "bool",
+          "string"
         ],
       reservedOpNames =
         [ "*",
@@ -129,6 +133,9 @@ stringLiteral = Token.stringLiteral lexer
 
 semi :: ParsecT String u Identity String
 semi = Token.semi lexer
+
+colon :: ParsecT String u Identity String
+colon = Token.colon lexer
 
 commaSep :: ParsecT String u Identity a -> ParsecT String u Identity [a]
 commaSep = Token.commaSep lexer

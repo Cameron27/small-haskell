@@ -2,11 +2,12 @@ module Parser.Small (parseSmall) where
 
 import Common.Formatting
 import Data.List
-import Debug.Trace
 import Parser.Language
+import Parser.TypeDeclaration
 import Parser.Types
 import Text.Parsec
 import Text.Printf
+import TypeChecker.Types
 import Prelude hiding (exp)
 
 pgm :: Parsec String () Pgm
@@ -133,31 +134,37 @@ block = braces block'
 dec :: Parsec String () Dec
 dec = do
   choice
-    [ -- Constant: const I = E ;
+    [ -- Constant: const T I = E ;
       do
         keyword "const"
         i <- ide
+        colon
+        t <- typeDeclaration
         op "="
         e <- exp
         semi
-        return $ Const i e,
-      -- Variable: var I = E ;
+        return $ Const i t e,
+      -- Variable: T I = E ;
       do
         keyword "var"
         i <- ide
+        colon
+        t <- typeDeclaration
         op "="
         e <- exp
         semi
-        return $ Var i e,
-      -- Own: own I = E ;
+        return $ Var i t e,
+      -- Own: own T I = E ;
       do
         keyword "own"
         i <- ide
+        colon
+        t <- typeDeclaration
         op "="
         e <- exp
         semi
-        return $ Own i e,
-      -- Array: array I [ E1 : E2 ] ;
+        return $ Own i t e,
+      -- Array: array I [ E1 : E2 ] : T ;
       do
         keyword "array"
         i <- ide
@@ -165,28 +172,42 @@ dec = do
           brackets
             ( do
                 e1 <- exp
-                op ":"
+                colon
                 e2 <- exp
                 return (e1, e2)
             )
+        colon
+        t <- typeDeclaration
         semi
-        return $ uncurry (ArrayDec i) es,
-      -- Record: record I( I1, ..., In ) ;
+        return $ uncurry (ArrayDec i) es t,
+      -- Record: record I( I1 : T1, ..., In : Tn ) ;
       do
         keyword "record"
         i1 <- ide
-        i2 <- parens $ commaSep ide
+        (is, ts) <-
+          unzip
+            <$> parens
+              ( commaSep
+                  ( do
+                      i <- ide
+                      colon
+                      t <- typeDeclaration
+                      return (i, t)
+                  )
+              )
         semi
-        return $ RecordDec i1 i2,
-      -- File: file I1 withbuffer I2 ;
+        return $ RecordDec i1 is ts,
+      -- File: file I1 withbuffer I2 : T ;
       do
         keyword "file"
         i1 <- ide
         keyword "withbuffer"
         i2 <- ide
+        colon
+        t <- typeDeclaration
         semi
-        return $ FileDec i1 i2,
-      -- Procedure: (rec)? proc I( I1, ..., In ) { D* C* }
+        return $ FileDec i1 i2 t,
+      -- Procedure: (rec)? proc I( I1 : T1, ..., In : Tn ) { D* C* }
       do
         isRec <-
           try $
@@ -200,9 +221,19 @@ dec = do
                   return True
               ]
         i1 <- ide
-        i2 <- parens $ commaSep ide
-        (if isRec then RecProcDec else ProcDec) i1 i2 <$> block,
-      -- Function: (rec)? func I ( I1, ..., In ) { E }
+        (is, ts) <-
+          unzip
+            <$> parens
+              ( commaSep
+                  ( do
+                      i <- ide
+                      colon
+                      t <- typeDeclaration
+                      return (i, t)
+                  )
+              )
+        (if isRec then RecProcDec else ProcDec) i1 is ts <$> block,
+      -- Function: (rec)? func I ( I1 : T1, ..., In : T2 ) : T { E }
       do
         isRec <-
           try $
@@ -216,8 +247,20 @@ dec = do
                   return True
               ]
         i1 <- ide
-        i2 <- parens $ commaSep ide
-        (if isRec then RecFuncDec else FuncDec) i1 i2 <$> braces exp
+        (is, ts) <-
+          unzip
+            <$> parens
+              ( commaSep
+                  ( do
+                      i <- ide
+                      colon
+                      t <- typeDeclaration
+                      return (i, t)
+                  )
+              )
+        colon
+        t <- typeDeclaration
+        (if isRec then RecFuncDec else FuncDec) i1 is ts t <$> braces exp
     ]
 
 chainDec :: [Dec] -> Dec
@@ -226,15 +269,17 @@ chainDec = foldr ChainDec SkipDec
 exp :: Parsec String () Exp
 exp = jumpout
 
--- Jumpout: jumpout I in E
+-- Jumpout: jumpout I : T in E
 jumpout :: Parsec String () Exp
 jumpout =
   choice
     [ do
         keyword "jumpout"
         i <- ide
+        colon
+        t <- typeDeclaration
         keyword "in"
-        Jumpout i <$> jumpout,
+        Jumpout i t <$> jumpout,
       ternaryOp
     ]
 
@@ -247,7 +292,7 @@ ternaryOp = do
     ( do
         op "?"
         e2 <- exp
-        op ":"
+        colon
         IfExp e1 e2 <$> exp
     )
 
@@ -371,26 +416,40 @@ atom =
       I <$> ide,
       -- Parentheses: ( E )
       parens exp,
-      -- Valof: valof { D* C* }
+      -- Valof: valof : T { D* C* }
       do
         keyword "valof"
-        Valof <$> block,
-      -- Array: array[ E1 : E2 ]
+        colon
+        t <- typeDeclaration
+        Valof t <$> block,
+      -- Array: array[ E1 : E2 ] : T
       do
         keyword "array"
-        es <-
+        (e1, e2) <-
           brackets
             ( do
                 e1 <- exp
-                op ":"
+                colon
                 e2 <- exp
                 return (e1, e2)
             )
-        return $ uncurry ArrayExp es,
-      -- Record: record( I1, ..., In )
+        colon
+        ArrayExp e1 e2 <$> typeDeclaration,
+      -- Record: record( I1 : T1, ..., In : Tn )
       do
         keyword "record"
-        RecordExp <$> parens (commaSep ide)
+        (is, ts) <-
+          unzip
+            <$> parens
+              ( commaSep
+                  ( do
+                      i <- ide
+                      colon
+                      t <- typeDeclaration
+                      return (i, t)
+                  )
+              )
+        return $ RecordExp is ts
     ]
 
 opChain :: [String] -> Parsec String () Exp -> Parsec String () Exp

@@ -1,7 +1,6 @@
 module Interpreter.FileOperations (eofFunc, resetFProc, rewriteFProc, getFProc, putFProc) where
 
 import Common.Formatting
-import Debug.Trace
 import Interpreter.Helper.Control
 import Interpreter.Helper.Store
 import Interpreter.Helper.TypeTesting

@@ -7,6 +7,8 @@ import Parser.Small
 import System.Console.ParseArgs
 import System.Environment
 import System.Exit
+import System.IO
+import TypeChecker.Small
 
 data Arguments = PrintParsed | IgnoreTypes | FileName
   deriving (Show, Eq, Ord)
@@ -42,11 +44,25 @@ main = do
   let ignoreTypes = gotArg args IgnoreTypes
   let Just fileName = getArgString args FileName
 
+  -- parse
   program <- readFile fileName
   let parsedProgram' = parseSmall fileName program
   parsedProgram <- case parsedProgram' of
     Right p -> return p
-    Left err -> die $show err
+    Left err -> do
+      hPrint stderr err
+      exitWith $ ExitFailure 3
   when printParsed $ print parsedProgram
+
+  -- type check
+  unless ignoreTypes $
+    case typeCheckSmall parsedProgram of
+      Nothing -> return ()
+      Just err -> do
+        hPrint stderr err
+        exitWith $ ExitFailure 2
+
+  -- interpret
   exitCode <- interpretSmall parsedProgram
+
   exitWith exitCode

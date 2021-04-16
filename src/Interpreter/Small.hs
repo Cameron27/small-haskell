@@ -1,4 +1,4 @@
-module Interpreter.Small where
+module Interpreter.Small (interpretSmall) where
 
 import qualified Data.HashMap.Strict as HashMap
 import Interpreter.BasicOperations
@@ -35,7 +35,7 @@ evalExp Read w r k s = do
   k (DString input) s
 evalExp (I i1) w r k s = isUnboundEnv i1 r ?> (putError $ printf "\"%s\" is unassigned\"" i1, k (lookupEnv i1 r) s)
 evalExp (RefExp e1) w r k s = (evalExp e1 (w ! 1) r $ ref k) s
-evalExp (ArrayExp e1 e2) w r k s =
+evalExp (ArrayExp e1 e2 _) w r k s =
   ( evalRVal e1 (w ! 1) r $
       testInt
         e1
@@ -47,7 +47,7 @@ evalExp (ArrayExp e1 e2) w r k s =
         )
   )
     s
-evalExp (RecordExp is) w r k s = k (DRecord record) s'
+evalExp (RecordExp is _) w r k s = k (DRecord record) s'
   where
     (ls', s') = newLocsStore (length is) s
     ls = map DLoc ls'
@@ -64,10 +64,10 @@ evalExp (Func e1 e2) w r k s = evalExp e1 (w ! 1) r (testFunc (length e2) (Func 
         params
         []
 evalExp (IfExp e1 e2 e3) w r k s = evalRVal e1 (w ! 1) r (testBool e1 $ \e -> cond (evalExp e2 (w ! 2) r k, evalExp e3 (w ! 3) r k) $ evToBool e) s
-evalExp (Jumpout i1 e1) w r k s = evalExp e1 (w ! 2) (updateEnv (newEnv i1 jump) r) k s
+evalExp (Jumpout i1 _ e1) w r k s = evalExp e1 (w ! 2) (updateEnv (newEnv i1 jump) r) k s
   where
     jump = DFunc (\_ e -> k (head e)) 1
-evalExp (Valof c1) w r k s = evalCom c1 (w ! 1) (Env r' w' k) (err $ printf "no return encountered in %s" $ show (Valof c1)) s
+evalExp (Valof t1 c1) w r k s = evalCom c1 (w ! 1) (Env r' w' k) (err $ printf "no return encountered in %s" $ show (Valof t1 c1)) s
   where
     (Env r' w' _) = r
 evalExp (Cont e1) w r k s = (evalExp e1 (w ! 1) r $ testLoc e1 $ cont k) s
@@ -121,10 +121,10 @@ evalCom (Chain c1 c2) w r c = evalCom c1 (w ! 1) r $ evalCom c2 (w ! 2) r c
 evalCom Skip w r c = c
 
 evalDec :: Dec -> Posn -> Env -> Dc -> Cc
-evalDec (Const i1 e1) w r u s = evalRVal e1 (w ! 2) r (u . newEnv i1) s
-evalDec (Var i1 e1) w r u s = (evalRVal e1 (w ! 2) r $ ref (u . newEnv i1)) s
-evalDec (Own i1 e1) w r u s = u (newEnv i1 (lookupEnvOwn (i1, w) r)) s
-evalDec (ArrayDec i1 e1 e2) w r u s =
+evalDec (Const i1 _ e1) w r u s = evalRVal e1 (w ! 2) r (u . newEnv i1) s
+evalDec (Var i1 _ e1) w r u s = (evalRVal e1 (w ! 2) r $ ref (u . newEnv i1)) s
+evalDec (Own i1 _ e1) w r u s = u (newEnv i1 (lookupEnvOwn (i1, w) r)) s
+evalDec (ArrayDec i1 e1 e2 _) w r u s =
   ( evalRVal e1 (w ! 2) r $
       testInt
         e1
@@ -136,27 +136,27 @@ evalDec (ArrayDec i1 e1 e2) w r u s =
         )
   )
     s
-evalDec (RecordDec i1 is) w r u s = u (newEnv i1 (DRecord record)) s'
+evalDec (RecordDec i1 is _) w r u s = u (newEnv i1 (DRecord record)) s'
   where
     (ls', s') = newLocsStore (length is) s
     ls = map DLoc ls'
     (Env record' _ _) = newEnvMulti is ls
     record = Record record'
-evalDec (ProcDec i1 i2 c1) w r u s = u (newEnv i1 procd) s
+evalDec (ProcDec i1 i2 _ c1) w r u s = u (newEnv i1 procd) s
   where
     procd' c e = evalCom c1 (w ! 3) (updateEnv (newEnvMulti i2 e) r) c
     procd = DProc procd' (length i2)
-evalDec (RecProcDec i1 i2 c1) w r u s = u (newEnv i1 procd) s
+evalDec (RecProcDec i1 i2 _ c1) w r u s = u (newEnv i1 procd) s
   where
     procd = DProc (\c e -> evalCom c1 (w ! 3) (updateEnv (newEnvMulti (i1 : i2) (procd : e)) r) c) (length i2)
-evalDec (FuncDec i1 i2 e1) w r u s = u (newEnv i1 func) s
+evalDec (FuncDec i1 i2 _ _ e1) w r u s = u (newEnv i1 func) s
   where
     func' k e = evalExp e1 (w ! 3) (updateEnv (newEnvMulti i2 e) r) k
     func = DFunc func' (length i2)
-evalDec (RecFuncDec i1 i2 e1) w r u s = u (newEnv i1 func) s
+evalDec (RecFuncDec i1 i2 _ _ e1) w r u s = u (newEnv i1 func) s
   where
     func = DFunc (\k e -> evalExp e1 (w ! 3) (updateEnv (newEnvMulti (i1 : i2) (func : e)) r) k) (length i2)
-evalDec (FileDec i1 i2) w r u s = u (newEnvMulti [i1, i2] ls) (updateStore l1 (Just $ SFile $ File [] 1 l2) s')
+evalDec (FileDec i1 i2 _) w r u s = u (newEnvMulti [i1, i2] ls) (updateStore l1 (Just $ SFile $ File [] 1 l2) s')
   where
     (ls', s') = newLocsStore 2 s
     ls = map DLoc ls'
@@ -229,16 +229,16 @@ instance Own Com where
   evalOwn Skip w r u = u emptyEnv
 
 instance Own Dec where
-  evalOwn (Const _ e1) w r u = evalOwn e1 (w ! 2) r u
-  evalOwn (Var _ e1) w r u = evalOwn e1 (w ! 2) r u
-  evalOwn (Own i1 e1) w r u = evalOwn e1 (w ! 2) r (\r1 -> evalRVal e1 (w ! 2) (updateEnv r1 r) $ ref (u . updateEnv r1 . newEnvOwn (i1, w)))
-  evalOwn (ArrayDec _ e1 e2) w r u = evalOwn e1 (w ! 2) r (\r1 -> evalOwn e2 (w ! 3) r (u . updateEnv r1))
-  evalOwn (RecordDec _ _) w r u = u emptyEnv
-  evalOwn (FileDec _ _) w r u = u emptyEnv
-  evalOwn (ProcDec _ _ c1) w r u = evalOwn c1 (w ! 3) r u
-  evalOwn (RecProcDec _ _ c1) w r u = evalOwn c1 (w ! 3) r u
-  evalOwn (FuncDec _ _ e1) w r u = evalOwn e1 (w ! 3) r u
-  evalOwn (RecFuncDec _ _ e1) w r u = evalOwn e1 (w ! 3) r u
+  evalOwn (Const _ _ e1) w r u = evalOwn e1 (w ! 2) r u
+  evalOwn (Var _ _ e1) w r u = evalOwn e1 (w ! 2) r u
+  evalOwn (Own i1 _ e1) w r u = evalOwn e1 (w ! 2) r (\r1 -> evalRVal e1 (w ! 2) (updateEnv r1 r) $ ref (u . updateEnv r1 . newEnvOwn (i1, w)))
+  evalOwn (ArrayDec _ e1 e2 _) w r u = evalOwn e1 (w ! 2) r (\r1 -> evalOwn e2 (w ! 3) r (u . updateEnv r1))
+  evalOwn (RecordDec _ _ _) w r u = u emptyEnv
+  evalOwn (FileDec _ _ _) w r u = u emptyEnv
+  evalOwn (ProcDec _ _ _ c1) w r u = evalOwn c1 (w ! 3) r u
+  evalOwn (RecProcDec _ _ _ c1) w r u = evalOwn c1 (w ! 3) r u
+  evalOwn (FuncDec _ _ _ _ e1) w r u = evalOwn e1 (w ! 3) r u
+  evalOwn (RecFuncDec _ _ _ _ e1) w r u = evalOwn e1 (w ! 3) r u
   evalOwn (ChainDec d1 d2) w r u = evalOwn d1 (w ! 1) r (\r1 -> evalOwn d2 (w ! 2) r (u . updateEnv r1))
   evalOwn SkipDec w r u = u emptyEnv
 
@@ -250,8 +250,8 @@ instance Own Exp where
   evalOwn Read w r u = u emptyEnv
   evalOwn (I _) w r u = u emptyEnv
   evalOwn (RefExp e1) w r u = evalOwn e1 (w ! 1) r u
-  evalOwn (ArrayExp e1 e2) w r u = evalOwn e1 (w ! 1) r (\r1 -> evalOwn e2 (w ! 2) r (u . updateEnv r1))
-  evalOwn (RecordExp _) w r u = u emptyEnv
+  evalOwn (ArrayExp e1 e2 _) w r u = evalOwn e1 (w ! 1) r (\r1 -> evalOwn e2 (w ! 2) r (u . updateEnv r1))
+  evalOwn (RecordExp _ _) w r u = u emptyEnv
   evalOwn (Func e1 es) w r u = evalOwn e1 (w ! 1) r chainEval
     where
       chainEval r =
@@ -261,8 +261,8 @@ instance Own Exp where
           (zip [2 ..] es)
           []
   evalOwn (IfExp e1 e2 e3) w r u = evalOwn e1 (w ! 1) r (\r1 -> evalOwn e2 (w ! 2) r (\r2 -> evalOwn e3 (w ! 3) r (u . updateEnv (updateEnv r1 r2))))
-  evalOwn (Jumpout _ e1) w r u = evalOwn e1 (w ! 2) r u
-  evalOwn (Valof c1) w r u = evalOwn c1 (w ! 1) r u
+  evalOwn (Jumpout _ _ e1) w r u = evalOwn e1 (w ! 2) r u
+  evalOwn (Valof _ c1) w r u = evalOwn c1 (w ! 1) r u
   evalOwn (Cont e1) w r u = evalOwn e1 (w ! 1) r u
   evalOwn (ArrayAccess e1 e2) w r u = evalOwn e1 (w ! 1) r (\r1 -> evalOwn e2 (w ! 2) r (u . updateEnv r1))
   evalOwn (Dot e1 e2) w r u = evalOwn e1 (w ! 1) r (\r1 -> evalOwn e2 (w ! 2) r (u . updateEnv r1))

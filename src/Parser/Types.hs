@@ -3,6 +3,7 @@ module Parser.Types where
 import Common.Formatting
 import Data.List
 import Text.Printf
+import TypeChecker.Types
 
 type Id = String
 
@@ -79,31 +80,31 @@ instance Pretty Com where
   pretty _ = "PRETTY_COM"
 
 data Dec
-  = Const Id Exp
-  | Var Id Exp
-  | Own Id Exp
-  | ArrayDec Id Exp Exp
-  | RecordDec Id [Id]
-  | FileDec Id Id
-  | ProcDec Id [Id] Com
-  | RecProcDec Id [Id] Com
-  | FuncDec Id [Id] Exp
-  | RecFuncDec Id [Id] Exp
+  = Const Id Type Exp
+  | Var Id Type Exp
+  | Own Id Type Exp
+  | ArrayDec Id Exp Exp Type
+  | RecordDec Id [Id] [Type]
+  | FileDec Id Id Type
+  | ProcDec Id [Id] [Type] Com
+  | RecProcDec Id [Id] [Type] Com
+  | FuncDec Id [Id] [Type] Type Exp
+  | RecFuncDec Id [Id] [Type] Type Exp
   | ChainDec Dec Dec
   | SkipDec
   deriving (Show)
 
 instance Pretty Dec where
-  pretty (Const x y) = printf "const %s = %s;" x (pretty y)
-  pretty (Var x y) = printf "var %s = %s;" x (pretty y)
-  pretty (Own x y) = printf "own %s = %s;" x (pretty y)
-  pretty (ArrayDec x y z) = printf "array %s[%s:%s];" x (pretty y) (pretty z)
-  pretty (RecordDec x y) = printf "record %s(%s);" x (intercalate ", " y)
-  pretty (FileDec x y) = printf "file %s withbuffer %s;" x y
-  pretty (ProcDec x y z) = printf "proc %s(%s) %s" x (intercalate ", " y) (pretty z)
-  pretty (RecProcDec x y z) = printf "proc %s(%s) %s" x (intercalate ", " y) (pretty z)
-  pretty (FuncDec x y z) = printf "func %s(%s) { %s }" x (intercalate ", " y) (pretty z)
-  pretty (RecFuncDec x y z) = printf "rec func %s(%s) { %s }" x (intercalate ", " y) (pretty z)
+  pretty (Const x y z) = printf "const %s: %s = %s;" x (show y) (pretty z)
+  pretty (Var x y z) = printf "var %s: %s = %s;" x (show y) (pretty z)
+  pretty (Own x y z) = printf "own %s: %s = %s;" x (show y) (pretty z)
+  pretty (ArrayDec w x y z) = printf "array %s[%s:%s]: %s;" w (pretty x) (pretty y) (show z)
+  pretty (RecordDec x y z) = printf "record %s(%s);" x (intercalate ", " $ zipWith (\y z -> printf "%s: %s" y (show z)) y z)
+  pretty (FileDec x y z) = printf "file %s withbuffer %s: %s;" x y (show z)
+  pretty (ProcDec v w x y) = printf "proc %s(%s) %s" v (intercalate ", " $ zipWith (\w x -> printf "%s: %s" w (show x)) w x) (pretty y)
+  pretty (RecProcDec v w x y) = printf "proc %s(%s) %s" v (intercalate ", " $ zipWith (\w x -> printf "%s: %s" w (show x)) w x) (pretty y)
+  pretty (FuncDec v w x y z) = printf "func %s(%s): %s { %s }" v (intercalate ", " $ zipWith (\w x -> printf "%s: %s" w (show x)) w x) (show y) (pretty z)
+  pretty (RecFuncDec v w x y z) = printf "rec func %s(%s): %s { %s }" v (intercalate ", " $ zipWith (\w x -> printf "%s: %s" w (show x)) w x) (show y) (pretty z)
   pretty (ChainDec x y) = printf "%s %s" (pretty x) (pretty y)
   pretty SkipDec = ""
   pretty _ = "PRETTY_DEC"
@@ -116,12 +117,12 @@ data Exp
   | Read
   | I Id
   | RefExp Exp
-  | ArrayExp Exp Exp
-  | RecordExp [Id]
+  | ArrayExp Exp Exp Type
+  | RecordExp [Id] [Type]
   | Func Exp [Exp]
   | IfExp Exp Exp Exp
-  | Jumpout Id Exp
-  | Valof Com
+  | Jumpout Id Type Exp
+  | Valof Type Com
   | Cont Exp
   | ArrayAccess Exp Exp
   | Dot Exp Exp
@@ -138,12 +139,12 @@ instance Pretty Exp where
   pretty Read = "read"
   pretty (I x) = x
   pretty (RefExp x) = printf "ref %s" (pretty x)
-  pretty (ArrayExp x y) = printf "array[%s:%s]" (pretty x) (pretty y)
-  pretty (RecordExp x) = printf "record(%s)" (intercalate ", " x)
+  pretty (ArrayExp x y z) = printf "array[%s:%s]: %s" (pretty x) (pretty y) (show z)
+  pretty (RecordExp x y) = printf "record(%s)" (intercalate ", " $ zipWith (\x y -> printf "%s: %s" x (show y)) x y)
   pretty (Func x y) = printf "%s(%s)" (pretty x) (intercalate ", " $ map pretty y)
   pretty (IfExp x y z) = printf "%s ? %s : %s" (pretty x) (pretty y) (pretty z)
-  pretty (Jumpout x y) = printf "jumpout %s in %s" x (pretty y)
-  pretty (Valof x) = printf "valof %s" (pretty x)
+  pretty (Jumpout x y z) = printf "jumpout %s: %s in %s" x (show y) (pretty z)
+  pretty (Valof x y) = printf "valof: %s %s" (show x) (pretty y)
   pretty (Cont x) = printf "cont %s" (pretty x)
   pretty (ArrayAccess x y) = printf "%s[%s]" (pretty x) (pretty y)
   pretty (Dot x y) = printf "%s.%s" (pretty x) (pretty y)
