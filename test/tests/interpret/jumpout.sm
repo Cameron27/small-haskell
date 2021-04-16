@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /*
 a
 b
@@ -24,25 +25,25 @@ b
 */
 
 program {
-    var x = 1;
-    var y = 2;
-    var t = true;
-    var f = false;
+    var x: int = 1;
+    var y: int = 2;
+    var t: bool = true;
+    var f: bool = false;
 
-    output jumpout j in 1 + 2; // 3
-    output jumpout j in (t ? j(5) : 5) + 5; //5
-    output jumpout j in (f ? j(5) : 5) + 5; // 10
-    output jumpout j in j(x); // 1
-    output jumpout j in j(x + y); // 3
-    output jumpout j in (t ? jumpout k in (t ? k(5) : 5) + 5 : 5) + 5; // 10
-    output jumpout j in (t ? jumpout k in (t ? j(5) : 5) + 5 : 5) + 5; // 5
-    output jumpout j in (t ? jumpout j in (t ? j(5) : 5) + 5 : 5) + 5; // 10
-    output jumpout j in (t ? jumpout k in (f ? k(5) : 5) + 5 : 5) + 5; // 15
-    output jumpout j in (t ? j(jumpout k in (t ? k(5) : 5) + 5) : 5) + 5; // 5
-    output jumpout j in (t ? j(jumpout k in (f ? k(5) : 5) + 5) : 5) + 5; // 10
-    output (jumpout j in j(1) + 1) + 1; // 2
-    output jumpout j in (jumpout k in (t ? j : k)(5)) + 5; // 5
-    output jumpout j in (jumpout k in (f ? j : k)(5)) + 5; // 10
-    output jumpout j in (jumpout j in j(read)) + j(1); // 1
+    output jumpout j: int in 1 + 2; // 3
+    output jumpout j: int in (t ? j(5) : 5) + 5; //5
+    output jumpout j: int in (f ? j(5) : 5) + 5; // 10
+    output jumpout j: ref int in j(x); // 1
+    output jumpout j: int in j(x + y); // 3
+    output jumpout j: int in (t ? jumpout k: int in (t ? k(5) : 5) + 5 : 5) + 5; // 10
+    output jumpout j: int in (t ? jumpout k: int in (t ? j(5) : 5) + 5 : 5) + 5; // 5
+    output jumpout j: int in (t ? jumpout j: int in (t ? j(5) : 5) + 5 : 5) + 5; // 10
+    output jumpout j: int in (t ? jumpout k: int in (f ? k(5) : 5) + 5 : 5) + 5; // 15
+    output jumpout j: int in (t ? j(jumpout k: int in (t ? k(5) : 5) + 5) : 5) + 5; // 5
+    output jumpout j: int in (t ? j(jumpout k: int in (f ? k(5) : 5) + 5) : 5) + 5; // 10
+    output (jumpout j: int in (t ? j(1) : 1) + 1) + 1; // 2
+    output jumpout j: int in (jumpout k: int in (t ? j : k)(5)) + 5; // 5
+    output jumpout j: int in (jumpout k: int in (f ? j : k)(5)) + 5; // 10
+    output jumpout j: int in (jumpout j: string in j(read)) + (t ? j(1) : "test"); // 1
     output read;
 }

@@ -1,10 +1,11 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    func x(a, b, c) {
+    func x(a: int, b: int, c: int): string {
         "t"
     }
 

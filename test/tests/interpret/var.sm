@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /*
 6
 test input
@@ -11,11 +12,11 @@ test
 some text
 56\.32
 6
-4
+false
 14
+4
 another test
-more text
-34\.35(0000000000001)?
+more tests
 test input
 1
 1
@@ -26,15 +27,15 @@ test input
 */
 
 program {
-    var a = 3;
-    var b = -5;
-    var c = "test";
-    var d = "some";
-    var e = "text";
-    var f = true;
-    var g = 7;
-    var g = 56.32;
-    var h = read;
+    var a: int = 3;
+    var b: int = -5;
+    var c: string = "test";
+    var d: string = "some";
+    var e: string = "text";
+    var f: bool = true;
+    var g: int = 7;
+    var g: float = 56.32;
+    var h: string = read;
 
     output a;
     output a + b;
@@ -47,23 +48,23 @@ program {
     }
     output h;
 
-    a = "another test";
-    b = "more";
-    c = "text";
-    d = 34.35;
+    a = 4;
+    b = 10;
+    c = "another";
+    d = "test";
     e = read;
-    f = 4;
-    g = 10;
-    h = false;
+    f = false;
+    g = 10.0;
+    h = "more tests";
 
     output f;
-    output f + g;
+    output a + b;
     output a;
-    output b + " " + c;
-    if (h) {
-        output a;
+    output c + " " + d;
+    if (f) {
+        output e;
     } else {
-        output d;
+        output h;
     }
     output e;
 

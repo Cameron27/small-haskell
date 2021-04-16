@@ -1,9 +1,10 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    const x = 0;
+    const x: int = 0;
     for (x = 0 step 1 until 2) {}
 }

@@ -1,10 +1,11 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    var person = "Tim";
+    var person: string = "Tim";
     with person do
         output 1;
 }

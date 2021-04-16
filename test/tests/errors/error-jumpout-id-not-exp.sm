@@ -1,8 +1,9 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    var x = jumpout j in 1 + j;
+    var x: int = jumpout j: int in 1 + j;
 }

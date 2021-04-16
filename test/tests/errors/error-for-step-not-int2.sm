@@ -1,9 +1,10 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    var x = 0;
+    var x: int = 0;
     for (x = 0 step false until 10) {}
 }

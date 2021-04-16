@@ -1,18 +1,17 @@
 // true
 // true
+// true
 /**/
 /*
 15
--1
-1
 -1
 1
 12\.5
 13\.5
 3\.0
 20
-11
-2
+13\.0
+2\.0
 1
 2
 1
@@ -28,70 +27,68 @@
 */
 
 program {
-    var a = 5;
-    const b = 6;
-    var i = 1;
-    var j = 2;
-    func add10(x) {
+    var a: int = 5;
+    const b: int = 6;
+    var i: int = 1;
+    var j: int = 2;
+    func add10(x: int): int {
         x + 10
     }
 
-    func sign(x) {
+    func sign(x: int): int {
         x < 0 ? -1 : 1
     }
 
-    func add11(x) {
+    func add11(x: float): float {
         x + a + b
     }
 
-    func double(a) {
+    func double(a: float): float {
         a * 2
     }
-    func d(x) {
+    func d(): func(int) int {
         add10
     }
-    func copy(x, y) {
-        valof {
+    func copy(x: ref int, y: ref int): int {
+        valof: int {
             y = x;
             return x;
         }
     }
-    func add(x, y) {
+    func add(x: int, y: int): int {
         x + y
     }
-    func aOut() {
+    func aOut(): ref int {
         a
     }
-    func bOut() {
+    func bOut(): int {
         b
     }
-    func override(a, a) {
+    func override(a: int, a: int): int {
         a + a
     }
-    rec func recSum(x) {
+    rec func recSum(x: int): int {
         x <= 0 ? 0 : x + recSum(x - 1)
     }
-    rec func fib(x) {
+    rec func fib(x: int): int {
         x <= 1 ? 1 :
             x == 2 ? 1 :
                 fib(x - 1) + fib(x - 2)
     }
-    rec func recOverride(recOverride, y) {
+    rec func recOverride(recOverride: int, y: int): int {
         y == 1 ? 1 : recOverride(1, y - 1)
     }
 
     output add10(5); // 15
     output sign(-10); // -1
     output sign(324); // 1
-    output sign(-34.2); // -1
-    output sign(34.3); // 1
     output add11(1.5); // 12.5
     a = 6;
     output add11(1.5); // 13.5
     output double(1.5); // 3.0
-    output d(4)(10); // 20
-    output (true ? add10 : double)(1); // 11
-    output (false ? add10 : double)(1); // 2
+    output d()(10); // 20
+    output (true ? add11 : double)(1.0); // 13.0
+    output (false ? add11 : double)(1.0); // 2.0
     output i; // 1
     output j; // 2
     output copy(i, j); // 1

@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /**/
 /*
 1
@@ -17,12 +18,12 @@
 */
 
 program {
-    var _1 = ref 1;
-    const two = 2;
-    var _2 = ref two;
-    var three = 3;
-    var x = ref three;
-    const y = ref three;
+    var _1: int = ref 1;
+    const two: int = 2;
+    var _2: int = ref two;
+    var three: int = 3;
+    var x: ref int = ref three;
+    const y: ref int = ref three;
 
     output cont _1; // 1
     output _1; // 1

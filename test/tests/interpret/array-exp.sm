@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /**/
 /*
 5
@@ -9,23 +10,21 @@
 1
 this is a test
 1\.25
-1\.5
-test
+5\.0
+2\.25
 2
-1
 4
 5
 */
 
 program {
-    const x = array[0:4];
-    var y = array[true ? -3 : 1:-1];
-    var a = 2;
-    var z = array[a * a + 1:4 + 3];
-    var grid = array[0:1];
-    var cycle = array[-1:0];
-    var one = array[0:1];
-    var two = one;
+    const x: array of int = array[0:4]: int;
+    var y: array of string = array[true ? -3 : 1:-1]: string;
+    var a: int = 2;
+    var z: array of float = array[a * a + 1:4 + 3]: float;
+    var grid: array of array of int = array[0:1]: array of int;
+    var one: array of int = array[0:1]: int;
+    var two: array of int = one;
 
     x[0] = 5;
     x[1] = 4;
@@ -45,38 +44,34 @@ program {
     output y[-3] + y[-2] + y[-1]; // this is a test
 
     z[5] = 1.25;
-    z[6] = true;
+    z[6] = 2.5;
     z[7] = 1.5;
 
-    output z[6] ? z[5] : z[7]; // 1.25
-    z[6] = 5;
-    output (true ? z : y)[6] < 2 ? z[5] : z[7]; // 1.5
+    output z[6] == 2.5 ? z[5] : z[7]; // 1.25
+    z[6] = 5.0;
+    output (true ? z : y)[6]; // 5.0
 
     {
-        proc update(xs, n, v) {
+        proc update(xs: ref array of float, n: int, v: float) {
             xs[n] = v;
         }
 
-        update(z, 5, "test");
-        output z[5]; // test
+        update(z, 5, 2.25);
+        output z[5]; // 2.25
     }
 
-    grid[0] = array[0:1];
+    grid[0] = array[0:1]: int;
     grid[0][0] = 1;
     grid[0][1] = 2;
 
     {
-        const temp = array[0:1];
+        const temp: array of int = array[0:1]: int;
         temp[0] = 3;
         temp[1] = 4;
         grid[1] = temp;
     }
 
     output grid[0][1]; // 2
-
-    cycle[-1] = cycle;
-    cycle[0] = 1;
-    output cycle[-1][-1][-1][-1][-1][0]; // 1
 
     one[0] = 4;
     one[1] = 5;

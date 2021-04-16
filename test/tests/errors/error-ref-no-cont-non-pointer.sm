@@ -1,9 +1,9 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    const i = 1;
-    output cont i;
+    output cont (true ? 1 : ref 1);
 }

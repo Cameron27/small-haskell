@@ -1,10 +1,11 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    proc x(a, b) {
+    proc x(a: int, b: int) {
         output "t";
     }
 

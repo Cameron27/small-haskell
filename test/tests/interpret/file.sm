@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /**/
 /*
 1
@@ -19,13 +20,13 @@
 */
 
 program {
-    file f withbuffer buff;
-    file f2 withbuffer buff2;
-    file f3 withbuffer f3;
-    var x = 0;
-    func last(f, buff) {
-        valof {
-            var res = 0;
+    file f withbuffer buff: int;
+    file f2 withbuffer buff2: int;
+    file f3 withbuffer f3: int;
+    var x: int = 0;
+    func last(f: ref file int, buff: ref int): int {
+        valof: int {
+            var res: int = 0;
             reset(f);
             while (true ^ eof(f)) {
                 res = buff;

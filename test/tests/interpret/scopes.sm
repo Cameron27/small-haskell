@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /**/
 /*
 1
@@ -23,10 +24,10 @@ tt
 */
 
 program {
-    var a = 1;
-    var b = 1;
-    const c = 1;
-    const d = 1;
+    var a: int = 1;
+    var b: int = 1;
+    const c: int = 1;
+    const d: int = 1;
     output a;
     output b;
     output c;
@@ -40,10 +41,10 @@ program {
     output a;
     output b;
     {
-        var a = 3;
-        const b = 3;
-        const c = 3;
-        var d = 3;
+        var a: int = 3;
+        const b: int = 3;
+        const c: int = 3;
+        var d: int = 3;
         output a;
         output b;
         output c;
@@ -56,8 +57,8 @@ program {
     b = 4;
     output b;
     {
-        var a = "t";
-        var b = a + "t";
+        var a: string = "t";
+        var b: string = a + "t";
         output b;
     }
 }

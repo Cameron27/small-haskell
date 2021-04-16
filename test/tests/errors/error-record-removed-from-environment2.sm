@@ -1,10 +1,11 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    record person(name, age);
+    record person(name: string, age: int);
     with person do
         age = 22;
     output age;

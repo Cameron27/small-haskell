@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /**/
 /*
 1
@@ -53,10 +54,10 @@
 */
 
 program {
-    var c = 5;
-    var x = 1;
-    var y = 1;
-    var t = 1;
+    var c: int = 5;
+    var x: int = 1;
+    var y: int = 1;
+    var t: int = 1;
 
     trap {
         output 1;
@@ -147,7 +148,7 @@ b:
     }
 
     trap {
-        var t = 2;
+        var t: int = 2;
         output t;
 a:
     t = 3;
@@ -155,7 +156,7 @@ a:
     output t;
 
     trap {
-        var t = 2;
+        var t: int = 2;
         output t;
         escapeto a;
 a:
@@ -239,7 +240,7 @@ a:
     }
 
     trap {
-        proc x(y) {
+        proc x(y: int) {
             output y;
             escapeto a;
             output 2;

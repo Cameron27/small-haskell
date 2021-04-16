@@ -1,10 +1,11 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    proc sum(x) {
+    proc sum(x: int) {
         if (x == 0) {}
         else {output x; sum(x - 1);}
     }

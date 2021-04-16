@@ -1,11 +1,12 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    proc x(y) {
+    proc x(y: int) {
         output y;
     }
-    const y = x;
+    const y: proc(int) = x;
 }

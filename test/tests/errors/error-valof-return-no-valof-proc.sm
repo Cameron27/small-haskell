@@ -1,14 +1,15 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    proc x(y){
+    proc x(y: int) {
         return y;
     }
 
-    output valof {
+    output valof: int {
         x(1);
     };
 }

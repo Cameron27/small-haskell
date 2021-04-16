@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /**/
 /*
 1
@@ -9,7 +10,7 @@
 */
 
 program {
-    var x = 3;
+    var x: int = 3;
 
     repeat
         output 1;

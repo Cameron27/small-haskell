@@ -1,10 +1,11 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    var x = 1;
+    var x: int = 1;
     if (x) {
         x = 4;
     } else {

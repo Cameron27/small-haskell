@@ -1,8 +1,9 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    array x[1:1.0];
+    array x[1:1.0]: int;
 }

@@ -1,10 +1,11 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    var x = 1;
+    var x: int = 1;
     trap {
         output 1;
         output 2;

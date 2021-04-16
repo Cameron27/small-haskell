@@ -1,11 +1,12 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    var a = 1;
+    var a: int = 1;
     {
-        own x = a;
+        own x: int = a;
     }
 }

@@ -1,12 +1,13 @@
 // true
+// true
 // false
 /**/
 /**/
 
 program {
-    var x = valof {
-        var a = 1;
-        var b = 1;
+    var x: int = valof: int {
+        var a: int = 1;
+        var b: int = 1;
         a = a + b;
     };
 }

@@ -1,51 +1,61 @@
 // true
-// false
-/**/
+// true
+// true
+/*
+1
+*/
 /**/
 
 program {
-    var a = 1;
-    var b = 0;
-    var c = -1;
-    var d = 2394;
-    var e = 000;
-    var f = 0xF8;
-    var g = +0xF8;
-    var h = -0xF8;
-    var i = 0XF8;
-    var j = +0XF8;
-    var k = -0XF8;
-    var l = 0o56;
-    var m = +0o56;
-    var n = -0o56;
-    var o = 0O56;
-    var p = +0O56;
-    var q = -0O56;
-    var v = 1.1;
-    var w = +1.1;
-    var x = -1.1;
-    var y = 1.1e2;
-    var z = +1.1e2;
-    var aa = -1.1e2;
-    var bb = 1.1e+2;
-    var cc = +1.1e+2;
-    var dd = -1.1e+2;
-    var ee = 1.1e-2;
-    var ff = +1.1e-2;
-    var gg = -1.1e-2;
-    var hh = "";
-    var ii = "test";
-    var jj = "1\n2";
-    var kk = true;
-    var ll = false;
-    var mm = x;
-    var nn = _x;
-    var oo = test;
-    var pp = _test;
-    var qq = _te_st;
-    var rr = Test;
-    var ss = TestTest;
-    var tt = testTest;
-    var uu = (1);
-    var vv = read;
+    var a: int = 1;
+    var b: int = 0;
+    var c: int = -1;
+    var d: int = 2394;
+    var e: int = 000;
+    var f: int = 0xF8;
+    var g: int = +0xF8;
+    var h: int = -0xF8;
+    var i: int = 0XF8;
+    var j: int = +0XF8;
+    var k: int = -0XF8;
+    var l: int = 0o56;
+    var m: int = +0o56;
+    var n: int = -0o56;
+    var o: int = 0O56;
+    var p: int = +0O56;
+    var q: int = -0O56;
+    var v: float = 1.1;
+    var w: float = +1.1;
+    var x: float = -1.1;
+    var y: float = 1.1e2;
+    var z: float = +1.1e2;
+    var aa: float = -1.1e2;
+    var bb: float = 1.1e+2;
+    var cc: float = +1.1e+2;
+    var dd: float = -1.1e+2;
+    var ee: float = 1.1e-2;
+    var ff: float = +1.1e-2;
+    var gg: float = -1.1e-2;
+    var hh: string = "";
+    var ii: string = "test";
+    var jj: string = "1\n2";
+    var kk: bool = true;
+    var ll: bool = false;
+    var mm: float = x;
+    var _x: float = 1.1;
+    var nn: float = _x;
+    var test: float = 1.1;
+    var oo: float = test;
+    var _test: float = 1.1;
+    var pp: float = _test;
+    var _te_st: float = 1.1;
+    var qq: float = _te_st;
+    var Test: float = 1.1;
+    var rr: float = Test;
+    var TestTest: float = 1.1;
+    var ss: float = TestTest;
+    var testTest: float = 1.1;
+    var tt: float = testTest;
+    var uu: int = (1);
+    var vv: string = read;
 }

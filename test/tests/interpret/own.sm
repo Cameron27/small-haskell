@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /**/
 /*
 1
@@ -18,26 +19,26 @@
 
 program {
     proc incOut() {
-        own x = 0;
-        own x = 1;
+        own x: int = 0;
+        own x: int = 1;
         output x;
         x = x + 1;
     }
-    rec proc outX(x) {
-        own i = 1;
+    rec proc outX(x: int) {
+        own i: int = 1;
         if (i <= x) {
             output i;
             i = i + 1;
             outX(x);
         }
     }
-    var t = false;
+    var t: bool = false;
 
     incOut();
     incOut();
 
     repeat {
-        own x = true ? 1 : 3;
+        own x: int = true ? 1 : 3;
         output x;
         x = x + 1;
         t = x == 5;

@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /*
 9
 8
@@ -33,60 +34,60 @@ a
 */
 
 program {
-    var a = "test";
-    var b = "text";
-    var c = 1;
-    var d = "t";
-    var e = "a";
-    var f = "b";
-    proc inc(x) {
+    var a: string = "test";
+    var b: string = "text";
+    var c: int = 1;
+    var d: string = "t";
+    var e: string = "a";
+    var f: string = "b";
+    proc inc(x: ref int) {
         x = x + 1;
     }
-    proc test(a) {
+    proc test(a: ref string) {
         a = a + "test";
     }
-    proc test_text(x) {
+    proc test_text() {
         if (a == "test") {
             a = a + b;
         } else {
             a = "test";
         }
     }
-    proc x(a) {
+    proc x() {
         output "x";
     }
-    proc y(a) {
+    proc y() {
         output "y";
     }
-    func t(a) {
+    func t(): proc(ref int) {
         inc
     }
-    proc printConcat(a, b) {
+    proc printConcat(a: string, b: string) {
         output a + " " + b;
     }
     proc printNull() {
         output "null";
     }
-    proc copy(a, b) {
+    proc copy(a: ref string, b: ref string) {
         b = a;
     }
-    proc manySum(_1, _2 ,_3, _4, _5, _6, _7, _8, _9, _10) {
-        var a = _1 + _2 + _3;
-        var b = _4 + _5 + _6;
-        var c = _7 + _8 + _9 + _10;
-        var d = a + b + c;
+    proc manySum(_1: int, _2: int ,_3: ref int, _4: int, _5: int, _6: int, _7: int, _8: int, _9: int, _10: int) {
+        var a: int = _1 + _2 + _3;
+        var b: int = _4 + _5 + _6;
+        var c: int = _7 + _8 + _9 + _10;
+        var d: int = a + b + c;
         output d;
     }
-    proc override(a, a) {
+    proc override(a: int, a: int) {
         output a;
     }
-    rec proc readOut(x) {
+    rec proc readOut(x: int) {
         if (x != 0) {
             output read;
             readOut(x - 1);
         }
     }
-    rec proc recOverride(recOverride, x) {
+    rec proc recOverride(recOverride: int, x: int) {
         if(x != 0) {
             recOverride(1, x - 1);
         }
@@ -99,14 +100,14 @@ program {
     test(d);
     output d; // ttest
     output a; // test
-    test_text(1);
+    test_text();
     output a; // testtext
-    test_text(1);
+    test_text();
     output a; // test
-    t(1)(c);
+    t()(c);
     output c; // 3
-    (true ? x : y)(1); // x
-    (false ? x : y)(1); // y
+    (true ? x : y)(); // x
+    (false ? x : y)(); // y
     printConcat("th" + "is", "te" + "st"); // this test
     printNull(); // null
     output e; // a

@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /**/
 /*
 Bob
@@ -25,15 +26,15 @@ Ted
 */
 
 program {
-    record person(name, age);
-    record person2(name, age);
-    record override(param, param);
+    record person(name: string, age: int);
+    record person2(name: string, age: int);
+    record override(param: int, param: string);
     record empty();
-    var name = "Bill";
-    func id(x) {
+    var name: string = "Bill";
+    func id(x: record(name: string, age: int)): record(name: string, age: int) {
         x
     }
-    proc updateAge(p, n) {
+    proc updateAge(p: record(name: string, age: int), n: int) {
         p.age = n;
     }
 
@@ -57,7 +58,7 @@ program {
     output name; // Bill
 
     {
-        var personName = person.name;
+        var personName: string = person.name;
 
         output personName; // Bob Smith
         personName = "Ted";
@@ -66,7 +67,7 @@ program {
     }
 
     {
-        var personName = ref person.name;
+        var personName: ref string = ref person.name;
 
         output cont personName; // Bob Smith
         cont personName = "Ted";
@@ -78,7 +79,7 @@ program {
     output person.age; // 5
 
     {
-        var x = 1;
+        var x: int = 1;
         output person.x; // 1
     }
 

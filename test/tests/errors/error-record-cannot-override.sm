@@ -1,9 +1,11 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    record person(name, age);
-    person = 1;
+    record person(name: string, age: string);
+    record person2(name: string, age: string);
+    person = person2;
 }

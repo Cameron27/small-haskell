@@ -1,12 +1,13 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    func a(b) {
-        b + j(5)
+    func a(b: int): int {
+        b + (true ? j(5) : 1)
     }
 
-    var x = jumpout j in a(1);
+    var x: int = jumpout j: int in a(1);
 }

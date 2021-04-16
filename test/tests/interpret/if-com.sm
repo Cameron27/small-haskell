@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /*
 1
 2
@@ -25,9 +26,9 @@ false
 */
 
 program {
-    var a = true;
-    const b = 5;
-    const c = 1;
+    var a: bool = true;
+    const b: int = 5;
+    const c: int = 1;
 
     if (true) {
         output read;
@@ -55,12 +56,12 @@ program {
 
     a = false;
     if (a) {
-        var x = 56 - 34 + 6;
-        var y = x == 3;
+        var x: int = 56 - 34 + 6;
+        var y: bool = x == 3;
         output y;
     } else {
-        var x = 34 + 23 < 4;
-        var y = x | false;
+        var x: bool = 34 + 23 < 4;
+        var y: bool = x | false;
         output y;
     }
 
@@ -86,7 +87,7 @@ program {
 
     if (false) {
     } else {
-        var a = true;
+        var a: bool = true;
     }
     output a;
 

@@ -1,11 +1,12 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    proc x(y) {
+    proc x(y: int) {
         output y;
     }
-    var y = x;
+    var y: ref proc(int) = x;
 }

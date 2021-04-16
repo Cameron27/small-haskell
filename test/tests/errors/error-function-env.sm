@@ -1,12 +1,13 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    func a(b) {
+    func a(b: int): int {
         b + x
     }
-    const x = 1;
+    const x: int = 1;
     output a(1);
 }

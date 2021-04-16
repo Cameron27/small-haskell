@@ -1,9 +1,10 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program{
-    file f withbuffer bf;
+    file f withbuffer bf: int;
     reset(f, bf);
 }

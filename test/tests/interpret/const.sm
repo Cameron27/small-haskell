@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /*
 6
 */
@@ -13,15 +14,15 @@ some text
 */
 
 program {
-    const a = 3;
-    const b = -5;
-    const c = "test";
-    const d = "some";
-    const e = "text";
-    const f = true;
-    const g = 7;
-    const g = 56.32;
-    const h = read;
+    const a: int = 3;
+    const b: int = -5;
+    const c: string = "test";
+    const d: string = "some";
+    const e: string = "text";
+    const f: bool = true;
+    const g: int = 7;
+    const g: float = 56.32;
+    const h: string = read;
     
     output a;
     output a + b;

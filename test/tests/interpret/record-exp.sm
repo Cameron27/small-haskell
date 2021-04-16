@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /**/
 /*
 Bob
@@ -11,12 +12,15 @@ Bob
 */
 
 program {
-    const person = record(name, age);
-    var person2 = record(name, age);
-    func id(x) {
+    const person: record(name: string, age: int) = record(name: string, age: int);
+    var person2: record(name: string, age: int) = record(name: string, age: int);
+    func id(x: record(name: string, age: int)): record(name: string, age: int) {
         x
     }
-    const dog = record(name, age, owner);
+    func id2(x: ref record(name: string, age: int)): ref record(name: string, age: int) {
+        x
+    }
+    const dog: record(name: string, age: int, owner: record(name: string, age: int)) = record(name: string, age: int, owner: record(name: string, age: int));
 
     with person do {
         name = "Bob";
@@ -31,8 +35,8 @@ program {
     person2.age = person2.age + 1;
     output person2.age; // 24
 
-    id(person2).name = id(person).name + " Smith";
-    with id(person2) do
+    id2(person2).name = id(person).name + " Smith";
+    with id2(person2) do
         output name; // Bob Smith
 
     dog.name = "Sparky";

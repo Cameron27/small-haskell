@@ -1,9 +1,10 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    const a = 6;
+    const a: int = 6;
     a(4);
 }

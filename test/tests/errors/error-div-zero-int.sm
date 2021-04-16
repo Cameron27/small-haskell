@@ -1,9 +1,10 @@
 // true
+// true
 // false
 /**/
 /**/
 
 program {
-    var x = 5 / 0;
+    var x: int = 5 / 0;
     output x;
 }

@@ -1,10 +1,11 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program{
-    file f withbuffer bf;
-    var x = 1;
+    file f withbuffer bf: int;
+    var x: int = 1;
     x = f;
 }

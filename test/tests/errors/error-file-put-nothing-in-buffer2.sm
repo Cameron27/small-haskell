@@ -1,10 +1,11 @@
 // true
+// true
 // false
 /**/
 /**/
 
 program{
-    file f withbuffer bf;
+    file f withbuffer bf: int;
     bf = 1;
     put(f);
     put(f);

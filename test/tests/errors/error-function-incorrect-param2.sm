@@ -1,10 +1,11 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    func x() {
+    func x(): string {
         "t"
     }
 

@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /*
 1
 2
@@ -15,9 +16,9 @@ false
 */
 
 program {
-    const a = true;
-    const b = 5;
-    const c = 1;
+    const a: bool = true;
+    const b: int = 5;
+    const c: int = 1;
 
     output true ? read : read;
     output true ? read : read;

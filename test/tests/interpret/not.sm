@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /**/
 /*
 true
@@ -11,10 +12,10 @@ false
 */
 
 program {
-    func x(a) {
+    func x(a: bool): bool {
         a
     }
-    array a[0:0];
+    array a[0:0]: bool;
 
     output !false; // true
     output !true; // false

@@ -1,9 +1,10 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    const x = 1;
-    var y = cont x;
+    const x: int = 1;
+    var y: int = cont x;
 }

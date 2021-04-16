@@ -1,109 +1,125 @@
 // true
-// false
-/**/
-/**/
+// true
+// true
+/*
+1
+*/
+/*
+1
+3
+1
+1
+1
+1
+1
+1
+1
+*/
 
 program {
-    const x = 1;
-    var x = 1;
-    own x = 1;
-    array x[0:5];
-    record x(a, b, c);
-    file f withbuffer b;
-    proc x(a, b) {
+    const y: int = 1;
+    var z: int = 1;
+    own t: bool = true;
+    array b[0:5]: int;
+    record r(a: int, b: int, c: int);
+    file f withbuffer fb: int;
+    proc a(a: int, b: int) {
         output a + b;
     }
-    rec proc x(a, b) {
+    rec proc x(a: int, b: int) {
         output a + b;
+        x(a + b, b);
     }
-    func x_9(a, b) {
+    func x_9(a: int, b: int): int {
         a + b
     }
-    rec func x(a, b) {
-        a + b
+    rec func x(a: int, b: int): int {
+        x(a + b, b)
     }
-    x = y;
-    output x;
-    x(1, 2);
-    if (x) {
-        x = y;
+    z = y;
+    output z;
+    a(1, 2);
+    if (t) {
+        z = y;
     } else {
-        x = y;
+        z = y;
     }
-    while (x) {
-        x = y;
+    while (!t) {
+        z = y;
     }
     repeat {
-        x = y;
-    } until (x)
-    for (x = 1,a while b,1 step 2 until 10) {
-        output x;
+        z = y;
+    } until (t)
+    for (z = 1,5 while z == 5,1 step 2 until 10) {
+        output y;
     }
     trap {
-        output x;
+        output y;
         escapeto a;
 a:
-        a = x;
+        b[2] = y;
 b:
-        b = x;
+        b[2] = y;
     }
-    with x do {
+    with r do {
         a = 1;
         b = 2;
     }
 
-    x = 1;
-    _x = -1;
-    x23 = 0x5F;
-    X_3 = 0x5f;
-    x = -0x5F;
-    x = -0x5f;
-    x = 0X5F;
-    x = 0X5f;
-    x = -0X5F;
-    x = -0X5f;
-    x = 0o52;
-    x = -0o52;
-    x = 0O52;
-    x = -0O52;
-    x = true;
-    x = false;
-    x = 1.2;
-    x = -1.2;
-    x = 1.2e2;
-    x = -1.2e2;
-    x = 1.2E+2;
-    x = -1.2E-2;
-    x = "";
-    x = "test";
-    x = "test\ntest";
-    x = read;
-    x = x;
-    x = ref x;
-    x = array[1:5];
-    x = record(a, b, c);
-    x = a(5);
-    x = true ? 5 : 1;
-    x = jumpout j in 6 + j(5);
-    x = valof {
-        return a;
-    };
-    x = cont x;
-    x = x[5];
-    x = x.y;
-    x = !4;
-    x = 1 * 2;
-    x = 1 / 2;
-    x = 1 % 2;
-    x = 1 + 2;
-    x = 1 - 2;
-    x = 1 < 2;
-    x = 1 <= 2;
-    x = 1 > 2;
-    x = 1 >= 2;
-    x = 1 == 2;
-    x = 1 != 2;
-    x = 1 & 2;
-    x = 1 ^ 2;
-    x = 1 | 2;
+    {
+        const x: int = 1;
+        const _x: int = -1;
+        const x23: int = 0x5F;
+        const X_3: int = 0x5f;
+        const x: int = -0x5F;
+        const x: int = -0x5f;
+        const x: int = 0X5F;
+        const x: int = 0X5f;
+        const x: int = -0X5F;
+        const x: int = -0X5f;
+        const x: int = 0o52;
+        const x: int = -0o52;
+        const x: int = 0O52;
+        const x: int = -0O52;
+        const x: bool = true;
+        const x: bool = false;
+        const x: float = 1.2;
+        const x: float = -1.2;
+        const x: float = 1.2e2;
+        const x: float = -1.2e2;
+        const x: float = 1.2E+2;
+        const x: float = -1.2E-2;
+        const x: string = "";
+        const x: string = "test";
+        const x: string = "test\ntest";
+        const x: string = read;
+        const x: string = x;
+        const x: string = ref x;
+        const x: array of int = array[1:5]: int;
+        const x: record(a: int, b: int, c: int) = record(a: int, b: int, c: int);
+        const x: int = x_9(5, 6);
+        const x: int = true ? 5 : 1;
+        const x: int = jumpout j: int in 6 + (true ? j(5) : 1);
+        const x: int = valof: int {
+            return x;
+        };
+        const x: int = cont ref x;
+        const x: int = b[2];
+        const x: int = r.a;
+        const x: bool = !false;
+        const x: int = 1 * 2;
+        const x: int = 1 / 2;
+        const x: int = 1 % 2;
+        const x: int = 1 + 2;
+        const x: int = 1 - 2;
+        const x: bool = 1 < 2;
+        const x: bool = 1 <= 2;
+        const x: bool = 1 > 2;
+        const x: bool = 1 >= 2;
+        const x: bool = 1 == 2;
+        const x: bool = 1 != 2;
+        const x: int = 1 & 2;
+        const x: int = 1 ^ 2;
+        const x: int = 1 | 2;
+    }
 }

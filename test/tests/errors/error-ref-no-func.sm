@@ -1,12 +1,13 @@
 // true
 // false
+// false
 /**/
 /**/
 
 program {
-    func x(y) {
+    func x(y: int): int {
         y
     }
 
-    var z = ref x;
+    var z: ref func(int) int = ref x;
 }

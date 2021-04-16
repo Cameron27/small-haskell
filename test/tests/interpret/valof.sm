@@ -1,5 +1,6 @@
 // true
 // true
+// true
 /**/
 /*
 1
@@ -19,13 +20,13 @@
 */
 
 program {
-    var a = 1;
-    var d = 4;
+    var a: int = 1;
+    var d: int = 4;
 
-    func allSum(x) {
-        valof {
-            var sum = 0;
-            var y = x;
+    func allSum(x: int): int {
+        valof: int {
+            var sum: int = 0;
+            var y: int = x;
             while (y > 0) {
                 sum = sum + y;
                 y = y - 1;
@@ -35,9 +36,9 @@ program {
         }
     }
 
-    func allSum2(x) {
-        valof {
-            var sum = 0;
+    func allSum2(x: ref int): int {
+        valof: int {
+            var sum: int = 0;
             while (x > 0) {
                 sum = sum + x;
                 x = x - 1;
@@ -47,36 +48,36 @@ program {
         }
     }
 
-    func add1(x) {
+    func add1(x: int): int {
         x + 1
     }
 
-    func add2(x) {
+    func add2(x: int): int {
         x + 2
     }
 
-    output valof {
+    output valof: int {
         return 1;
     }; // 1
 
-    output valof {
+    output valof: int {
         return 1 + 1;
     }; // 2
 
-    output valof {
+    output valof: int {
         return a;
     }; // 1
 
-    output valof {
-        var a = 2;
+    output valof: int {
+        var a: int = 2;
         return a;
     }; // 2
     output a; // 1
 
-    output valof {
-        var x = valof {
-            var x = 5;
-            var y = 6;
+    output valof: int {
+        var x: int = valof: int {
+            var x: int = 5;
+            var y: int = 6;
             x = x + y;
             return x;
         };
@@ -89,17 +90,17 @@ program {
     output allSum2(d); // 10
     output d; // 0
 
-    output valof {
-        proc x(y) {
+    output valof: int {
+        proc x(y: int) {
             return y;
         }
 
         x(5);
     }; // 5
 
-    output valof {
-        proc x(y) {
-            const a = valof {
+    output valof: int {
+        proc x(y: int) {
+            const a: int = valof: int {
                 return y;
             };
         }
@@ -108,12 +109,12 @@ program {
         return 1;
     }; // 1
 
-    output valof {
-        proc x(y) {
+    output valof: int {
+        proc x(y: int) {
             return y;
         }
 
-        var y = valof {
+        var y: int = valof: int {
             x(5);
         };
 
@@ -121,7 +122,7 @@ program {
     }; // 5
 
     trap {
-        output valof {
+        output valof: int {
             output 1;
             escapeto a;
             output 2;
