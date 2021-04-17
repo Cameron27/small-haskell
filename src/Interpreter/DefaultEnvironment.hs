@@ -1,4 +1,4 @@
-module Interpreter.DefaultEnvironment where
+module Interpreter.DefaultEnvironment (defaultEnv) where
 
 import qualified Data.HashMap.Strict as HashMap
 import Interpreter.FileOperations

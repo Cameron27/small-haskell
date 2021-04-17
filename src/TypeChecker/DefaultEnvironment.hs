@@ -1,4 +1,4 @@
-module TypeChecker.DefaultEnvironment where
+module TypeChecker.DefaultEnvironment (defaultTEnv) where
 
 import qualified Data.HashMap.Strict as HashMap
 import TypeChecker.Types

@@ -20,15 +20,14 @@ deref (TRef t) = t
 deref (TSet ts) = reduceType $ TSet $ Set.map deref ts
 deref t = t
 
-rTypes :: Type
-rTypes = TSet (Set.fromList [TInt, TDouble, TBool, TString, TRef TAny, TArray TAny, TAnyRecord])
-
 rval :: Pretty a => a -> Type -> Either TypeError Type
 rval src t =
   let t' = deref t
    in if t' `leq` rTypes
         then Right t'
         else Left $ TypeError $ printf "\"%s\" is not a right hand value in \"%s\"" (show t') (pretty src)
+  where
+    rTypes = TSet (Set.fromList [TInt, TDouble, TBool, TString, TRef TAny, TArray TAny, TAnyRecord])
 
 createTSet :: [Type] -> Type
 createTSet ts = reduceType $ TSet $ Set.fromList ts'
