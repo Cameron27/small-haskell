@@ -99,7 +99,6 @@ b:
         const x: record(a: int, b: int, c: int) = record(a: int, b: int, c: int);
         const x: int = x_9(5, 6);
         const x: int = true ? 5 : 1;
-        const x: int = jumpout j: int in 6 + (true ? j(5) : 1);
         const x: int = valof: int {
             return x;
         };

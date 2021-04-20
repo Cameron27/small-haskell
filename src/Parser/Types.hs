@@ -121,7 +121,6 @@ data Exp
   | RecordExp [Id] [Type]
   | Func Exp [Exp]
   | IfExp Exp Exp Exp
-  | Jumpout Id Type Exp
   | Valof Type Com
   | Cont Exp
   | ArrayAccess Exp Exp
@@ -143,7 +142,6 @@ instance Pretty Exp where
   pretty (RecordExp x y) = printf "record(%s)" (intercalate ", " $ zipWith (\x y -> printf "%s: %s" x (show y)) x y)
   pretty (Func x y) = printf "%s(%s)" (pretty x) (intercalate ", " $ map pretty y)
   pretty (IfExp x y z) = printf "%s ? %s : %s" (pretty x) (pretty y) (pretty z)
-  pretty (Jumpout x y z) = printf "jumpout %s: %s in %s" x (show y) (pretty z)
   pretty (Valof x y) = printf "valof: %s %s" (show x) (pretty y)
   pretty (Cont x) = printf "cont %s" (pretty x)
   pretty (ArrayAccess x y) = printf "%s[%s]" (pretty x) (pretty y)

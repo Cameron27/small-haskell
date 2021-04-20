@@ -1,0 +1,9 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    record duplicate(param: int, param: string);
+}

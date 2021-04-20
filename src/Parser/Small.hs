@@ -267,21 +267,7 @@ chainDec :: [Dec] -> Dec
 chainDec = foldr ChainDec SkipDec
 
 exp :: Parsec String () Exp
-exp = jumpout
-
--- Jumpout: jumpout I : T in E
-jumpout :: Parsec String () Exp
-jumpout =
-  choice
-    [ do
-        keyword "jumpout"
-        i <- ide
-        colon
-        t <- typeDeclaration
-        keyword "in"
-        Jumpout i t <$> jumpout,
-      ternaryOp
-    ]
+exp = ternaryOp
 
 -- Ternary: E1 ? E2 : E3
 ternaryOp :: Parsec String () Exp

@@ -1,58 +1,97 @@
-{-# LANGUAGE LambdaCase #-}
-
 module TypeChecker.Helper.TypeModification where
 
 import Common.Formatting
-import Data.List
 import qualified Data.Set as Set
-import Parser.Types
 import Text.Printf
+import TypeChecker.Helper.Control
 import TypeChecker.Types
 
-ref :: Type -> Type
-ref TAny = TAny
-ref TJump = TJump
-ref (TSet ts) = reduceType $ TSet $ Set.map ref ts
-ref t = TRef t
+ref :: Pretty a => a -> Type -> Either TypeError Type
+ref src t =
+  if isSv t
+    then return $ TRef t
+    else err $ printf "\"%s\" is not a storable value in \"%s\"" (show t) (pretty src)
 
 deref :: Type -> Type
 deref (TRef t) = t
-deref (TSet ts) = reduceType $ TSet $ Set.map deref ts
+deref (TRefMaybe t) = t
 deref t = t
 
 rval :: Pretty a => a -> Type -> Either TypeError Type
 rval src t =
-  let t' = deref t
-   in if t' `leq` rTypes
-        then Right t'
-        else Left $ TypeError $ printf "\"%s\" is not a right hand value in \"%s\"" (show t') (pretty src)
+  if isRv t'
+    then return t'
+    else err $ printf "\"%s\" is not a right hand value in \"%s\"" (show t') (pretty src)
   where
-    rTypes = TSet (Set.fromList [TInt, TDouble, TBool, TString, TRef TAny, TArray TAny, TAnyRecord])
+    t' = deref t
 
-createTSet :: [Type] -> Type
-createTSet ts = reduceType $ TSet $ Set.fromList ts'
-  where
-    (sets', notSets) =
-      partition
-        ( \case
-            TSet _ -> True
-            _ -> False
-        )
-        ts
-    sets = map (\(TSet ts) -> Set.toList ts) sets'
-    ts' = concat $ notSets : sets
+tryMerge :: Pretty a => a -> Type -> Type -> Either TypeError Type
+tryMerge src (TRef t1) (TRef t2) = case TRef <$> tryMerge src t1 t2 of
+  Left _ -> err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRef t1) (show $ TRef t2) (pretty src)
+  x -> x
+tryMerge src (TRef t1) (TRefMaybe t2) =
+  if t1 == t2
+    then return $ TRefMaybe t1
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRef t1) (show $ TRefMaybe t2) (pretty src)
+tryMerge src (TRefMaybe t1) (TRef t2) =
+  if t1 == t2
+    then return $ TRefMaybe t1
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRefMaybe t1) (show $ TRef t2) (pretty src)
+tryMerge src t1 (TRefMaybe t2) =
+  if t1 == t2
+    then return $ TRefMaybe t1
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show t1) (show $ TRefMaybe t2) (pretty src)
+tryMerge src (TRefMaybe t1) t2 =
+  if t1 == t2
+    then return $ TRefMaybe t1
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRefMaybe t1) (show t2) (pretty src)
+tryMerge src t1 (TRef t2) =
+  if t1 == t2
+    then return $ TRefMaybe t1
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show t1) (show $ TRef t2) (pretty src)
+tryMerge src (TRef t1) t2 =
+  if t1 == t2
+    then return $ TRefMaybe t1
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRef t1) (show t2) (pretty src)
+tryMerge src t1 t2 =
+  if t1 == t2
+    then return t1
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show t1) (show t2) (pretty src)
 
-reduceType :: Type -> Type
-reduceType (TSet set) = simplifySet $ removeRedundant set
-  where
-    removeRedundant set = Set.filter (\t1 -> not $ any (\t2 -> t1 `leq` t2 && t1 /= t2) set) set
-    simplifySet set =
-      if Set.size set == 1
-        then Set.elemAt 0 set
-        else TSet set
-reduceType t = t
+recordTypes :: Type -> [(Ide, Type)]
+recordTypes (TRecord ts) = ts
 
-dearray :: Type -> Type
-dearray (TArray t) = t
-dearray (TSet set) = TSet $ Set.map dearray set
-dearray t = error $ printf "Cannot dearray %s." (show t)
+arrayType :: Type -> Type
+arrayType (TArray t) = t
+
+isSv :: Type -> Bool
+isSv TInt = True
+isSv TDouble = True
+isSv TBool = True
+isSv TString = True
+isSv (TRef _) = True
+isSv (TArray _) = True
+isSv (TRecord _) = True
+isSv (TFile _) = True
+isSv _ = False
+
+isRv :: Type -> Bool
+isRv TInt = True
+isRv TDouble = True
+isRv TBool = True
+isRv TString = True
+isRv (TRef _) = True
+isRv (TArray _) = True
+isRv (TRecord _) = True
+isRv _ = False
+
+isPrintable :: Type -> Bool
+isPrintable TInt = True
+isPrintable TDouble = True
+isPrintable TBool = True
+isPrintable TString = True
+isPrintable _ = False
+
+assignable :: Type -> Type -> Bool
+assignable t1 (TRef t2) = t1 == t2
+assignable _ _ = False

@@ -38,7 +38,6 @@
 32
 33
 34
-35
 36
 37
 38
@@ -215,9 +214,6 @@ g:
     // if exp
     output valof: bool { own x: bool = true; return x; } ? valof: int { own x: int = 33; return x; } : valof: int { own x: int = 34; return x; };
     output valof: bool { own x: bool = false; return x; } ? valof: int { own x: int = 33; return x; } : valof: int { own x: int = 34; return x; };
-
-    // jumpout
-    output jumpout j: int in 1 + (true ? j(valof: int { own x: int = 35; return x; }) : 1);
 
     // valof
     output valof: int { own x: int = 36; return x; };

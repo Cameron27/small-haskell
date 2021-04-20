@@ -4,6 +4,7 @@ import Common.Formatting
 import qualified Data.HashMap.Strict as HashMap
 import Data.Hashable
 import Data.List
+import Data.Maybe
 import qualified Data.Set as Set
 import Text.Printf
 
@@ -23,57 +24,42 @@ data Type
   | TBool
   | TString
   | TArray Type
+  | TArrayAny
   | TRecord [(Ide, Type)]
+  | TRecordAny
   | TProc [Type]
+  | TProcAny
   | TFunc [Type] Type
+  | TFuncAny
   | TFile Type
+  | TFileAny
   | TRef Type
+  | TRefAny
+  | TRefMaybe Type
   | TEscape
-  | TJump
-  | TSet (Set.Set Type)
   | TVoid
-  | TAnyRecord
-  | TAny
-  deriving (Eq, Ord)
+  deriving (Eq, Ord, Show)
 
-instance Show Type where
-  show TInt = "int"
-  show TDouble = "float"
-  show TBool = "bool"
-  show TString = "string"
-  show (TArray t) = printf "array %s" (show t)
-  show (TRecord ts) = printf "record(%s)" (intercalate ", " $ map (\(i, t) -> printf "%s: %s" i (show t)) ts)
-  show (TProc ts) = printf "proc(%s)" (intercalate ", " $ map show ts)
-  show (TFunc ts t) = printf "func(%s) %s" (intercalate ", " $ map show ts) (show t)
-  show (TFile t) = printf "file %s" (show t)
-  show (TRef t) = printf "ref %s" (show t)
-  show TEscape = "escape"
-  show TJump = "jump"
-  show (TSet ts) = printf "set(%s)" (intercalate ", " $ map show (Set.toList ts))
-  show TVoid = "void"
-  show TAnyRecord = "record"
-  show TAny = "any"
-
-leq :: Type -> Type -> Bool
--- Any
-_ `leq` TAny = True
-TRecord _ `leq` TAnyRecord = True
--- Jump
-TJump `leq` TVoid = False
-TJump `leq` _ = True
--- Array
-TArray a `leq` TArray b = a `leq` b
--- Record
-TRecord a `leq` TRecord b = length a == length b && all (\((ai, at), (bi, bt)) -> ai == bi && at `leq` bt) (zip a b)
--- Procedure
-TProc a `leq` TProc b = length a == length b && all (uncurry leq) (zip a b)
-TFunc a1 a2 `leq` TFunc b1 b2 = length a1 == length b1 && all (uncurry leq) (zip a1 b1) && a2 `leq` b2
--- Files
-TFile a `leq` TFile b = a `leq` b
--- References
-TRef a `leq` TRef b = a `leq` b
--- Sets
-TSet a `leq` b = all (`leq` b) a
-a `leq` TSet b = any (a `leq`) b
--- Default
-a `leq` b = a == b
+eq :: Type -> Type -> Bool
+-- any cases
+eq TArrayAny (TArray _) = True
+eq (TArray _) TArrayAny = True
+eq TRecordAny (TRecord _) = True
+eq (TRecord _) TRecordAny = True
+eq TProcAny (TProc _) = True
+eq (TProc _) TProcAny = True
+eq TFuncAny (TFunc _ _) = True
+eq (TFunc _ _) TFuncAny = True
+eq TFileAny (TFile _) = True
+eq (TFile _) TFileAny = True
+eq TRefAny (TRef _) = True
+eq (TRef _) TRefAny = True
+-- nested cases
+eq (TArray t1) (TArray t2) = t1 `eq` t2
+eq (TRecord ts1) (TRecord ts2) = length ts1 == length ts2 && all (\(i, t) -> isJust (find (\(i', t') -> i == i && t `eq` t') ts2)) ts1
+eq (TProc ts1) (TProc ts2) = length ts1 == length ts2 && all (uncurry eq) (zip ts1 ts2)
+eq (TFunc ts1 t1) (TFunc ts2 t2) = length ts1 == length ts2 && all (uncurry eq) (zip ts1 ts2) && t1 `eq` t2
+eq (TFile t1) (TFile t2) = t1 `eq` t2
+eq (TRef t1) (TRef t2) = t1 `eq` t2
+eq (TRefMaybe t1) (TRefMaybe t2) = t1 `eq` t2
+eq t1 t2 = t1 == t2

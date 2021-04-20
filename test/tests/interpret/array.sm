@@ -25,6 +25,7 @@ program {
     array y[true ? -3 : 1:-1]: string;
     var a: int = 2;
     array z[a * a + 1:4 + 3]: float;
+    array z2[a * a + 1:4 + 3]: float;
     var i: int = 4;
     func f(a: array of int): array of int {
         a
@@ -61,7 +62,7 @@ program {
 
     output z[6] == 3.5 ? z[5] : z[7]; // 1.25
     z[6] = 5.0;
-    output (true ? z : y)[6]; // 5.0
+    output (true ? z : z2)[6]; // 5.0
 
     {
         proc update(xs: array of float, n: int, v: float) {

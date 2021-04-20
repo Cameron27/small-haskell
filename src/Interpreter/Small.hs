@@ -64,9 +64,6 @@ evalExp (Func e1 e2) w r k s = evalExp e1 (w ! 1) r (testFunc (length e2) (Func 
         params
         []
 evalExp (IfExp e1 e2 e3) w r k s = evalRVal e1 (w ! 1) r (testBool e1 $ \e -> cond (evalExp e2 (w ! 2) r k, evalExp e3 (w ! 3) r k) $ evToBool e) s
-evalExp (Jumpout i1 _ e1) w r k s = evalExp e1 (w ! 2) (updateEnv (newEnv i1 jump) r) k s
-  where
-    jump = DFunc (\_ e -> k (head e)) 1
 evalExp (Valof t1 c1) w r k s = evalCom c1 (w ! 1) (Env r' w' k) (err $ printf "no return encountered in %s" $ show (Valof t1 c1)) s
   where
     (Env r' w' _) = r
@@ -258,7 +255,6 @@ evalOwnExp (Func e1 es) w r u = evalOwnExp e1 (w ! 1) r chainEval
         (zip [2 ..] es)
         []
 evalOwnExp (IfExp e1 e2 e3) w r u = evalOwnExp e1 (w ! 1) r (\r1 -> evalOwnExp e2 (w ! 2) r (\r2 -> evalOwnExp e3 (w ! 3) r (u . updateEnv (updateEnv r1 r2))))
-evalOwnExp (Jumpout _ _ e1) w r u = evalOwnExp e1 (w ! 2) r u
 evalOwnExp (Valof _ c1) w r u = evalOwnCom c1 (w ! 1) r u
 evalOwnExp (Cont e1) w r u = evalOwnExp e1 (w ! 1) r u
 evalOwnExp (ArrayAccess e1 e2) w r u = evalOwnExp e1 (w ! 1) r (\r1 -> evalOwnExp e2 (w ! 2) r (u . updateEnv r1))

@@ -19,22 +19,18 @@ Ted
 5
 1
 5
-1
-2
-2
 Ted
 */
 
 program {
-    record person(name: string, age: int);
-    record person2(name: string, age: int);
-    record override(param: int, param: string);
+    record person(name: string, last: string, age: int);
+    record person2(name: string, last: string, age: int);
     record empty();
     var name: string = "Bill";
-    func id(x: record(name: string, age: int)): record(name: string, age: int) {
+    func id(x: record(name: string, last: string, age: int)): record(name: string, last: string, age: int) {
         x
     }
-    proc updateAge(p: record(name: string, age: int), n: int) {
+    proc updateAge(p: record(last: string, name: string, age: int), n: int) {
         p.age = n;
     }
 
@@ -85,13 +81,5 @@ program {
 
     output person2.person.age;
 
-    override.param = 1;
-    output override.param;
-    with override do {
-        param = 2;
-        output param;
-    }
-    output override.param;
-
-    output person.(1 < 2 ? name : age);
+    output person.(1 < 2 ? name : last);
 }
