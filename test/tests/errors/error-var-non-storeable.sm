@@ -1,0 +1,10 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    proc a() {}
+    var x: proc() = a;
+}

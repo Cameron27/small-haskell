@@ -15,6 +15,7 @@
 2
 3
 4
+1
 */
 
 program {
@@ -48,4 +49,15 @@ program {
     incOut();
 
     outX(4);
+
+    {
+        own x: int = valof: int {
+            file f withbuffer b: int;
+            b = 1;
+            put(f);
+            reset(f);
+            return b;
+        };
+        output x;
+    }
 }

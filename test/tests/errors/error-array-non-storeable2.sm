@@ -1,0 +1,9 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    const x: array of proc() = array[1:1]: proc();
+}

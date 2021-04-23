@@ -1,0 +1,9 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    output array[1:2]: int;
+}

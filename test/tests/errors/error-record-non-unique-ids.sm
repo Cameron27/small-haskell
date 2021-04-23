@@ -1,0 +1,9 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    record x(x: int, x: int);
+}

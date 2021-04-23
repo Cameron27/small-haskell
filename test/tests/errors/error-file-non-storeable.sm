@@ -1,0 +1,9 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    file f withbuffer b: proc();
+}

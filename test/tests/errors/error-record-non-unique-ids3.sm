@@ -1,0 +1,9 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    proc x(x: record(x: int, x: int)) {}
+}

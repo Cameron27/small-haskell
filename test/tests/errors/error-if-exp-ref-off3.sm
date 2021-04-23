@@ -1,0 +1,9 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    const x: int = true ? ref "" : (true ? 1 : ref 1);
+}

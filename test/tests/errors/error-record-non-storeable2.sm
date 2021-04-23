@@ -1,0 +1,9 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    const x: record(a: proc()) = record(a: proc());
+}

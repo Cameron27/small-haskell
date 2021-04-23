@@ -1,0 +1,21 @@
+// true
+// true
+// true
+/**/
+/**/
+
+program {
+    const a: int = true ? 1 : 1;
+    const a: int = true ? ref 1 : ref 1;
+    const a: int = true ? 1 : ref 1;
+    const a: int = true ? ref 1 : 1;
+    const a: int = cont (true ? ref 1 : ref ref 1);
+    const a: int = cont (true ? ref ref 1 : ref 1);
+    const a: int = true ? 1 : (true ? 1 : 1);
+    const a: int = true ? (true ? 1 : 1) : 1;
+    const a: int = true ? 1 : (true ? ref 1 : 1);
+    const a: int = true ? (true ? ref 1 : 1) : 1;
+    const a: int = true ? ref 1 : (true ? ref 1 : 1);
+    const a: int = true ? (true ? ref 1 : 1) : ref 1;
+    const a: int = true ? (true ? ref 1 : 1) : (true ? ref 1 : 1);
+}
