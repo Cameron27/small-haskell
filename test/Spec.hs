@@ -178,16 +178,21 @@ testKProgram testSpec =
   do
     (exitCode, stdout, stderr) <-
       readCreateProcessWithExitCode
-        (shell $ "krun --directory ../small-k -o none " ++ name testSpec)
+        (shell $ "../small-k/run.sh -o none " ++ name testSpec)
         $ input testSpec ++ "\n"
     let parseTest =
           case exitCode of
-            ExitFailure 113 -> TestCase $ assertEqual stderr (parsed testSpec) False
+            ExitFailure 3 -> TestCase $ assertEqual stderr (parsed testSpec) False
             _ -> TestCase $ assertEqual "program parsed when it should not have" (parsed testSpec) True
-    let shouldRun = exitCode /= ExitFailure 113 && parsed testSpec
+    let shouldType = exitCode /= ExitFailure 3 && parsed testSpec
+    let typeTest =
+          case exitCode of
+            ExitFailure 2 -> TestCase $ assertEqual stderr (typed testSpec) False
+            _ -> TestCase $ assertEqual "program type checked when it should not have" (typed testSpec) True
+    let shouldRun = shouldType && exitCode /= ExitFailure 2 && typed testSpec
     let runTest =
           case exitCode of
-            ExitFailure 1 -> TestCase $ assertEqual "" {- TODO: Add actual error? -} (ran testSpec) False
+            ExitFailure 1 -> TestCase $ assertEqual stderr (ran testSpec) False
             ExitSuccess -> TestCase $ assertEqual "program ran when it should not have" (ran testSpec) True
             ExitFailure i -> TestCase $ assertFailure $ "Unexpected exit-code: " ++ show i
     let shouldCheckResult = shouldRun && exitCode == ExitSuccess && ran testSpec
@@ -202,4 +207,4 @@ testKProgram testSpec =
               )
     return $
       name testSpec
-        ~: TestList (["Parsed" ~: parseTest] ++ ["Ran" ~: runTest | shouldRun] ++ ["Output" ~: resultTest | shouldCheckResult])
+        ~: TestList (["Parsed" ~: parseTest] ++ ["Typed" ~: typeTest | shouldType] ++ ["Ran" ~: runTest | shouldRun] ++ ["Output" ~: resultTest | shouldCheckResult])
