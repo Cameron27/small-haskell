@@ -27,7 +27,7 @@ program {
     record person2(name: string, last: string, age: int);
     record empty();
     var name: string = "Bill";
-    func id(x: record(name: string, last: string, age: int)): record(name: string, last: string, age: int) {
+    func id(x: record(age: int, name: string, last: string)): record(name: string, last: string, age: int) {
         x
     }
     proc updateAge(p: record(last: string, name: string, age: int), n: int) {

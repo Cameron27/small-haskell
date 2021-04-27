@@ -57,7 +57,7 @@ eq TRefAny (TRef _) = True
 eq (TRef _) TRefAny = True
 -- nested cases
 eq (TArray t1) (TArray t2) = t1 `eq` t2
-eq (TRecord ts1) (TRecord ts2) = length ts1 == length ts2 && all (\(i, t) -> isJust (find (\(i', t') -> i == i && t `eq` t') ts2)) ts1
+eq (TRecord ts1) (TRecord ts2) = length ts1 == length ts2 && all (\(i, t) -> isJust (find (\(i', t') -> i == i' && t `eq` t') ts2)) ts1
 eq (TProc ts1) (TProc ts2) = length ts1 == length ts2 && all (uncurry eq) (zip ts1 ts2)
 eq (TFunc ts1 t1) (TFunc ts2 t2) = length ts1 == length ts2 && all (uncurry eq) (zip ts1 ts2) && t1 `eq` t2
 eq (TFile t1) (TFile t2) = t1 `eq` t2
