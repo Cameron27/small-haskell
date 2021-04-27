@@ -29,6 +29,10 @@ tryMerge :: Pretty a => a -> Type -> Type -> Either TypeError Type
 tryMerge src (TRef t1) (TRef t2) = case TRef <$> tryMerge src t1 t2 of
   Left _ -> err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRef t1) (show $ TRef t2) (pretty src)
   x -> x
+tryMerge src (TRefMaybe t1) (TRefMaybe t2) =
+  if t1 == t2
+    then return $ TRefMaybe t1
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRef t1) (show $ TRefMaybe t2) (pretty src)
 tryMerge src (TRef t1) (TRefMaybe t2) =
   if t1 == t2
     then return $ TRefMaybe t1

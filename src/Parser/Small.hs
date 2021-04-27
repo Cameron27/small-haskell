@@ -1,6 +1,7 @@
 module Parser.Small (parseSmall) where
 
 import Common.Formatting
+import Common.Functions
 import Data.List
 import Parser.Language
 import Parser.TypeDeclaration

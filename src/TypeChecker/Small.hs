@@ -1,6 +1,7 @@
 module TypeChecker.Small (typeCheckSmall) where
 
 import Common.Formatting
+import Common.Functions
 import Data.Foldable
 import qualified Data.Set as Set
 import Debug.Trace
@@ -9,7 +10,6 @@ import Text.Printf
 import TypeChecker.BasicOperations
 import TypeChecker.DefaultEnvironment
 import TypeChecker.Helper.Control
-import TypeChecker.Helper.Functions
 import TypeChecker.Helper.TEnv
 import TypeChecker.Helper.TypeModification
 import TypeChecker.Types
@@ -61,9 +61,6 @@ typeCom (For i1 f1 c1) r = do
   if t2 `assignable` t1
     then typeCom c1 r
     else err $ printf "cannot assign \"%s\" to \"%s\" in \"%s\"" (show t2) (show t1) (pretty (For i1 f1 c1))
-typeCom (Block d1 c1) r = do
-  r1 <- typeDec d1 r
-  typeCom c1 (updateTEnv r1 r)
 typeCom (Trap cs is) r = do
   typeCom (head cs) (updateTEnv (newTEnvMulti is ts) r)
   foldl (\c1 c2 -> c1 >> typeCom c2 r) (Right ()) (tail cs)
@@ -86,6 +83,9 @@ typeCom (WithDo e1 c1) r = do
   if t `eq` TRecordAny
     then typeCom c1 (updateTEnv (uncurry newTEnvMulti (unzip $ recordTypes t)) r)
     else err $ printf "with cannot be performed on type \"%s\" in \"%s\"" (show t) (pretty (WithDo e1 c1))
+typeCom (Block d1 c1) r = do
+  r1 <- typeDec d1 r
+  typeCom c1 (updateTEnv r1 r)
 typeCom (Chain c1 c2) r =
   do
     typeCom c1 r
@@ -111,33 +111,42 @@ typeDec (Own i1 t1 e1) r = do
     then return $ newTEnv i1 t1'
     else err $ printf "cannot assign \"%s\" to \"%s\" in \"%s\"" (show t) (show t1') (pretty (Own i1 t1 e1))
 typeDec (ArrayDec i1 e1 e2 t1) r = do
+  typeType t1
   te1 <- typeExp e1 r >>= rval (ArrayDec i1 e1 e2 t1)
   te2 <- typeExp e2 r >>= rval (ArrayDec i1 e1 e2 t1)
   if te1 `eq` TInt && te2 `eq` TInt
     then newTEnv i1 <$> (TArray <$> ref (ArrayDec i1 e1 e2 t1) t1)
     else err $ printf "array cannot have bounds of types \"%s:%s\" in \"%s\"" (show te1) (show te2) (pretty (ArrayDec i1 e1 e2 t1))
-typeDec (RecordDec i1 is ts) r =
+typeDec (RecordDec i1 is ts) r = do
+  typeTypes ts
   if allDifferent is
     then do
       ts' <- foldr (\t ts' -> do t' <- ref (RecordDec i1 is ts) t; (t' :) <$> ts') (Right []) ts
       return $ newTEnv i1 $ TRecord (zip is ts')
     else err $ printf "all identifiers must be unique in \"%s\"" (pretty (RecordDec i1 is ts))
 typeDec (FileDec i1 i2 t1) r = do
+  typeType t1
   t1' <- ref (FileDec i1 i2 t1) t1
   t2' <- ref (FileDec i1 i2 t1) (TFile t1)
   return $ newTEnvMulti [i1, i2] [t2', t1']
 typeDec (ProcDec i1 is ts c1) r = do
+  typeTypes ts
   typeCom c1 (updateTEnv (newTEnvMulti is ts) r)
   return $ newTEnv i1 (TProc ts)
 typeDec (RecProcDec i1 is ts c1) r = do
+  typeTypes ts
   typeCom c1 (updateTEnv (newTEnvMulti (i1 : is) (TProc ts : ts)) r)
   return $ newTEnv i1 (TProc ts)
 typeDec (FuncDec i1 is ts t1 e1) r = do
+  typeTypes ts
+  typeType t1
   t <- typeExp e1 (updateTEnv (newTEnvMulti is ts) r)
   if t `eq` t1
     then return $ newTEnv i1 (TFunc ts t1)
     else err $ printf "function result \"%s\" does not match type \"%s\" in \"%s\"" (show t) (show t1) (pretty (FuncDec i1 is ts t1 e1))
 typeDec (RecFuncDec i1 is ts t1 e1) r = do
+  typeTypes ts
+  typeType t1
   t <- typeExp e1 (updateTEnv (newTEnvMulti (i1 : is) (TFunc ts t1 : ts)) r)
   if t `eq` t1
     then return $ newTEnv i1 (TFunc ts t1)
@@ -157,12 +166,14 @@ typeExp Read r = Right TString
 typeExp (I i1) r = lookupTEnv i1 r
 typeExp (RefExp e1) r = typeExp e1 r >>= ref (RefExp e1)
 typeExp (ArrayExp e1 e2 t1) r = do
+  typeType t1
   te1 <- typeExp e1 r >>= rval (ArrayExp e1 e2 t1)
   te2 <- typeExp e2 r >>= rval (ArrayExp e1 e2 t1)
   if te1 `eq` TInt && te2 `eq` TInt
     then TArray <$> ref (ArrayExp e1 e2 t1) t1
     else err $ printf "array cannot have bounds of types \"%s:%s\" in \"%s\"" (show te1) (show te2) (pretty (ArrayExp e1 e2 t1))
-typeExp (RecordExp is ts) r =
+typeExp (RecordExp is ts) r = do
+  typeTypes ts
   if allDifferent is
     then do
       ts' <- foldr (\t ts' -> do t' <- ref (RecordExp is ts) t; (t' :) <$> ts') (Right []) ts
@@ -186,6 +197,7 @@ typeExp (IfExp e1 e2 e3) r = do
       tryMerge (IfExp e1 e2 e3) t1 t2
     else err $ printf "test cannot be \"%s\" in \"%s\"" (show t) (pretty (IfExp e1 e2 e3))
 typeExp (Valof t1 c1) (TEnv r _) = do
+  typeType t1
   typeCom c1 (TEnv r t1)
   return t1
 typeExp (Cont e1) r = do
@@ -209,9 +221,9 @@ typeExp (Dot e1 e2) r = do
     else err $ printf "dot operation be performed on type \"%s\" in \"%s\"" (show t) (pretty (Dot e1 e2))
 typeExp (Not e1) r = do
   t <- typeExp e1 r >>= rval (Not e1)
-  case t of
-    TBool -> return TBool
-    _ -> err $ printf "! cannot be applied to type \"%s\" in \"%s\"" (show t) (pretty (Not e1))
+  if t `eq` TBool
+    then return TBool
+    else err $ printf "! cannot be applied to type \"%s\" in \"%s\"" (show t) (pretty (Not e1))
 typeExp (Op o1 e1 e2) r = do
   t1 <- typeExp e1 r >>= rval (Op o1 e1 e2)
   t2 <- typeExp e2 r >>= rval (Op o1 e1 e2)
@@ -239,6 +251,27 @@ typeFor (ChainFor f1 f2) r = do
   if t1 == t2
     then return t1
     else err $ printf "for cannot have mixed types \"%s\" and \"%s\" in \"%s\"" (show t1) (show t2) (pretty (ChainFor f1 f2))
+
+typeType :: Type -> Either TypeError ()
+typeType (TArray t) = typeType t
+typeType (TRecord ts) =
+  if allDifferent (map fst ts)
+    then typeTypes (map snd ts)
+    else err $ printf "all identifiers must be unique in \"%s\"" (show (TRecord ts))
+typeType (TProc ts) = typeTypes ts
+typeType (TFunc ts t) = do
+  typeTypes ts
+  typeType t
+typeType (TFile t) = typeType t
+typeType (TRef t) = typeType t
+typeType (TRefMaybe t) = typeType t
+typeType _ = return ()
+
+typeTypes :: [Type] -> Either TypeError ()
+typeTypes [] = return ()
+typeTypes (t : ts) = do
+  typeType t
+  typeTypes ts
 
 typeCheckSmall :: Pgm -> Maybe TypeError
 typeCheckSmall p = case typePgm p of

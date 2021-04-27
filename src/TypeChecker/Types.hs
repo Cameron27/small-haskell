@@ -27,6 +27,7 @@ data Type
   | TArrayAny
   | TRecord [(Ide, Type)]
   | TRecordAny
+  | TRecordInvalid
   | TProc [Type]
   | TProcAny
   | TFunc [Type] Type

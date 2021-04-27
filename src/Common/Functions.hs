@@ -1,4 +1,4 @@
-module TypeChecker.Helper.Functions where
+module Common.Functions where
 
 import Data.List
 
