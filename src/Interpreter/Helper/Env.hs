@@ -2,7 +2,7 @@ module Interpreter.Helper.Env where
 
 import Common.Formatting
 import qualified Data.HashMap.Strict as HashMap
-import Interpreter.Types
+import Interpreter.Core.Types
 import Text.Printf
 
 -- | @updateEnv r' r@ returns an environment which first checks @r'@ then `r` when a lookup is preformed. Keeps the return

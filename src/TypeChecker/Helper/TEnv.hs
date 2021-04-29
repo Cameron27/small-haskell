@@ -2,8 +2,8 @@ module TypeChecker.Helper.TEnv where
 
 import qualified Data.HashMap.Strict as HashMap
 import Text.Printf
+import TypeChecker.Core.Types
 import TypeChecker.Helper.Control
-import TypeChecker.Types
 
 -- | @updateEnv r' r@ returns an environment which first checks @r'@ then `r` when a lookup is preformed.
 updateTEnv :: TEnv -> TEnv -> TEnv

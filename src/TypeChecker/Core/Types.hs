@@ -1,4 +1,4 @@
-module TypeChecker.Types where
+module TypeChecker.Core.Types where
 
 import Common.Formatting
 import qualified Data.HashMap.Strict as HashMap

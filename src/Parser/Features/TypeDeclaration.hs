@@ -1,9 +1,9 @@
-module Parser.TypeDeclaration (typeDeclaration) where
+module Parser.Features.TypeDeclaration (typeDeclaration) where
 
 import Common.Functions
-import Parser.Language
+import Parser.Helper.Language
 import Text.Parsec
-import TypeChecker.Types
+import TypeChecker.Core.Types
 
 typeDeclaration :: Parsec String () Type
 typeDeclaration = do

@@ -7,8 +7,8 @@ import Data.List
 import Data.Maybe
 import Data.String.Utils
 import GHC.IO.Handle
+import Interpreter.Core.Types
 import Interpreter.Small
-import Interpreter.Types
 import Parser.Small
 import System.Directory
 import System.Environment

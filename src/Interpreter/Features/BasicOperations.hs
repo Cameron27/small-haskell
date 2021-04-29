@@ -1,10 +1,10 @@
-module Interpreter.BasicOperations (evalOp) where
+module Interpreter.Features.BasicOperations (evalOp) where
 
 import Common.Formatting
 import Data.Bits
+import Interpreter.Core.Types
 import Interpreter.Helper.Control
-import Interpreter.Types
-import Parser.Types
+import Parser.Core.Types
 import Text.Printf
 
 evalOp :: Exp -> Opr -> (Rv, Rv) -> Ec -> Cc

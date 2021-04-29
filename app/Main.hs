@@ -1,8 +1,8 @@
 module Main where
 
 import Control.Monad
+import Interpreter.Core.Types
 import Interpreter.Small
-import Interpreter.Types
 import Parser.Small
 import System.Console.ParseArgs
 import System.Environment

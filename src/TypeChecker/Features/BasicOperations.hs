@@ -1,12 +1,11 @@
-module TypeChecker.BasicOperations (typeOp) where
+module TypeChecker.Features.BasicOperations (typeOp) where
 
 import Common.Formatting
-import qualified Data.Set as Set
-import Parser.Types
+import Parser.Core.Types
 import Text.Printf
+import TypeChecker.Core.Types
 import TypeChecker.Helper.Control
 import TypeChecker.Helper.TypeModification
-import TypeChecker.Types
 
 typeOp :: Exp -> Opr -> (Type, Type) -> Either TypeError Type
 typeOp _ Mult (TInt, TInt) = return TInt

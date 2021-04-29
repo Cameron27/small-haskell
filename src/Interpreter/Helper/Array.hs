@@ -1,10 +1,10 @@
 module Interpreter.Helper.Array where
 
 import Common.Formatting
+import Interpreter.Core.Types
 import Interpreter.Helper.Control
 import Interpreter.Helper.Store
 import Interpreter.Helper.TypeTesting
-import Interpreter.Types
 import Text.Printf
 
 newArray :: (Int, Int) -> Ec -> Cc

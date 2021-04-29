@@ -1,10 +1,10 @@
 module Interpreter.Helper.Continuation where
 
 import Common.Formatting
+import Interpreter.Core.Types
 import Interpreter.Helper.Control
 import Interpreter.Helper.Store
 import Interpreter.Helper.TypeTesting
-import Interpreter.Types
 import Text.Printf
 
 -- | @cont k e s@ looks up the location `e` in `s` and passes the result, along with `s` into `k`.

@@ -1,6 +1,6 @@
 module Interpreter.Helper.Control where
 
-import Interpreter.Types
+import Interpreter.Core.Types
 import System.Exit
 import System.IO
 

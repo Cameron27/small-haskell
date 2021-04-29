@@ -1,9 +1,9 @@
-module Parser.Types where
+module Parser.Core.Types where
 
 import Common.Formatting
 import Data.List
 import Text.Printf
-import TypeChecker.Types
+import TypeChecker.Core.Types
 
 type Id = String
 

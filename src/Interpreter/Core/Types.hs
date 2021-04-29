@@ -1,4 +1,4 @@
-module Interpreter.Types where
+module Interpreter.Core.Types where
 
 import Common.Formatting
 import Data.Bits

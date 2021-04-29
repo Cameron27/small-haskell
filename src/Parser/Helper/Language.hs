@@ -1,7 +1,7 @@
-module Parser.Language where
+module Parser.Helper.Language where
 
 import Data.Functor.Identity
-import Parser.Types
+import Parser.Core.Types
 import Text.Parsec
 import Text.Parsec.Token
 import qualified Text.Parsec.Token as Token

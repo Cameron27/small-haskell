@@ -2,7 +2,7 @@ module Interpreter.Helper.Store where
 
 import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe
-import Interpreter.Types
+import Interpreter.Core.Types
 import Text.Printf
 
 -- | @isUnused l s@ returns `True` iff `l` is unused in `s`.

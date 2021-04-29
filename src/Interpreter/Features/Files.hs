@@ -1,14 +1,22 @@
-module Interpreter.FileOperations (eofFunc, resetFProc, rewriteFProc, getFProc, putFProc) where
+module Interpreter.Features.Files (evalFileDec, eofFunc, resetFProc, rewriteFProc, getFProc, putFProc) where
 
 import Common.Formatting
+import Interpreter.Core.Types
 import Interpreter.Helper.Control
+import Interpreter.Helper.Env
 import Interpreter.Helper.Store
 import Interpreter.Helper.TypeTesting
-import Interpreter.Types
-import Parser.Types
+import Parser.Core.Types
 import Text.Printf
 
 data Filestate = Filestate [Rv] Int (Maybe Rv)
+
+evalFileDec :: Dec -> Posn -> Env -> Dc -> Cc
+evalFileDec (FileDec i1 i2 _) w r u s = u (newEnvMulti [i1, i2] ls) (updateStore l1 (Just $ SFile $ File [] 1 l2) s')
+  where
+    (ls', s') = newLocsStore 2 s
+    ls = map DLoc ls'
+    [l1, l2] = ls'
 
 eofFunc :: Function
 eofFunc k [e1] =

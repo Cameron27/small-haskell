@@ -4,10 +4,10 @@ module Interpreter.Helper.TypeTesting where
 
 import Common.Formatting
 import qualified Data.HashMap.Strict as HashMap
+import Interpreter.Core.Types
 import Interpreter.Helper.Control
 import Interpreter.Helper.Env
-import Interpreter.Types
-import Parser.Types
+import Parser.Core.Types
 import Text.Printf
 
 -- | @svToDv v` returns the denotable value version of `v`.
