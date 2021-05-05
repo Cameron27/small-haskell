@@ -40,7 +40,11 @@ unary =
         ++ map
           unaryOp
           [ -- Not: ! E
-            ("!", Not)
+            ("!", Not),
+            -- Positive: + E
+            ("+", Positive),
+            -- Negative: - E
+            ("-", Negative)
           ]
     )
   where
@@ -96,19 +100,11 @@ atom =
       Bool <$> boolean,
       -- Number
       do
-        negate <-
-          option
-            False
-            ( choice
-                [ do op "+"; return False,
-                  do op "-"; return True
-                ]
-            )
         x <- naturalOrFloat
         case x of
           Right x -> case x of
-            Left i -> return $ Int (if negate then - i else i)
-            Right f -> return $ Double (if negate then - f else f)
+            Left i -> return $ Int i
+            Right f -> return $ Double f
           Left i -> fail $ printf "Integer %d is too large." i,
       -- String
       String

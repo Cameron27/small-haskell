@@ -67,6 +67,17 @@ evalExp (ArrayAccess e1 e2) w r k s =
     s
 evalExp (Dot e1 e2) w r k s = (evalRVal e1 (w ! 1) r $ testRecord e1 (\r' -> evalExp e2 (w ! 2) (updateEnv (recordToEnv $ dvToRecord r') r) k)) s
 evalExp (Not e1) w r k s = (evalRVal e1 (w ! 1) r $ testBool e1 (\e -> k (DBool (not $ dvToBool e)))) s
+evalExp (Positive e1) w r k s = (evalRVal e1 (w ! 1) r $ testNumber e1 k) s
+evalExp (Negative e1) w r k s =
+  ( evalRVal e1 (w ! 1) r $
+      testNumber
+        e1
+        ( \e ->
+            isInt e
+              ?> (k (DInt (- dvToInt e)), k (DDouble (- dvToDouble e)))
+        )
+  )
+    s
 evalExp (Op o1 e1 e2) w r k s = evalRVal e1 (w ! 2) r (\e1 -> evalRVal e2 (w ! 3) r (\e2 -> evalOp ef o1 (evToRv e1, evToRv e2) k)) s
   where
     ef = Op o1 e1 e2

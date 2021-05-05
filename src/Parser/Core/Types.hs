@@ -126,6 +126,8 @@ data Exp
   | ArrayAccess Exp Exp
   | Dot Exp Exp
   | Not Exp
+  | Positive Exp
+  | Negative Exp
   | Op Opr Exp Exp
   deriving (Show)
 
@@ -147,6 +149,8 @@ instance Pretty Exp where
   pretty (ArrayAccess x y) = printf "%s[%s]" (pretty x) (pretty y)
   pretty (Dot x y) = printf "%s.%s" (pretty x) (pretty y)
   pretty (Not x) = printf "!%s" (pretty x)
+  pretty (Positive x) = printf "+%s" (pretty x)
+  pretty (Negative x) = printf "-%s" (pretty x)
   pretty (Op x y z) = printf "%s %s %s" (pretty y) (pretty x) (pretty z)
   pretty _ = "PRETTY_EXP"
 

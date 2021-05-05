@@ -97,6 +97,15 @@ dvToInt e = error $ printf "Tried to convert \"%s\" to a integer." (show e)
 evToInt :: Ev -> Int
 evToInt = dvToInt
 
+-- | @dvToDouble d@ returns the double `d` represents.
+dvToDouble :: Dv -> Double
+dvToDouble (DDouble x) = x
+dvToDouble e = error $ printf "Tried to convert \"%s\" to a double." (show e)
+
+-- | @evToDouble e@ returns the double `e` represents.
+evToDouble :: Ev -> Double
+evToDouble = dvToDouble
+
 -- | @dvToArray d@ returns the array `d` represents.
 dvToArray :: Dv -> Array
 dvToArray (DArray x) = x
@@ -167,6 +176,17 @@ isInt _ = False
 -- use in the error message.
 testInt :: Exp -> Ec -> Ec
 testInt src k e = isInt e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not an integer." (pretty src) (show e))
+
+-- | @isNumber d@ checks if `d` is a number.
+isNumber :: Dv -> Bool
+isNumber (DInt _) = True
+isNumber (DDouble _) = True
+isNumber _ = False
+
+-- | @testNumber src k e@ applies `e` to `k` if it is a number, otherwise it returns an error. `src` is the expression
+-- to use in the error message.
+testNumber :: Exp -> Ec -> Ec
+testNumber src k e = isNumber e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a number." (pretty src) (show e))
 
 -- | @isRv e@ checks if `e` is a right hand value.
 isRv :: Ev -> Bool

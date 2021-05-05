@@ -72,6 +72,8 @@ evalOwnExp (Cont e1) w r u = evalOwnExp e1 (w ! 1) r u
 evalOwnExp (ArrayAccess e1 e2) w r u = evalOwnExp e1 (w ! 1) r (\r1 -> evalOwnExp e2 (w ! 2) r (u . updateEnv r1))
 evalOwnExp (Dot e1 e2) w r u = evalOwnExp e1 (w ! 1) r (\r1 -> evalOwnExp e2 (w ! 2) r (u . updateEnv r1))
 evalOwnExp (Not e1) w r u = evalOwnExp e1 (w ! 1) r u
+evalOwnExp (Positive e1) w r u = evalOwnExp e1 (w ! 1) r u
+evalOwnExp (Negative e1) w r u = evalOwnExp e1 (w ! 1) r u
 evalOwnExp (Op _ e1 e2) w r u = evalOwnExp e1 (w ! 2) r (\r1 -> evalOwnExp e2 (w ! 3) r (u . updateEnv r1))
 
 evalOwnFor :: For -> Posn -> Env -> Dc -> Cc

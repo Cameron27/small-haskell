@@ -11,6 +11,13 @@ import TypeChecker.Features.BasicOperations
 import TypeChecker.Helper.Control
 import TypeChecker.Helper.TEnv
 import TypeChecker.Helper.TypeModification
+  ( arrayType,
+    deref,
+    recordTypes,
+    ref,
+    rval,
+    tryMerge,
+  )
 
 typeExp :: Exp -> TEnv -> Either TypeError Type
 typeExp (Int _) r = Right TInt
@@ -79,6 +86,16 @@ typeExp (Not e1) r = do
   if t `eq` TBool
     then return TBool
     else err $ printf "! cannot be applied to type \"%s\" in \"%s\"" (show t) (pretty (Not e1))
+typeExp (Positive e1) r = do
+  t <- typeExp e1 r >>= rval (Positive e1)
+  if t `eq` TInt || t `eq` TDouble
+    then return t
+    else err $ printf "+ cannot be applied to type \"%s\" in \"%s\"" (show t) (pretty (Positive e1))
+typeExp (Negative e1) r = do
+  t <- typeExp e1 r >>= rval (Negative e1)
+  if t `eq` TInt || t `eq` TDouble
+    then return t
+    else err $ printf "- cannot be applied to type \"%s\" in \"%s\"" (show t) (pretty (Negative e1))
 typeExp (Op o1 e1 e2) r = do
   t1 <- typeExp e1 r >>= rval (Op o1 e1 e2)
   t2 <- typeExp e2 r >>= rval (Op o1 e1 e2)
