@@ -68,27 +68,17 @@ b:
 
     {
         const x: int = 1;
-        const _x: int = -1;
         const x23: int = 0x5F;
         const X_3: int = 0x5f;
-        const x: int = -0x5F;
-        const x: int = -0x5f;
         const x: int = 0X5F;
         const x: int = 0X5f;
-        const x: int = -0X5F;
-        const x: int = -0X5f;
         const x: int = 0o52;
-        const x: int = -0o52;
         const x: int = 0O52;
-        const x: int = -0O52;
         const x: bool = true;
         const x: bool = false;
         const x: float = 1.2;
-        const x: float = -1.2;
         const x: float = 1.2e2;
-        const x: float = -1.2e2;
         const x: float = 1.2E+2;
-        const x: float = -1.2E-2;
         const x: string = "";
         const x: string = "test";
         const x: string = "test\ntest";
@@ -106,6 +96,10 @@ b:
         const x: int = b[2];
         const x: int = r.a;
         const x: bool = !false;
+        const x: int = +1;
+        const x: float = +1.1;
+        const x: int = -1;
+        const x: float = -1.1;
         const x: int = 1 * 2;
         const x: int = 1 / 2;
         const x: int = 1 % 2;

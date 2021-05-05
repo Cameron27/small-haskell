@@ -45,6 +45,8 @@
 40
 41
 42
+43
+44
 */
 
 program {
@@ -234,6 +236,12 @@ g:
     // not
     output !valof: bool { own x: bool = false; return x; } ? 41 : 1;
 
+    // not
+    output +valof: int { own x: int = 42; return x; };
+
+    // not
+    output -valof: int { own x: int = -43; return x; };
+
     // op
-    output valof: int { own x: int = 40; return x; } * valof: int { own x: int = 3; return x; } + valof: int { own x: int = -40; return x; } - valof: int { own x: int = 38; return x; };
+    output valof: int { own x: int = 40; return x; } * valof: int { own x: int = 3; return x; } + valof: int { own x: int = -40; return x; } - valof: int { own x: int = 36; return x; };
 }
