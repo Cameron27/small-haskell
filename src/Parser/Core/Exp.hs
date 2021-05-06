@@ -1,9 +1,9 @@
 module Parser.Core.Exp (exp, unary) where
 
 import {-# SOURCE #-} Parser.Core.Com
+import Parser.Core.TypeDeclaration
 import Parser.Core.Types
 import Parser.Features.BasicOperations
-import Parser.Features.TypeDeclaration
 import Parser.Helper.Language
 import Text.Parsec
 import Text.Printf

@@ -35,7 +35,7 @@ com = do
         e <- exp
         semi
         return $ Output e,
-      -- If: if ( E ) C1 else C2
+      -- If: if ( E ) C1 else C2 | if ( E ) C1
       do
         keyword "if"
         e <- parens exp
@@ -62,7 +62,7 @@ com = do
         return $ Repeat e c,
       -- For: for ( I = F ) C
       forCom,
-      -- Trap: trap { C (I1: C1)* }
+      -- Trap: trap { C* D* (I1: C1)* }
       do
         keyword "trap"
         braces $ do

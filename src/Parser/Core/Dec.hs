@@ -2,8 +2,8 @@ module Parser.Core.Dec (dec, chainDec) where
 
 import {-# SOURCE #-} Parser.Core.Com
 import {-# SOURCE #-} Parser.Core.Exp
+import Parser.Core.TypeDeclaration
 import Parser.Core.Types
-import Parser.Features.TypeDeclaration
 import Parser.Helper.Language
 import Text.Parsec
 import Prelude hiding (exp)
@@ -61,17 +61,7 @@ dec = do
       do
         keyword "record"
         i1 <- ide
-        (is, ts) <-
-          unzip
-            <$> parens
-              ( commaSep
-                  ( do
-                      i <- ide
-                      colon
-                      t <- typeDeclaration
-                      return (i, t)
-                  )
-              )
+        (is, ts) <- typedIdList
         semi
         return $ RecordDec i1 is ts,
       -- File: file I1 withbuffer I2 : T ;
@@ -98,17 +88,7 @@ dec = do
                   return True
               ]
         i1 <- ide
-        (is, ts) <-
-          unzip
-            <$> parens
-              ( commaSep
-                  ( do
-                      i <- ide
-                      colon
-                      t <- typeDeclaration
-                      return (i, t)
-                  )
-              )
+        (is, ts) <- typedIdList
         (if isRec then RecProcDec else ProcDec) i1 is ts <$> block,
       -- Function: (rec)? func I ( I1 : T1, ..., In : T2 ) : T { E }
       do
@@ -124,21 +104,24 @@ dec = do
                   return True
               ]
         i1 <- ide
-        (is, ts) <-
-          unzip
-            <$> parens
-              ( commaSep
-                  ( do
-                      i <- ide
-                      colon
-                      t <- typeDeclaration
-                      return (i, t)
-                  )
-              )
+        (is, ts) <- typedIdList
         colon
         t <- typeDeclaration
         (if isRec then RecFuncDec else FuncDec) i1 is ts t <$> braces exp
     ]
+  where
+    -- I1 : T1, ..., In : Tn
+    typedIdList =
+      unzip
+        <$> parens
+          ( commaSep
+              ( do
+                  i <- ide
+                  colon
+                  t <- typeDeclaration
+                  return (i, t)
+              )
+          )
 
 chainDec :: [Dec] -> Dec
 chainDec = foldr ChainDec SkipDec

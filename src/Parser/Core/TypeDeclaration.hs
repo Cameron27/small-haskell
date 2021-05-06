@@ -1,4 +1,4 @@
-module Parser.Features.TypeDeclaration (typeDeclaration) where
+module Parser.Core.TypeDeclaration (typeDeclaration) where
 
 import Common.Functions
 import Parser.Helper.Language
