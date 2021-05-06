@@ -1,9 +1,11 @@
 module Parser.Helper.Language where
 
+import Data.Char
 import Data.Functor.Identity
+import Numeric
 import Parser.Core.Types
 import Text.Parsec
-import Text.Parsec.Token
+import Text.Parsec.Token hiding (whiteSpace)
 import qualified Text.Parsec.Token as Token
 
 tinyDef :: LanguageDef st
@@ -82,15 +84,7 @@ lexer :: GenTokenParser String u Identity
 lexer = makeTokenParser tinyDef
 
 boolean :: ParsecT String u Identity Bool
-boolean =
-  choice
-    [ do
-        keyword "true"
-        return True,
-      do
-        keyword "false"
-        return False
-    ]
+boolean = do { keyword "true"; return True } <|> do keyword "false"; return False
 
 ide :: ParsecT String u Identity String
 ide = Token.identifier lexer
@@ -124,12 +118,51 @@ naturalOrFloat :: ParsecT String u Identity (Either Integer (Either Int Double))
 naturalOrFloat = do
   n <- Token.naturalOrFloat lexer
   case n of
+    -- Integer that is too large
     Left i | i > toInteger (minBound :: Int) && i < toInteger (maxBound :: Int) -> return $ Right $ Left $ fromInteger i
+    -- Integer in bounds
     Left i | otherwise -> return $ Left i
+    -- Float
     Right i -> return $ Right $ Right i
 
 stringLiteral :: ParsecT String u Identity String
-stringLiteral = Token.stringLiteral lexer
+stringLiteral =
+  do
+    str <-
+      between
+        (char '"')
+        (char '"' <?> "end of string")
+        (many stringChar)
+    whiteSpace
+    return str
+    <?> "literal string"
+  where
+    -- Any char besides \ " \r or \n
+    stringChar =
+      noneOf "\"\\\r\n"
+        <|>
+        -- Escape code
+        do
+          _ <- char '\\'
+          charEsc <|> asciiCode
+            <?> "escape code"
+        <?> "string character"
+    -- Any of the character f n r t \ or " for an escape code
+    charEsc =
+      choice
+        ( zipWith
+            (\c code -> do _ <- char c; return code)
+            "fnrt\\\""
+            "\f\n\r\t\\\""
+        )
+    -- An ascii code of the form xFF
+    asciiCode =
+      do
+        oneOf "xX"
+        a <- hexDigit
+        b <- hexDigit
+        case readHex [a, b] of
+          [(i, "")] -> return $ chr i
 
 semi :: ParsecT String u Identity String
 semi = Token.semi lexer

@@ -81,7 +81,7 @@ b:
         const x: float = 1.2E+2;
         const x: string = "";
         const x: string = "test";
-        const x: string = "test\ntest";
+        const x: string = "te\fst\r\nte\tst\xff\x78\x9Ee";
         const x: string = read;
         const x: string = x;
         const x: string = ref x;
