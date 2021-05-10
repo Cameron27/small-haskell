@@ -236,10 +236,10 @@ g:
     // not
     output !valof: bool { own x: bool = false; return x; } ? 41 : 1;
 
-    // not
+    // positive
     output +valof: int { own x: int = 42; return x; };
 
-    // not
+    // negative
     output -valof: int { own x: int = -43; return x; };
 
     // op
