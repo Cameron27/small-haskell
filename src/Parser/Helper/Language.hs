@@ -54,7 +54,11 @@ tinyDef =
           "int",
           "float",
           "bool",
-          "string"
+          "string",
+          "class",
+          "new",
+          "this",
+          "null"
         ],
       reservedOpNames =
         [ "*",

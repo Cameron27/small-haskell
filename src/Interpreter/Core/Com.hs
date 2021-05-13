@@ -1,8 +1,11 @@
 module Interpreter.Core.Com where
 
+import Common.Formatting
+import Debug.Trace
 import {-# SOURCE #-} Interpreter.Core.Dec
 import {-# SOURCE #-} Interpreter.Core.Exp
 import Interpreter.Core.Types
+import Interpreter.Features.Classes
 import Interpreter.Features.For
 import Interpreter.Helper.Continuation
 import Interpreter.Helper.Control
@@ -16,7 +19,7 @@ evalCom (Output e1) w r c = evalRVal e1 (w ! 1) r (\e s -> putStrLn (print e) >>
   where
     print e = case e of
       DString s -> s
-      e -> show e
+      e -> pretty e
 evalCom (Proc e1 e2) w r c = evalExp e1 (w ! 1) r $ testProc (length e2) (Proc e1 e2) chainEval
   where
     params = zip e2 [2 ..]
@@ -41,7 +44,7 @@ evalCom (Trap cs is) w r c = evalCom (head cs) (w ! 1) (updateEnv (newEnvMulti i
 evalCom (Escape i1) w r c = evalExp (I i1) (w ! 1) r $ testCc (I i1) (\(DCc c) -> c)
 evalCom (Return e1) w r c = evalRVal e1 (w ! 1) r k
   where
-    (Env _ _ k) = r
+    (Env _ _ k _) = r
 evalCom (WithDo e1 c1) w r c = evalRVal e1 (w ! 1) r $ testRecord e1 (\r' -> evalCom c1 (w ! 2) (updateEnv (recordToEnv $ dvToRecord r') r) c)
 evalCom (Chain c1 c2) w r c = evalCom c1 (w ! 1) r $ evalCom c2 (w ! 2) r c
 evalCom Skip w r c = c

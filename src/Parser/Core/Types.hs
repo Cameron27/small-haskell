@@ -90,6 +90,7 @@ data Dec
   | RecProcDec Id [Id] [Type] Com
   | FuncDec Id [Id] [Type] Type Exp
   | RecFuncDec Id [Id] [Type] Type Exp
+  | ClassDec Id CDec
   | ChainDec Dec Dec
   | SkipDec
   deriving (Show)
@@ -105,9 +106,12 @@ instance Pretty Dec where
   pretty (RecProcDec v w x y) = printf "proc %s(%s) %s" v (intercalate ", " $ zipWith (\w x -> printf "%s: %s" w (show x)) w x) (pretty y)
   pretty (FuncDec v w x y z) = printf "func %s(%s): %s { %s }" v (intercalate ", " $ zipWith (\w x -> printf "%s: %s" w (show x)) w x) (show y) (pretty z)
   pretty (RecFuncDec v w x y z) = printf "rec func %s(%s): %s { %s }" v (intercalate ", " $ zipWith (\w x -> printf "%s: %s" w (show x)) w x) (show y) (pretty z)
+  pretty (ClassDec x y) = printf "class %s { %s }" x (pretty y)
   pretty (ChainDec x y) = printf "%s %s" (pretty x) (pretty y)
   pretty SkipDec = ""
   pretty _ = "PRETTY_DEC"
+
+type CDec = Dec
 
 data Exp
   = Int Int
@@ -125,6 +129,9 @@ data Exp
   | Cont Exp
   | ArrayAccess Exp Exp
   | Dot Exp Exp
+  | New Ide
+  | This
+  | Null
   | Not Exp
   | Positive Exp
   | Negative Exp
@@ -148,6 +155,9 @@ instance Pretty Exp where
   pretty (Cont x) = printf "cont %s" (pretty x)
   pretty (ArrayAccess x y) = printf "%s[%s]" (pretty x) (pretty y)
   pretty (Dot x y) = printf "%s.%s" (pretty x) (pretty y)
+  pretty (New x) = printf "new %s" x
+  pretty This = "this"
+  pretty Null = "null"
   pretty (Not x) = printf "!%s" (pretty x)
   pretty (Positive x) = printf "+%s" (pretty x)
   pretty (Negative x) = printf "-%s" (pretty x)

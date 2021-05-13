@@ -1,16 +1,23 @@
-module Parser.Core.Dec (dec, chainDec) where
+module Parser.Features.Classes where
 
 import {-# SOURCE #-} Parser.Core.Com
+import {-# SOURCE #-} Parser.Core.Dec
 import {-# SOURCE #-} Parser.Core.Exp
 import Parser.Core.TypeDeclaration
 import Parser.Core.Types
-import Parser.Features.Classes
 import Parser.Helper.Language
 import Text.Parsec
 import Prelude hiding (exp)
 
-dec :: Parsec String () Dec
-dec = do
+classDec :: Parsec String () Dec
+classDec = do
+  keyword "class"
+  i <- ide
+  ds <- chainDec <$> braces (many $ try cdec)
+  return $ ClassDec i ds
+
+cdec :: Parsec String () Dec
+cdec = do
   choice
     [ -- Constant: const T I = E ;
       do
@@ -32,16 +39,6 @@ dec = do
         e <- exp
         semi
         return $ Var i t e,
-      -- Own: own T I = E ;
-      do
-        keyword "own"
-        i <- ide
-        colon
-        t <- typeDeclaration
-        op "="
-        e <- exp
-        semi
-        return $ Own i t e,
       -- Array: array I [ E1 : E2 ] : T ;
       do
         keyword "array"
@@ -77,40 +74,18 @@ dec = do
         return $ FileDec i1 i2 t,
       -- Procedure: (rec)? proc I( I1 : T1, ..., In : Tn ) { D* C* }
       do
-        isRec <-
-          try $
-            choice
-              [ do
-                  keyword "proc"
-                  return False,
-                do
-                  keyword "rec"
-                  keyword "proc"
-                  return True
-              ]
+        keyword "proc"
         i1 <- ide
         (is, ts) <- typedIdList
-        (if isRec then RecProcDec else ProcDec) i1 is ts <$> block,
+        ProcDec i1 is ts <$> block,
       -- Function: (rec)? func I ( I1 : T1, ..., In : T2 ) : T { E }
       do
-        isRec <-
-          try $
-            choice
-              [ do
-                  keyword "func"
-                  return False,
-                do
-                  keyword "rec"
-                  keyword "func"
-                  return True
-              ]
+        keyword "func"
         i1 <- ide
         (is, ts) <- typedIdList
         colon
         t <- typeDeclaration
-        (if isRec then RecFuncDec else FuncDec) i1 is ts t <$> braces exp,
-      -- Class: class I { D* }
-      classDec
+        FuncDec i1 is ts t <$> braces exp
     ]
   where
     -- I1 : T1, ..., In : Tn
@@ -126,5 +101,19 @@ dec = do
               )
           )
 
-chainDec :: [Dec] -> Dec
-chainDec = foldr ChainDec SkipDec
+newExp :: Parsec String () Exp
+newExp = do
+  keyword "new"
+  i <- ide
+  parens spaces
+  return $ New i
+
+thisExp :: Parsec String () Exp
+thisExp = do
+  keyword "this"
+  return This
+
+nullExp :: Parsec String () Exp
+nullExp = do
+  keyword "null"
+  return Null

@@ -4,6 +4,7 @@ import {-# SOURCE #-} Parser.Core.Com
 import Parser.Core.TypeDeclaration
 import Parser.Core.Types
 import Parser.Features.BasicOperations
+import Parser.Features.Classes
 import Parser.Helper.Language
 import Text.Parsec
 import Text.Printf
@@ -29,7 +30,7 @@ ternaryOp = do
 unary :: Parsec String () Exp
 unary =
   choice
-    ( arrayAccess :
+    ( accessOp :
       map
         unaryKey
         [ -- Continuation: cont E
@@ -57,37 +58,29 @@ unary =
       op opr
       e <$> unary
 
--- Array Access: E1[E2]
-arrayAccess :: Parsec String () Exp
-arrayAccess =
-  do
-    e1 <- dot
-    option
-      e1
-      ( do
-          es <- many1 $ brackets exp
-          return $ foldl ArrayAccess e1 es
-      )
-
--- Dot: E1.E2
-dot :: Parsec String () Exp
-dot = do
-  e1 <- function
-  es <- many $ do
-    op "."
-    function
-  return $ foldl Dot e1 es
-
--- Function: E ( E1, ..., En )
-function :: Parsec String () Exp
-function = do
+accessOp :: Parsec String () Exp
+accessOp = do
   e1 <- atom
-  option
-    e1
-    ( do
-        calls <- many $ parens $ commaSep exp
-        return $ foldl Func e1 calls
-    )
+  es <-
+    many
+      ( do
+          choice
+            [ -- Dot: E1.E2
+              do
+                op "."
+                e2 <- atom
+                return (`Dot` e2),
+              -- Function: E ( E1, ..., En )
+              do
+                e2 <- parens $ commaSep exp
+                return (`Func` e2),
+              -- Array Access: E1[E2]
+              do
+                e2 <- brackets exp
+                return (`ArrayAccess` e2)
+            ]
+      )
+  return $ foldl (\e f -> f e) e1 es
 
 atom :: Parsec String () Exp
 atom =
@@ -146,5 +139,11 @@ atom =
                       return (i, t)
                   )
               )
-        return $ RecordExp is ts
+        return $ RecordExp is ts,
+      -- New: new I()
+      newExp,
+      -- This: this
+      thisExp,
+      -- Null: null
+      nullExp
     ]

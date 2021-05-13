@@ -89,6 +89,7 @@ com = do
         e <- exp
         semi
         return $ Return e,
+      -- With: with E do C
       do
         keyword "with"
         e <- exp

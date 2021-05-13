@@ -26,11 +26,11 @@ eofFunc k [e1] =
           if not $ isUnusedStore (dvToLoc l) s
             then case svToDv $ lookupStore (dvToLoc l) s of
               (DFile (File es n _)) -> k (DBool (n > length es)) s
-              notFile -> putError $ printf "\"%s\", evaluated as \"%s\", is not a file." (show e1) (show notFile)
-            else putError $ printf "\"%s\" is unbound." (show l)
+              notFile -> putError $ printf "\"%s\", evaluated as \"%s\", is not a file." (pretty e1) (pretty notFile)
+            else putError $ printf "\"%s\" is unbound." (pretty l)
       )
         e1
-    else err $ printf "\"%s\" is not a location." (show e1)
+    else err $ printf "\"%s\" is not a location." (pretty e1)
 
 doFile :: (Filestate -> Either String Filestate) -> Cc -> Ec
 doFile f c e s =
@@ -43,9 +43,9 @@ doFile f c e s =
              in case f (Filestate es n e') of -- apply file state change function
                   Right (Filestate es' n' e'') -> c (updateStoreMulti [dvToLoc e, l] [Just $ SFile $ File es' n' l, rvToSv <$> e''] s)
                   Left err -> putError err
-          notFile -> putError $ printf "\"%s\" is not a file." (show notFile)
-        else putError $ printf "\"%s\" is unbound." (show e)
-    else putError $ printf "\"%s\" is not a location." (show e)
+          notFile -> putError $ printf "\"%s\" is not a file." (pretty notFile)
+        else putError $ printf "\"%s\" is unbound." (pretty e)
+    else putError $ printf "\"%s\" is not a location." (pretty e)
 
 resetf :: Filestate -> Either String Filestate
 resetf (Filestate es n e) = null es ?> (Right $ Filestate es 1 Nothing, Right $ Filestate es 1 (Just $ head es))

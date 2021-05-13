@@ -1,8 +1,10 @@
 module Interpreter.Core.Exp where
 
+import Common.Formatting
 import {-# SOURCE #-} Interpreter.Core.Com
 import Interpreter.Core.Types
 import Interpreter.Features.BasicOperations
+import Interpreter.Features.Classes
 import Interpreter.Helper.Array
 import Interpreter.Helper.Continuation
 import Interpreter.Helper.Control
@@ -41,7 +43,7 @@ evalExp (RecordExp is _) w r k s = k (DRecord record) s'
   where
     (ls', s') = newLocsStore (length is) s
     ls = map DLoc ls'
-    (Env record' _ _) = newEnvMulti is ls
+    (Env record' _ _ _) = newEnvMulti is ls
     record = Record record'
 evalExp (Func e1 e2) w r k s = evalExp e1 (w ! 1) r (testFunc (length e2) (Func e1 e2) chainEval) s
   where
@@ -54,9 +56,9 @@ evalExp (Func e1 e2) w r k s = evalExp e1 (w ! 1) r (testFunc (length e2) (Func 
         params
         []
 evalExp (IfExp e1 e2 e3) w r k s = evalRVal e1 (w ! 1) r (testBool e1 $ \e -> cond (evalExp e2 (w ! 2) r k, evalExp e3 (w ! 3) r k) $ evToBool e) s
-evalExp (Valof t1 c1) w r k s = evalCom c1 (w ! 1) (Env r' w' k) (err $ printf "no return encountered in %s" $ show (Valof t1 c1)) s
+evalExp (Valof t1 c1) w r k s = evalCom c1 (w ! 1) (Env r' w' k t') (err $ printf "no return encountered in %s" $ show (Valof t1 c1)) s
   where
-    (Env r' w' _) = r
+    (Env r' w' _ t') = r
 evalExp (Cont e1) w r k s = (evalExp e1 (w ! 1) r $ testLoc e1 $ cont k) s
 evalExp (ArrayAccess e1 e2) w r k s =
   ( evalRVal e1 (w ! 1) r $
@@ -65,7 +67,10 @@ evalExp (ArrayAccess e1 e2) w r k s =
         (\e1 -> evalRVal e2 (w ! 2) r $ testInt e2 $ arrayAccess (dvToArray e1) k)
   )
     s
-evalExp (Dot e1 e2) w r k s = (evalRVal e1 (w ! 1) r $ testRecord e1 (\r' -> evalExp e2 (w ! 2) (updateEnv (recordToEnv $ dvToRecord r') r) k)) s
+evalExp (Dot e1 e2) w r k s = evalDotExp (Dot e1 e2) w r k s
+evalExp (New i1) w r k s = evalNewExp (New i1) w r k s
+evalExp This w r k s = evalThisExp This w r k s
+evalExp Null w r k s = evalNullExp Null w r k s
 evalExp (Not e1) w r k s = (evalRVal e1 (w ! 1) r $ testBool e1 (\e -> k (DBool (not $ dvToBool e)))) s
 evalExp (Positive e1) w r k s = (evalRVal e1 (w ! 1) r $ testNumber e1 k) s
 evalExp (Negative e1) w r k s =

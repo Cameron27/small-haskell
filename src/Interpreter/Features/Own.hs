@@ -45,6 +45,7 @@ evalOwnDec (ProcDec _ _ _ c1) w r u = evalOwnCom c1 (w ! 3) r u
 evalOwnDec (RecProcDec _ _ _ c1) w r u = evalOwnCom c1 (w ! 3) r u
 evalOwnDec (FuncDec _ _ _ _ e1) w r u = evalOwnExp e1 (w ! 3) r u
 evalOwnDec (RecFuncDec _ _ _ _ e1) w r u = evalOwnExp e1 (w ! 3) r u
+evalOwnDec (ClassDec _ d1) w r u = evalOwnDec d1 (w ! 2) r u
 evalOwnDec (ChainDec d1 d2) w r u = evalOwnDec d1 (w ! 1) r (\r1 -> evalOwnDec d2 (w ! 2) r (u . updateEnv r1))
 evalOwnDec SkipDec w r u = u emptyEnv
 
@@ -71,6 +72,9 @@ evalOwnExp (Valof _ c1) w r u = evalOwnCom c1 (w ! 1) r u
 evalOwnExp (Cont e1) w r u = evalOwnExp e1 (w ! 1) r u
 evalOwnExp (ArrayAccess e1 e2) w r u = evalOwnExp e1 (w ! 1) r (\r1 -> evalOwnExp e2 (w ! 2) r (u . updateEnv r1))
 evalOwnExp (Dot e1 e2) w r u = evalOwnExp e1 (w ! 1) r (\r1 -> evalOwnExp e2 (w ! 2) r (u . updateEnv r1))
+evalOwnExp (New _) w r u = u emptyEnv
+evalOwnExp This w r u = u emptyEnv
+evalOwnExp Null w r u = u emptyEnv
 evalOwnExp (Not e1) w r u = evalOwnExp e1 (w ! 1) r u
 evalOwnExp (Positive e1) w r u = evalOwnExp e1 (w ! 1) r u
 evalOwnExp (Negative e1) w r u = evalOwnExp e1 (w ! 1) r u

@@ -4,6 +4,7 @@ import qualified Data.HashMap.Strict as HashMap
 import {-# SOURCE #-} Interpreter.Core.Com
 import {-# SOURCE #-} Interpreter.Core.Exp
 import Interpreter.Core.Types
+import Interpreter.Features.Classes
 import Interpreter.Features.Files
 import Interpreter.Helper.Array
 import Interpreter.Helper.Continuation
@@ -32,7 +33,7 @@ evalDec (RecordDec i1 is _) w r u s = u (newEnv i1 (DRecord record)) s'
   where
     (ls', s') = newLocsStore (length is) s
     ls = map DLoc ls'
-    (Env record' _ _) = newEnvMulti is ls
+    (Env record' _ _ _) = newEnvMulti is ls
     record = Record record'
 evalDec (ProcDec i1 i2 _ c1) w r u s = u (newEnv i1 procd) s
   where
@@ -49,5 +50,6 @@ evalDec (RecFuncDec i1 i2 _ _ e1) w r u s = u (newEnv i1 func) s
   where
     func = DFunc (\k e -> evalExp e1 (w ! 3) (updateEnv (newEnvMulti (i1 : i2) (func : e)) r) k) (length i2)
 evalDec (FileDec i1 i2 t1) w r u s = evalFileDec (FileDec i1 i2 t1) w r u s
+evalDec (ClassDec i1 d1) w r u s = evalClassDec (ClassDec i1 d1) w r u s
 evalDec (ChainDec d1 d2) w r u s = evalDec d1 (w ! 1) r (\r1 -> evalDec d2 (w ! 2) (updateEnv r1 r) (\r2 -> u (updateEnv r2 r1))) s
-evalDec SkipDec w r u s = u (Env HashMap.empty HashMap.empty emptyEc) s
+evalDec SkipDec w r u s = u (Env HashMap.empty HashMap.empty emptyEc emptyObj) s
