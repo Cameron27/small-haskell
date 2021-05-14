@@ -27,7 +27,7 @@ evalDec (ArrayDec i1 e1 e2 _) w r u s =
             evalRVal e2 (w ! 3) r $
               testInt
                 e2
-                (\n2 -> newArray (evToInt n1, evToInt n2) $ u . newEnv i1)
+                (\n2 -> newArray (dvToInt n1, dvToInt n2) $ u . newEnv i1)
         )
   )
     s

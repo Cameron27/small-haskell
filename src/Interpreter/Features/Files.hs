@@ -12,12 +12,12 @@ import Text.Printf
 -- | A `Filestate` is the state of a file.
 data Filestate
   = -- | @Filestate es i e@ is a file containing the values `es`, currently at position `i` and with current value `e`.
-    Filestate [Rv] Int (Maybe Rv)
+    Filestate [Dv] Int (Maybe Dv)
 
 -- | @evalFileDec dec w r u s@ evaluates the file declaration `dec` under the environment `r` and with store `s` then
 -- | passes the resulting environment into the rest of the program `u`.
 evalFileDec :: Dec -> Posn -> Env -> Dc -> Cc
-evalFileDec (FileDec i1 i2 _) w r u s = u (newEnvMulti [i1, i2] ls) (updateStore l1 (Just $ SFile $ File [] 1 l2) s')
+evalFileDec (FileDec i1 i2 _) w r u s = u (newEnvMulti [i1, i2] ls) (updateStore l1 (Just $ DFile $ File [] 1 l2) s')
   where
     (ls', s') = newLocsStore 2 s
     ls = map DLoc ls'
@@ -30,7 +30,7 @@ eofFunc k [e1] =
     then
       ( \l s ->
           if not $ isUnusedStore (dvToLoc l) s
-            then case svToDv $ lookupStore (dvToLoc l) s of
+            then case lookupStore (dvToLoc l) s of
               (DFile (File es n _)) -> k (DBool (n > length es)) s
               notFile -> putError $ printf "\"%s\", evaluated as \"%s\", is not a file." (pretty e1) (pretty notFile)
             else putError $ printf "\"%s\" is unbound." (pretty l)
@@ -45,11 +45,11 @@ doFile f c e s =
   if isLoc e -- check e is a location
     then
       if not (isUnusedStore (dvToLoc e) s) -- check e is bound to something
-        then case svToDv $ lookupStore (dvToLoc e) s of -- check if the value at location e is a file
+        then case lookupStore (dvToLoc e) s of -- check if the value at location e is a file
           (DFile (File es n l)) ->
-            let e' = if isUnusedStore l s then Nothing else Just $ svToRv $ lookupStore l s -- get current value in file buffer
+            let e' = if isUnusedStore l s then Nothing else Just $ lookupStore l s -- get current value in file buffer
              in case f (Filestate es n e') of -- apply file state change function
-                  Right (Filestate es' n' e'') -> c (updateStoreMulti [dvToLoc e, l] [Just $ SFile $ File es' n' l, rvToSv <$> e''] s)
+                  Right (Filestate es' n' e'') -> c (updateStoreMulti [dvToLoc e, l] [Just $ DFile $ File es' n' l, e''] s)
                   Left err -> putError err
           notFile -> putError $ printf "\"%s\" is not a file." (pretty notFile)
         else putError $ printf "\"%s\" is unbound." (pretty e)

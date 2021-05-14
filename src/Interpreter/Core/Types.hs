@@ -76,57 +76,17 @@ instance Pretty Dv where
   pretty DNull = "null"
   pretty (DCc _) = "CC"
 
--- | A `Sv` is a storable value.
-data Sv
-  = SInt Int
-  | SDouble Double
-  | SBool Bool
-  | SString String
-  | SLoc Loc
-  | SArray Array
-  | SRecord Record
-  | SFile File
-  | SObject Object
-  | SNull
-
-instance Pretty Sv where
-  pretty (SInt x) = show x
-  pretty (SDouble x) = printf "%f" x
-  pretty (SBool True) = "true"
-  pretty (SBool False) = "false"
-  pretty (SString x) = show x
-  pretty (SLoc x) = printf "Loc(%d)" x
-  pretty (SArray (Array x y _)) = printf "ARRAY[%d:%d]" x y
-  pretty (SRecord (Record x)) = printf "RECORD(%s)" (pretty x)
-  pretty (SFile x) = "FILE"
-  pretty (SObject (Object x)) = printf "OBJECT(%s)" (pretty x)
-  pretty SNull = "null"
-
--- | A `Ev` is a expressible value.
-type Ev = Dv
-
--- | A `Rv` is a right hand value.
-data Rv
-  = RInt Int
-  | RDouble Double
-  | RBool Bool
-  | RString String
-  | RLoc Loc
-  | RArray Array
-  | RRecord Record
-  | RObject Object
-  | RNull
-
-instance Typeable Rv where
-  typeStr (RInt _) = "int"
-  typeStr (RDouble _) = "double"
-  typeStr (RBool _) = "bool"
-  typeStr (RString _) = "string"
-  typeStr (RLoc _) = "location"
-  typeStr (RArray (Array x y _)) = printf "array[%s:%s]" x y
-  typeStr (RRecord (Record x)) = printf "record(%s)" (intercalate "," (HashMap.keys x))
-  typeStr (RObject (Object x)) = printf "object(%s)" (intercalate "," (HashMap.keys x))
-  typeStr RNull = "null"
+instance Typeable Dv where
+  typeStr (DInt _) = "int"
+  typeStr (DDouble _) = "double"
+  typeStr (DBool _) = "bool"
+  typeStr (DString _) = "string"
+  typeStr (DLoc _) = "location"
+  typeStr (DArray (Array x y _)) = printf "array[%s:%s]" x y
+  typeStr (DRecord (Record x)) = printf "record(%s)" (intercalate "," (HashMap.keys x))
+  typeStr (DObject (Object x)) = printf "object(%s)" (intercalate "," (HashMap.keys x))
+  typeStr DNull = "null"
+  typeStr e = error $ printf "%s is not right hand value." (pretty e)
 
 -- | An `Env` is an environment.
 data Env
@@ -142,7 +102,7 @@ instance Pretty Env where
 data Store
   = -- | @Store m l@ is a store with `m` being the mapping from location to the values at those locations and `l` being
     -- | the next free location in the store.
-    Store (HashMap.HashMap Loc Sv) Loc
+    Store (HashMap.HashMap Loc Dv) Loc
 
 instance Pretty Store where
   pretty (Store x y) = printf "Store (%s) %d" (pretty x) y
@@ -153,8 +113,8 @@ type Cc = Store -> Ans
 -- | A `Dc` is a declaration continuation. It takes in an `Env` and a `Store` and produces an `Ans`.
 type Dc = Env -> Cc
 
--- | A `Ec` is a expression continuation. It takes in an `Ev` and a `Store` and produces an `Ans`.
-type Ec = Ev -> Cc
+-- | A `Ec` is a expression continuation. It takes in an `Dv` and a `Store` and produces an `Ans`.
+type Ec = Dv -> Cc
 
 -- | A `CDc` is a class declaration continuation. It takes in a `Class` and a `Store` and produces an `Ans`.
 type CDc = Class -> Cc
@@ -173,15 +133,15 @@ newtype Record
 data File
   = -- | @File es i l@ is a file containing the values `es`, currently at position `i` and using location `l` to put the
     -- | current value.
-    File [Rv] Int Loc
+    File [Dv] Int Loc
 
--- | A `Procedure` is a procedure. It takes in a `Cc` a list of `Ev`s and a `Store` and evaluates the procedure then
+-- | A `Procedure` is a procedure. It takes in a `Cc` a list of `Dv`s and a `Store` and evaluates the procedure then
 -- | runs the `Cc`.
-type Procedure = Cc -> [Ev] -> Cc
+type Procedure = Cc -> [Dv] -> Cc
 
--- | A `Function` is a function. It takes in  an `Ev` a list of `Ev`s and a `Store` and evaluates the function then passes
+-- | A `Function` is a function. It takes in  an `Ev` a list of `Dv`s and a `Store` and evaluates the function then passes
 -- | the resulting value into the `Ec`.
-type Function = Ec -> [Ev] -> Cc
+type Function = Ec -> [Dv] -> Cc
 
 -- | A `Method` is a `Procedure` or `Function` of an `Object`. It takes in an `Ev` an `Object` and a `Store` and bounds
 -- | the `Object` to "this" in the `Method` then passes the resulting `Procedure` or `Function` into the `Ec`.
@@ -203,7 +163,7 @@ type Ans = IO ExitCode
 instance Pretty (HashMap.HashMap Ide Dv) where
   pretty x = intercalate "," (zipWith (\a b -> printf "%s = %s" a (pretty b)) (HashMap.keys x) (HashMap.elems x))
 
-instance Pretty (HashMap.HashMap Loc Sv) where
+instance Pretty (HashMap.HashMap Loc Dv) where
   pretty x = intercalate "," (zipWith (\a b -> printf "%d = %s" a (pretty b)) (HashMap.keys x) (HashMap.elems x))
 
 instance Pretty (HashMap.HashMap (Ide, Posn) Dv) where

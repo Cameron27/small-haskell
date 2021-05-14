@@ -52,14 +52,13 @@ evalExp (RecordExp is _) w r k s = k (DRecord record) s'
 evalExp (Func e1 e2) w r k s = evalExp e1 (w ! 1) r (testFunc (length e2) (Func e1 e2) chainEval) s
   where
     params = zip e2 [2 ..]
-    chainEval :: Ev -> Cc
     chainEval p =
       foldr
         (\(e, i) x es -> evalExp e (w ! i) r (\e -> x (es ++ [e])))
-        (evToFunc p k)
+        (dvToFunc p k)
         params
         []
-evalExp (IfExp e1 e2 e3) w r k s = evalRVal e1 (w ! 1) r (testBool e1 $ \e -> cond (evalExp e2 (w ! 2) r k, evalExp e3 (w ! 3) r k) $ evToBool e) s
+evalExp (IfExp e1 e2 e3) w r k s = evalRVal e1 (w ! 1) r (testBool e1 $ \e -> cond (evalExp e2 (w ! 2) r k, evalExp e3 (w ! 3) r k) $ dvToBool e) s
 evalExp (Valof t1 c1) w r k s = evalCom c1 (w ! 1) (Env r' w' k t') (err $ printf "no return encountered in %s" $ show (Valof t1 c1)) s
   where
     (Env r' w' _ t') = r
@@ -87,6 +86,6 @@ evalExp (Negative e1) w r k s =
         )
   )
     s
-evalExp (Op o1 e1 e2) w r k s = evalRVal e1 (w ! 2) r (\e1 -> evalRVal e2 (w ! 3) r (\e2 -> evalOp ef o1 (evToRv e1, evToRv e2) k)) s
+evalExp (Op o1 e1 e2) w r k s = evalRVal e1 (w ! 2) r (\e1 -> evalRVal e2 (w ! 3) r (\e2 -> evalOp ef o1 (e1, e2) k)) s
   where
     ef = Op o1 e1 e2
