@@ -49,5 +49,7 @@ typeDeclaration = do
         TFile <$> typeDeclaration,
       do
         keyword "ref"
-        TRef <$> typeDeclaration
+        TRef <$> typeDeclaration,
+      do
+        TObject <$> ide
     ]

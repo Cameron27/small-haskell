@@ -23,5 +23,5 @@ defaultEnvAndTEnv =
     ("get", DProc getFProc 1, TProc [TRef TFileAny]),
     ("put", DProc putFProc 1, TProc [TRef TFileAny]),
     ("eof", DFunc eofFunc 1, TFunc [TRef TFileAny] TBool),
-    ("isNull", DFunc isNullF 1, TFunc [TInt] TBool)
+    ("isNull", DFunc isNullF 1, TFunc [TUnion [TObjectAny, TRef TObjectAny]] TBool)
   ]

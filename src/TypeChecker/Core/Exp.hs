@@ -8,11 +8,13 @@ import {-# SOURCE #-} TypeChecker.Core.Com
 import TypeChecker.Core.Type
 import TypeChecker.Core.Types
 import TypeChecker.Features.BasicOperations
+import TypeChecker.Features.Classes
 import TypeChecker.Helper.Control
 import TypeChecker.Helper.TEnv
 import TypeChecker.Helper.TypeModification
   ( arrayType,
     deref,
+    objectTypes,
     recordTypes,
     ref,
     rval,
@@ -28,14 +30,14 @@ typeExp Read r = Right TString
 typeExp (I i1) r = lookupTEnv i1 r
 typeExp (RefExp e1) r = typeExp e1 r >>= ref (RefExp e1)
 typeExp (ArrayExp e1 e2 t1) r = do
-  typeType t1
+  typeType t1 r
   te1 <- typeExp e1 r >>= rval (ArrayExp e1 e2 t1)
   te2 <- typeExp e2 r >>= rval (ArrayExp e1 e2 t1)
-  if te1 `eq` TInt && te2 `eq` TInt
+  if te1 <: TInt && te2 <: TInt
     then TArray <$> ref (ArrayExp e1 e2 t1) t1
     else err $ printf "array cannot have bounds of types \"%s:%s\" in \"%s\"" (show te1) (show te2) (pretty (ArrayExp e1 e2 t1))
 typeExp (RecordExp is ts) r = do
-  typeTypes ts
+  typeTypes ts r
   if allDifferent is
     then do
       ts' <- foldr (\t ts' -> do t' <- ref (RecordExp is ts) t; (t' :) <$> ts') (Right []) ts
@@ -46,54 +48,64 @@ typeExp (Func e1 es) r = do
   ts <- foldr (\e ts -> do t <- typeExp e r; (t :) <$> ts) (Right []) es
   case f of
     TFunc fts t ->
-      if (length ts == length fts) && and (zipWith eq ts fts)
+      if (length ts == length fts) && and (zipWith (<:) ts fts)
         then return t
         else err $ printf "types \"%s\" did not match expected types \"%s\" in \"%s\"" (show ts) (show fts) (pretty (Proc e1 es))
     _ -> err $ printf "\"%s\" is not a function in \"%s\"" (show f) (pretty (Proc e1 es))
 typeExp (IfExp e1 e2 e3) r = do
   t <- typeExp e1 r >>= rval (IfExp e1 e2 e3)
-  if t `eq` TBool
+  if t <: TBool
     then do
       t1 <- typeExp e2 r
       t2 <- typeExp e3 r
       tryMerge (IfExp e1 e2 e3) t1 t2
     else err $ printf "test cannot be \"%s\" in \"%s\"" (show t) (pretty (IfExp e1 e2 e3))
-typeExp (Valof t1 c1) (TEnv r _) = do
-  typeType t1
-  typeCom c1 (TEnv r t1)
+typeExp (Valof t1 c1) (TEnv r rt t) = do
+  typeType t1 (TEnv r rt t)
+  typeCom c1 (TEnv r t1 t)
   return t1
 typeExp (Cont e1) r = do
   t <- typeExp e1 r
-  if t `eq` TRefAny
+  if t <: TRefAny
     then return $ deref t
     else err $ printf "cont cannot be applied to type \"%s\" in \"%s\"" (show t) (pretty (Cont e1))
 typeExp (ArrayAccess e1 e2) r = do
   t1 <- typeExp e1 r >>= rval (ArrayAccess e1 e2)
   t2 <- typeExp e2 r >>= rval (ArrayAccess e1 e2)
-  if t1 `eq` TArrayAny
+  if t1 <: TArrayAny
     then
-      if t2 `eq` TInt
+      if t2 <: TInt
         then return $ arrayType t1
         else err $ printf "array access cannot have index of type \"%s\" in \"%s\"" (show t2) (pretty (ArrayAccess e1 e2))
     else err $ printf "array access cannot be performed on type \"%s\" in \"%s\"" (show t1) (pretty (ArrayAccess e1 e2))
 typeExp (Dot e1 e2) r = do
   t <- typeExp e1 r >>= rval (Dot e1 e2)
-  if t `eq` TRecordAny
-    then typeExp e2 (updateTEnv (uncurry newTEnvMulti (unzip $ recordTypes t)) r)
-    else err $ printf "dot operation be performed on type \"%s\" in \"%s\"" (show t) (pretty (Dot e1 e2))
+  process t
+  where
+    process t
+      | t <: TRecordAny = typeExp e2 (updateTEnv (uncurry newTEnvMulti (unzip $ recordTypes t)) r)
+      | t <: TObjectAny = do
+        t <- typeExp e2 (updateTEnv (objectTypes t r) r)
+        if t <: TMethodAny
+          then let (TMethod t') = t in return t'
+          else return t
+      | otherwise = err $ printf "dot operation be performed on type \"%s\" in \"%s\"" (show t) (pretty (Dot e1 e2))
+typeExp (New i1) r = typeNewExp (New i1) r
+typeExp Null r = typeNullExp Null r
+typeExp This r = typeThisExp This r
 typeExp (Not e1) r = do
   t <- typeExp e1 r >>= rval (Not e1)
-  if t `eq` TBool
+  if t <: TBool
     then return TBool
     else err $ printf "! cannot be applied to type \"%s\" in \"%s\"" (show t) (pretty (Not e1))
 typeExp (Positive e1) r = do
   t <- typeExp e1 r >>= rval (Positive e1)
-  if t `eq` TInt || t `eq` TDouble
+  if t <: TInt || t <: TDouble
     then return t
     else err $ printf "+ cannot be applied to type \"%s\" in \"%s\"" (show t) (pretty (Positive e1))
 typeExp (Negative e1) r = do
   t <- typeExp e1 r >>= rval (Negative e1)
-  if t `eq` TInt || t `eq` TDouble
+  if t <: TInt || t <: TDouble
     then return t
     else err $ printf "- cannot be applied to type \"%s\" in \"%s\"" (show t) (pretty (Negative e1))
 typeExp (Op o1 e1 e2) r = do
