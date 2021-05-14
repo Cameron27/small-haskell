@@ -7,6 +7,8 @@ import Interpreter.Helper.Control
 import Parser.Core.Types
 import Text.Printf
 
+-- | @evalOp src o (e1, e2) k s@ calculates the value of operation `o` applied to values `e1` and `e2` with store `s`
+-- | then passes the result to the rest of the program `k`.
 evalOp :: Exp -> Opr -> (Rv, Rv) -> Ec -> Cc
 evalOp _ Mult (RInt a, RInt b) k = k (DInt $ a * b)
 evalOp _ Mult (RDouble a, RDouble b) k = k (DDouble $ a * b)
@@ -65,4 +67,4 @@ evalOp _ Xor (RInt a, RInt b) k = k (DInt $ a `xor` b)
 evalOp _ Xor (RBool a, RBool b) k = k (DBool $ a `xor` b)
 evalOp _ Or (RInt a, RInt b) k = k (DInt $ a .|. b)
 evalOp _ Or (RBool a, RBool b) k = k (DBool $ a || b)
-evalOp e1 o (a, b) _ = err $ printf "operation \"%s\" cannot be applied to types \"%s\" and \"%s\" in the expression \"%s\"" (pretty o) (typeStr a) (typeStr b) (pretty e1)
+evalOp src o (a, b) _ = err $ printf "operation \"%s\" cannot be applied to types \"%s\" and \"%s\" in the expression \"%s\"" (pretty o) (typeStr a) (typeStr b) (pretty src)

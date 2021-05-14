@@ -10,23 +10,26 @@ import Text.Parsec
 import Text.Printf
 import Prelude hiding (exp)
 
+-- | Parses an expression.
 exp :: Parsec String () Exp
 exp = ternaryOp
 
--- Ternary: E1 ? E2 : E3
+-- | Parses a ternary operation expression.
 ternaryOp :: Parsec String () Exp
-ternaryOp = do
-  e1 <- binaryOps
-  option
-    e1
-    ( do
-        op "?"
-        e2 <- exp
-        colon
-        IfExp e1 e2 <$> exp
-    )
+ternaryOp =
+  -- Ternary: E ? E : E
+  do
+    e1 <- binaryOps
+    option
+      e1
+      ( do
+          op "?"
+          e2 <- exp
+          colon
+          IfExp e1 e2 <$> exp
+      )
 
--- Unary: [a-z]+ E
+-- | Parses a unary operation expression.
 unary :: Parsec String () Exp
 unary =
   choice
@@ -58,6 +61,7 @@ unary =
       op opr
       e <$> unary
 
+-- | Parses an access expression.
 accessOp :: Parsec String () Exp
 accessOp = do
   e1 <- atom
@@ -65,16 +69,16 @@ accessOp = do
     many
       ( do
           choice
-            [ -- Dot: E1.E2
+            [ -- Dot: E . E
               do
                 op "."
                 e2 <- atom
                 return (`Dot` e2),
-              -- Function: E ( E1, ..., En )
+              -- Function: E ( E , ... , E )
               do
                 e2 <- parens $ commaSep exp
                 return (`Func` e2),
-              -- Array Access: E1[E2]
+              -- Array Access: E [ E ]
               do
                 e2 <- brackets exp
                 return (`ArrayAccess` e2)
@@ -82,6 +86,7 @@ accessOp = do
       )
   return $ foldl (\e f -> f e) e1 es
 
+-- | Parses a atomic expression.
 atom :: Parsec String () Exp
 atom =
   choice
@@ -93,7 +98,7 @@ atom =
       Bool <$> boolean,
       -- Number
       do
-        x <- naturalOrFloat
+        x <- intOrFloat
         case x of
           Right x -> case x of
             Left i -> return $ Int i
@@ -106,13 +111,13 @@ atom =
       I <$> ide,
       -- Parentheses: ( E )
       parens exp,
-      -- Valof: valof : T { D* C* }
+      -- Valof: valof : T { D ... D C ... C }
       do
         keyword "valof"
         colon
         t <- typeDeclaration
         Valof t <$> block,
-      -- Array: array[ E1 : E2 ] : T
+      -- Array: array [ E : E ] : T
       do
         keyword "array"
         (e1, e2) <-
@@ -125,7 +130,7 @@ atom =
             )
         colon
         ArrayExp e1 e2 <$> typeDeclaration,
-      -- Record: record( I1 : T1, ..., In : Tn )
+      -- Record: record ( I : T , ... , I : T )
       do
         keyword "record"
         (is, ts) <-
@@ -140,7 +145,7 @@ atom =
                   )
               )
         return $ RecordExp is ts,
-      -- New: new I()
+      -- New: new I ( )
       newExp,
       -- This: this
       thisExp,

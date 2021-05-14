@@ -5,8 +5,10 @@ import Data.List
 import Text.Printf
 import TypeChecker.Core.Types
 
+-- | An `Ide` is a identifier in small.
 type Id = String
 
+-- | An `Opr` is a binary operation.
 data Opr
   = Mult
   | Div
@@ -40,8 +42,10 @@ instance Pretty Opr where
   pretty Xor = "^"
   pretty Or = "|"
 
+-- | A `Pgm` is a small program.
 newtype Pgm = Program Com deriving (Show)
 
+-- | A `Com` is a small command.
 data Com
   = Assign Exp Exp
   | Output Exp
@@ -77,8 +81,8 @@ instance Pretty Com where
   pretty (WithDo x y) = printf "with %s do %s" (pretty x) (pretty y)
   pretty (Chain x y) = printf "%s %s" (pretty x) (pretty y)
   pretty Skip = ""
-  pretty _ = "PRETTY_COM"
 
+-- | A `Dec` is a small declaration.
 data Dec
   = Const Id Type Exp
   | Var Id Type Exp
@@ -109,10 +113,11 @@ instance Pretty Dec where
   pretty (ClassDec x y) = printf "class %s { %s }" x (pretty y)
   pretty (ChainDec x y) = printf "%s %s" (pretty x) (pretty y)
   pretty SkipDec = ""
-  pretty _ = "PRETTY_DEC"
 
+-- | A `CDec` is a small class declaration.
 type CDec = Dec
 
+-- | A `Exp` is a small expression.
 data Exp
   = Int Int
   | Double Double
@@ -162,8 +167,8 @@ instance Pretty Exp where
   pretty (Positive x) = printf "+%s" (pretty x)
   pretty (Negative x) = printf "-%s" (pretty x)
   pretty (Op x y z) = printf "%s %s %s" (pretty y) (pretty x) (pretty z)
-  pretty _ = "PRETTY_EXP"
 
+-- | A `For` is a small for expression.
 data For
   = ExpFor Exp
   | WhileFor Exp Exp
@@ -176,4 +181,3 @@ instance Pretty For where
   pretty (WhileFor x y) = printf "%s while %s" (pretty x) (pretty y)
   pretty (StepFor x y z) = printf "%s step %s until %s" (pretty x) (pretty y) (pretty z)
   pretty (ChainFor x y) = printf "%s, %s" (pretty x) (pretty y)
-  pretty _ = "PRETTY_FOR"

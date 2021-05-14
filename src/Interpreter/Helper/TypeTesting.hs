@@ -22,7 +22,6 @@ svToDv (SRecord x) = DRecord x
 svToDv (SFile x) = DFile x
 svToDv (SObject x) = DObject x
 svToDv SNull = DNull
-svToDv v = error $ printf "Tried to convert \"%s\" to a denotable value." (pretty v)
 
 -- | @svToEv v` returns the expressible value version of `v`.
 svToEv :: Sv -> Ev
@@ -87,7 +86,6 @@ rvToSv (RArray x) = SArray x
 rvToSv (RRecord x) = SRecord x
 rvToSv (RObject x) = SObject x
 rvToSv RNull = SNull
-rvToSv e = error $ printf "Tried to convert \"%s\" to a right hand value." "CANNOT PRETTY"
 
 -- | @dvToLoc d@ returns the location `d` represents.
 dvToLoc :: Dv -> Loc

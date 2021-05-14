@@ -13,6 +13,8 @@ import Interpreter.Helper.Env
 import Interpreter.Helper.TypeTesting
 import Parser.Core.Types
 
+-- | @evalCom com w r c s@ evaluates the command `com` under the environment `r` and with store `s` then runs the rest
+-- | of the program `c`.
 evalCom :: Com -> Posn -> Env -> Cc -> Cc
 evalCom (Assign e1 e2) w r c = evalExp e1 (w ! 1) r $ testLoc e1 (\l -> evalRVal e2 (w ! 2) r $ update (evToLoc l) c)
 evalCom (Output e1) w r c = evalRVal e1 (w ! 1) r (\e s -> putStrLn (print e) >> c s)
@@ -25,10 +27,10 @@ evalCom (Proc e1 e2) w r c = evalExp e1 (w ! 1) r $ testProc (length e2) (Proc e
     params = zip e2 [2 ..]
     chainEval p =
       foldr
-        (\(e, i) x es -> evalExp e (w ! i) r (\e -> x (es ++ [e])))
-        (evToProc p c)
-        params
-        []
+        (\(e, i) x es -> evalExp e (w ! i) r (\e -> x (es ++ [e]))) -- Evaluate the expression, add it to list and pass it on
+        (evToProc p c) -- Eny by running the procedure
+        params -- Apply to each expression
+        [] -- Start with an empty list of values
 evalCom (If e1 c1 c2) w r c = evalRVal e1 (w ! 1) r $ testBool e1 $ \e -> cond (evalCom c1 (w ! 2) r c, evalCom c2 (w ! 3) r c) $evToBool e
 evalCom (While e1 c1) w r c = evalRVal e1 (w ! 1) r $ testBool e1 $ \e -> cond (evalCom c1 (w ! 2) r $ evalCom (While e1 c1) w r c, c) $evToBool e
 evalCom (Repeat e1 c1) w r c = evalCom c1 (w ! 2) r $ evalRVal e1 (w ! 1) r $ testBool e1 (\e -> dvToBool e ?> (c, evalCom (Repeat e1 c1) w r c))
@@ -38,7 +40,7 @@ evalCom (Trap cs is) w r c = evalCom (head cs) (w ! 1) (updateEnv (newEnvMulti i
   where
     ccs =
       zipWith
-        (\c' i -> DCc (evalCom c' (w ! i) r c))
+        (\c' i -> DCc (evalCom c' (w ! i) r c)) -- Turn command into a continuation
         (tail cs)
         [2 ..]
 evalCom (Escape i1) w r c = evalExp (I i1) (w ! 1) r $ testCc (I i1) (\(DCc c) -> c)

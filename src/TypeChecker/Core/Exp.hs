@@ -12,15 +12,8 @@ import TypeChecker.Features.Classes
 import TypeChecker.Helper.Control
 import TypeChecker.Helper.TEnv
 import TypeChecker.Helper.TypeModification
-  ( arrayType,
-    deref,
-    objectTypes,
-    recordTypes,
-    ref,
-    rval,
-    tryMerge,
-  )
 
+-- | @typeExp e r@ returns the type `e` represents if `e` type checks under the environment `r`.
 typeExp :: Exp -> TEnv -> Either TypeError Type
 typeExp (Int _) r = Right TInt
 typeExp (Double _) r = Right TDouble
@@ -40,12 +33,12 @@ typeExp (RecordExp is ts) r = do
   typeTypes ts r
   if allDifferent is
     then do
-      ts' <- foldr (\t ts' -> do t' <- ref (RecordExp is ts) t; (t' :) <$> ts') (Right []) ts
+      ts' <- foldr (\t ts' -> do t' <- ref (RecordExp is ts) t; (t' :) <$> ts') (Right []) ts -- Reference each type in the record
       return $ TRecord (zip is ts')
     else err $ printf "all identifiers must be unique in \"%s\"" (pretty (RecordExp is ts))
 typeExp (Func e1 es) r = do
   f <- typeExp e1 r
-  ts <- foldr (\e ts -> do t <- typeExp e r; (t :) <$> ts) (Right []) es
+  ts <- foldr (\e ts -> do t <- typeExp e r; (t :) <$> ts) (Right []) es -- Type check all the expressions in es
   case f of
     TFunc fts t ->
       if (length ts == length fts) && and (zipWith (<:) ts fts)
@@ -58,7 +51,7 @@ typeExp (IfExp e1 e2 e3) r = do
     then do
       t1 <- typeExp e2 r
       t2 <- typeExp e3 r
-      tryMerge (IfExp e1 e2 e3) t1 t2
+      tryMerge (IfExp e1 e2 e3) t1 t2 -- Allows types where the only difference is one is references once more to be type compatible
     else err $ printf "test cannot be \"%s\" in \"%s\"" (show t) (pretty (IfExp e1 e2 e3))
 typeExp (Valof t1 c1) (TEnv r rt t) = do
   typeType t1 (TEnv r rt t)
@@ -83,11 +76,11 @@ typeExp (Dot e1 e2) r = do
   process t
   where
     process t
-      | t <: TRecordAny = typeExp e2 (updateTEnv (uncurry newTEnvMulti (unzip $ recordTypes t)) r)
+      | t <: TRecordAny = typeExp e2 (updateTEnv (recordEnvironment t) r) -- Records evaluate e2 with the record updating the environment
       | t <: TObjectAny = do
-        t <- typeExp e2 (updateTEnv (objectTypes t r) r)
+        t <- typeExp e2 (updateTEnv (objectEnvironment t r) r) -- Objects evaluate e2 with the object updating the environment
         if t <: TMethodAny
-          then let (TMethod t') = t in return t'
+          then let (TMethod t') = t in return t' -- If a method is returned just return the type from the method
           else return t
       | otherwise = err $ printf "dot operation be performed on type \"%s\" in \"%s\"" (show t) (pretty (Dot e1 e2))
 typeExp (New i1) r = typeNewExp (New i1) r

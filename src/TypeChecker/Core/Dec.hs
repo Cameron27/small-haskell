@@ -14,6 +14,8 @@ import TypeChecker.Helper.Control
 import TypeChecker.Helper.TEnv
 import TypeChecker.Helper.TypeModification
 
+-- | @typeDec d r@ returns an environment containing the information of declaration `d` if `d` type checks under the
+-- | environment `r`.
 typeDec :: Dec -> TEnv -> Either TypeError TEnv
 typeDec (Const i1 t1 e1) r = do
   typeType t1 r
@@ -46,7 +48,7 @@ typeDec (RecordDec i1 is ts) r = do
   typeTypes ts r
   if allDifferent is
     then do
-      ts' <- foldr (\t ts' -> do t' <- ref (RecordDec i1 is ts) t; (t' :) <$> ts') (Right []) ts
+      ts' <- foldr (\t ts' -> do t' <- ref (RecordDec i1 is ts) t; (t' :) <$> ts') (Right []) ts -- Reference each type in the record
       return $ newTEnv i1 $ TRecord (zip is ts')
     else err $ printf "all identifiers must be unique in \"%s\"" (pretty (RecordDec i1 is ts))
 typeDec (FileDec i1 i2 t1) r = do

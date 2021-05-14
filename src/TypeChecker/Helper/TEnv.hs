@@ -28,8 +28,10 @@ newTEnv i t = TEnv (HashMap.fromList [(i, t)]) TVoid emptyClass
 newTEnvMulti :: [Ide] -> [Type] -> TEnv
 newTEnvMulti is ts = TEnv (HashMap.fromList $ reverse $ zip is ts) TVoid emptyClass
 
+-- | An empty type environment.
 emptyTEnv :: TEnv
 emptyTEnv = TEnv HashMap.empty TVoid emptyClass
 
+-- | An empty class.
 emptyClass :: Class
 emptyClass = Class "" HashMap.empty

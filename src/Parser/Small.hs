@@ -7,6 +7,7 @@ import Parser.Helper.Language
 import Text.Parsec
 import Prelude hiding (exp)
 
+-- | Parses a small program.
 pgm :: Parsec String () Pgm
 pgm =
   -- program C
@@ -15,6 +16,7 @@ pgm =
     keyword "program"
     Program <$> com
 
+-- | @stripComments s@ returns the small program `s` but with comments removed.
 stripComments :: String -> String
 stripComments = notComment
   where
@@ -43,6 +45,7 @@ stripComments = notComment
       | "\\\"" `isPrefixOf` xs = '\\' : '\"' : inStringLiteral (drop 2 xs)
       | otherwise = head xs : inStringLiteral (tail xs)
 
+-- | @parseSmall fp s@ returns the parsed small program `s` using the filename `fp` for errors.
 parseSmall :: SourceName -> String -> Either ParseError Pgm
 parseSmall fp input = parse pgm fp input'
   where

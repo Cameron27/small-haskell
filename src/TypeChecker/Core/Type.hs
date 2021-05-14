@@ -7,6 +7,7 @@ import TypeChecker.Core.Types
 import TypeChecker.Helper.Control
 import TypeChecker.Helper.TEnv
 
+-- | @typeType t r@ type checks type `t` under the environment `r`.
 typeType :: Type -> TEnv -> Either TypeError ()
 typeType (TArray t) r = typeType t r
 typeType (TRecord ts) r =
@@ -27,6 +28,7 @@ typeType (TObject i) r = do
     else err $ printf "no class %s" i
 typeType _ _ = return ()
 
+-- | @typeType ts r@ type checks types `ts` under the environment `r`.
 typeTypes :: [Type] -> TEnv -> Either TypeError ()
 typeTypes [] _ = return ()
 typeTypes (t : ts) r = do

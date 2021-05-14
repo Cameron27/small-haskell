@@ -8,6 +8,7 @@ import Text.Parsec
 import Text.Parsec.Token hiding (whiteSpace)
 import qualified Text.Parsec.Token as Token
 
+-- | The language definition for small.
 tinyDef :: LanguageDef st
 tinyDef =
   LanguageDef
@@ -84,18 +85,23 @@ tinyDef =
       caseSensitive = True
     }
 
+-- | The lexer for small.
 lexer :: GenTokenParser String u Identity
 lexer = makeTokenParser tinyDef
 
+-- | `boolean` parses a bool. Returns the bool.
 boolean :: ParsecT String u Identity Bool
 boolean = do { keyword "true"; return True } <|> do keyword "false"; return False
 
+-- | `ide` parses a legal identifier. Returns the identifier string.
 ide :: ParsecT String u Identity String
 ide = Token.identifier lexer
 
+-- | @keyword s@ parses the string `s`.
 keyword :: String -> ParsecT String u Identity ()
 keyword = Token.reserved lexer
 
+-- | @op o@ parses the string `o`.
 op :: String -> ParsecT String u Identity ()
 op = Token.reservedOp lexer
 
@@ -106,20 +112,21 @@ opChoice ops = choice $ fmap opReturn ops
       op s
       return s
 
+-- | @parens p@ parses `p` enclosed in parentheses ('(' and ')'), returning the value of `p`.
 parens :: ParsecT String u Identity a -> ParsecT String u Identity a
 parens = Token.parens lexer
 
+-- | @braces p@ parses `p` enclosed in braces ('{' and '}'), returning the value of `p`.
 braces :: ParsecT String u Identity a -> ParsecT String u Identity a
 braces = Token.braces lexer
 
+-- | @brackets p@ parses `p` enclosed in brackets ('[' and ']'), returning the value of `p`.
 brackets :: ParsecT String u Identity a -> ParsecT String u Identity a
 brackets = Token.brackets lexer
 
-float :: ParsecT String u Identity Double
-float = Token.float lexer
-
-naturalOrFloat :: ParsecT String u Identity (Either Integer (Either Int Double))
-naturalOrFloat = do
+-- | `intOrFloat` parses either an int or a float. Returns either an integer larger than 64 bits or the number.
+intOrFloat :: ParsecT String u Identity (Either Integer (Either Int Double))
+intOrFloat = do
   n <- Token.naturalOrFloat lexer
   case n of
     -- Integer that is too large
@@ -129,6 +136,7 @@ naturalOrFloat = do
     -- Float
     Right i -> return $ Right $ Right i
 
+-- | `stringLiteral` parses a literal string. Returns the literal string value.
 stringLiteral :: ParsecT String u Identity String
 stringLiteral =
   do
@@ -168,20 +176,26 @@ stringLiteral =
         case readHex [a, b] of
           [(i, "")] -> return $ chr i
 
-semi :: ParsecT String u Identity String
-semi = Token.semi lexer
+-- | `semi` parses the character ';' and skips any trailing white space.
+semi :: ParsecT String u Identity ()
+semi = do Token.semi lexer; return ()
 
-colon :: ParsecT String u Identity String
-colon = Token.colon lexer
+-- | `colon` parses the character ':' and skips any trailing white space.
+colon :: ParsecT String u Identity ()
+colon = do Token.colon lexer; return ()
 
+-- | @commaSep p@ parses zero or more occurrences of `p` separated by ','. Returns a list of values returned by `p`.
 commaSep :: ParsecT String u Identity a -> ParsecT String u Identity [a]
 commaSep = Token.commaSep lexer
 
+-- | @commaSep1 p@ parses one or more occurrences of `p` separated by ','. Returns a list of values returned by `p`.
 commaSep1 :: ParsecT String u Identity a -> ParsecT String u Identity [a]
 commaSep1 = Token.commaSep1 lexer
 
+-- | @symbol s@ parses string `s` and skips trailing white space.
 symbol :: String -> ParsecT String u Identity String
 symbol = Token.symbol lexer
 
+-- | `whitespace` parses any white space.
 whiteSpace :: ParsecT String u Identity ()
 whiteSpace = Token.whiteSpace lexer

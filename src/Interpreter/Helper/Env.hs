@@ -45,11 +45,14 @@ isUnboundEnv i (Env r _ _ _) = case HashMap.lookup i r of
   Just _ -> False
   Nothing -> True
 
+-- | The empty return address.
 emptyEc :: Ec
 emptyEc _ _ = error "This should not be the return address."
 
+-- | The empty object.
 emptyObj :: Object
 emptyObj = Object HashMap.empty
 
+-- | The empty environment.
 emptyEnv :: Env
 emptyEnv = Env HashMap.empty HashMap.empty emptyEc emptyObj

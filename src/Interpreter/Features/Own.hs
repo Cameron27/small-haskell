@@ -6,6 +6,8 @@ import Interpreter.Helper.Continuation
 import Interpreter.Helper.Env
 import Parser.Core.Types
 
+-- | @evalOwnCom com w r u s@ evaluates the command `com` under the environment `r` and with store `s` for own
+-- | declarations then passes the resulting environment into the rest of the program `u`.
 evalOwnCom :: Com -> Posn -> Env -> Dc -> Cc
 evalOwnCom (Assign e1 e2) w r u = evalOwnExp e1 (w ! 1) r (\r1 -> evalOwnExp e2 (w ! 2) r (u . updateEnv r1))
 evalOwnCom (Output e1) w r u = evalOwnExp e1 (w ! 1) r u
@@ -34,6 +36,8 @@ evalOwnCom (WithDo e1 c1) w r u = evalOwnExp e1 (w ! 1) r (\r1 -> evalOwnCom c1 
 evalOwnCom (Chain c1 c2) w r u = evalOwnCom c1 (w ! 1) r (\r1 -> evalOwnCom c2 (w ! 2) r (u . updateEnv r1))
 evalOwnCom Skip w r u = u emptyEnv
 
+-- | @evalOwnDec dec w r u s@ evaluates the declaration `dec` under the environment `r` and with store `s` for own
+-- | declarations then passes the resulting environment into the rest of the program `u`.
 evalOwnDec :: Dec -> Posn -> Env -> Dc -> Cc
 evalOwnDec (Const _ _ e1) w r u = evalOwnExp e1 (w ! 2) r u
 evalOwnDec (Var _ _ e1) w r u = evalOwnExp e1 (w ! 2) r u
@@ -49,6 +53,8 @@ evalOwnDec (ClassDec _ d1) w r u = evalOwnDec d1 (w ! 2) r u
 evalOwnDec (ChainDec d1 d2) w r u = evalOwnDec d1 (w ! 1) r (\r1 -> evalOwnDec d2 (w ! 2) r (u . updateEnv r1))
 evalOwnDec SkipDec w r u = u emptyEnv
 
+-- | @evalOwnExp exp w r u s@ evaluates the expression `exp` under the environment `r` and with store `s` for own
+-- | declarations then passes the resulting environment into the rest of the program `u`.
 evalOwnExp :: Exp -> Posn -> Env -> Dc -> Cc
 evalOwnExp (Int _) w r u = u emptyEnv
 evalOwnExp (Double _) w r u = u emptyEnv
@@ -80,6 +86,8 @@ evalOwnExp (Positive e1) w r u = evalOwnExp e1 (w ! 1) r u
 evalOwnExp (Negative e1) w r u = evalOwnExp e1 (w ! 1) r u
 evalOwnExp (Op _ e1 e2) w r u = evalOwnExp e1 (w ! 2) r (\r1 -> evalOwnExp e2 (w ! 3) r (u . updateEnv r1))
 
+-- | @evalOwnFor for w r u s@ evaluates the for expression `for` under the environment `r` and with store `s` for own
+-- | declarations then passes the resulting environment into the rest of the program `u`.
 evalOwnFor :: For -> Posn -> Env -> Dc -> Cc
 evalOwnFor (ExpFor e1) w r u = evalOwnExp e1 (w ! 1) r u
 evalOwnFor (WhileFor e1 e2) w r u = evalOwnExp e1 (w ! 1) r (\r1 -> evalOwnExp e2 (w ! 2) r (u . updateEnv r1))

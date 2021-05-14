@@ -9,10 +9,11 @@ import Parser.Helper.Language
 import Text.Parsec
 import Prelude hiding (exp)
 
+-- | Parses a declaration.
 dec :: Parsec String () Dec
 dec = do
   choice
-    [ -- Constant: const T I = E ;
+    [ -- Constant: const I : T = E ;
       do
         keyword "const"
         i <- ide
@@ -22,7 +23,7 @@ dec = do
         e <- exp
         semi
         return $ Const i t e,
-      -- Variable: T I = E ;
+      -- Variable: I : T = E ;
       do
         keyword "var"
         i <- ide
@@ -32,7 +33,7 @@ dec = do
         e <- exp
         semi
         return $ Var i t e,
-      -- Own: own T I = E ;
+      -- Own: own I : T = E ;
       do
         keyword "own"
         i <- ide
@@ -42,7 +43,7 @@ dec = do
         e <- exp
         semi
         return $ Own i t e,
-      -- Array: array I [ E1 : E2 ] : T ;
+      -- Array: array I [ E : E ] : T ;
       do
         keyword "array"
         i <- ide
@@ -58,14 +59,14 @@ dec = do
         t <- typeDeclaration
         semi
         return $ uncurry (ArrayDec i) es t,
-      -- Record: record I( I1 : T1, ..., In : Tn ) ;
+      -- Record: record I ( I : T , ... , I : T ) ;
       do
         keyword "record"
         i1 <- ide
         (is, ts) <- typedIdList
         semi
         return $ RecordDec i1 is ts,
-      -- File: file I1 withbuffer I2 : T ;
+      -- File: file I withbuffer I : T ;
       do
         keyword "file"
         i1 <- ide
@@ -75,7 +76,7 @@ dec = do
         t <- typeDeclaration
         semi
         return $ FileDec i1 i2 t,
-      -- Procedure: (rec)? proc I( I1 : T1, ..., In : Tn ) { D* C* }
+      -- Procedure: (rec)? proc I ( I : T , ... , I : T ) { D ... D C ... C }
       do
         isRec <-
           try $
@@ -91,7 +92,7 @@ dec = do
         i1 <- ide
         (is, ts) <- typedIdList
         (if isRec then RecProcDec else ProcDec) i1 is ts <$> block,
-      -- Function: (rec)? func I ( I1 : T1, ..., In : T2 ) : T { E }
+      -- Function: (rec)? func I ( I : T , ... , I : T ) : T { E }
       do
         isRec <-
           try $
@@ -109,11 +110,11 @@ dec = do
         colon
         t <- typeDeclaration
         (if isRec then RecFuncDec else FuncDec) i1 is ts t <$> braces exp,
-      -- Class: class I { D* }
+      -- Class: class I { D ... D }
       classDec
     ]
   where
-    -- I1 : T1, ..., In : Tn
+    -- I : T , ... , I : T
     typedIdList =
       unzip
         <$> parens
@@ -126,5 +127,6 @@ dec = do
               )
           )
 
+-- | @chainDec ds@ returns a declaration that joins the declarations `ds` using `ChainDec`.
 chainDec :: [Dec] -> Dec
 chainDec = foldr ChainDec SkipDec

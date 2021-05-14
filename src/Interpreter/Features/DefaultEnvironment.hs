@@ -8,6 +8,7 @@ import Interpreter.Helper.Control
 import Parser.Core.Types
 import TypeChecker.Core.Types
 
+-- | The starting environment to run a small program under.
 defaultEnv :: Env
 defaultEnv =
   Env
@@ -16,6 +17,7 @@ defaultEnv =
     (\e s -> putError "cannot return at top level")
     (Object HashMap.empty)
 
+-- | The names, values and types of the staring environment of small.
 defaultEnvAndTEnv :: [([Char], Dv, Type)]
 defaultEnvAndTEnv =
   [ ("reset", DProc resetFProc 1, TProc [TRef TFileAny]),

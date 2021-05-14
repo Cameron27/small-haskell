@@ -9,8 +9,13 @@ import Interpreter.Helper.TypeTesting
 import Parser.Core.Types
 import Text.Printf
 
-data Filestate = Filestate [Rv] Int (Maybe Rv)
+-- | A `Filestate` is the state of a file.
+data Filestate
+  = -- | @Filestate es i e@ is a file containing the values `es`, currently at position `i` and with current value `e`.
+    Filestate [Rv] Int (Maybe Rv)
 
+-- | @evalFileDec dec w r u s@ evaluates the file declaration `dec` under the environment `r` and with store `s` then
+-- | passes the resulting environment into the rest of the program `u`.
 evalFileDec :: Dec -> Posn -> Env -> Dc -> Cc
 evalFileDec (FileDec i1 i2 _) w r u s = u (newEnvMulti [i1, i2] ls) (updateStore l1 (Just $ SFile $ File [] 1 l2) s')
   where
@@ -18,6 +23,7 @@ evalFileDec (FileDec i1 i2 _) w r u s = u (newEnvMulti [i1, i2] ls) (updateStore
     ls = map DLoc ls'
     [l1, l2] = ls'
 
+-- | A function that returns true iff the file passed in is at the end.
 eofFunc :: Function
 eofFunc k [e1] =
   if isLoc e1
@@ -32,6 +38,8 @@ eofFunc k [e1] =
         e1
     else err $ printf "\"%s\" is not a location." (pretty e1)
 
+-- | @doFile f c e s@ applies the filestate transformation `f` to `e` with state `s` then runs the rest of the program
+-- | `c`.
 doFile :: (Filestate -> Either String Filestate) -> Cc -> Ec
 doFile f c e s =
   if isLoc e -- check e is a location
@@ -47,18 +55,23 @@ doFile f c e s =
         else putError $ printf "\"%s\" is unbound." (pretty e)
     else putError $ printf "\"%s\" is not a location." (pretty e)
 
+-- | @resetf f@ resets the `Filestate` `f` to the start.
 resetf :: Filestate -> Either String Filestate
 resetf (Filestate es n e) = null es ?> (Right $ Filestate es 1 Nothing, Right $ Filestate es 1 (Just $ head es))
 
+-- | A procedure that resets the file passed in.
 resetFProc :: Procedure
 resetFProc c [e1] = doFile resetf c e1
 
+-- | @rewritef f@ clears the `Filestate` `f`.
 rewritef :: Filestate -> Either String Filestate
 rewritef (Filestate es n e) = Right $ Filestate [] 1 Nothing
 
+-- | A procedure that rewrites the file passed in.
 rewriteFProc :: Procedure
 rewriteFProc c [e1] = doFile rewritef c e1
 
+-- | @getf f@ gets the next value in the `Filestate` `f`.
 getf :: Filestate -> Either String Filestate
 getf (Filestate es n e)
   | n > esLength = Left "cannot get value from beyond end of file."
@@ -67,9 +80,11 @@ getf (Filestate es n e)
   where
     esLength = length es
 
+-- | A procedure that get the next value of the file passed in.
 getFProc :: Procedure
 getFProc c [e1] = doFile getf c e1
 
+-- | @rewritef f@ put the current value onto the end of the `Filestate` `f`.
 putf :: Filestate -> Either String Filestate
 putf (Filestate es n e) =
   if n == length es + 1
@@ -78,5 +93,6 @@ putf (Filestate es n e) =
       Nothing -> Left "value must be in buffer to put into file."
     else Left "cannot put value into file unless at end of file."
 
+-- | A procedure that puts current value on the end of the file passed in.
 putFProc :: Procedure
 putFProc c [e1] = doFile putf c e1

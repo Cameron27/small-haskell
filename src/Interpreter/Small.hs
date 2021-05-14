@@ -9,6 +9,7 @@ import Interpreter.Helper.Env
 import Parser.Core.Types
 import System.Exit
 
+-- | @evalPgm p@ runs the program `p`.
 evalPgm :: Pgm -> Ans
 evalPgm (Program c) = do
   evalOwnCom c w env (\r -> evalCom c w (updateEnv r env) (\_ -> return ExitSuccess)) store
@@ -17,5 +18,6 @@ evalPgm (Program c) = do
     store = Store HashMap.empty 0
     w = Posn 1
 
+-- | @interpretSmall p@ runs the program `p`.
 interpretSmall :: Pgm -> Ans
 interpretSmall = evalPgm

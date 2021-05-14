@@ -5,43 +5,60 @@ import Parser.Core.Types
 import Parser.Helper.Language
 import Text.Parsec
 
+-- | Parses a binary operation expression.
 binaryOps :: Parsec String () Exp
 binaryOps = orOp
 
--- Or: E1 | E2
+-- | Parses an or operation expression.
 orOp :: Parsec String () Exp
-orOp = opChain ["|"] xorOp
+orOp =
+  -- Or: E | E
+  opChain ["|"] xorOp
 
--- XOr: E1 ^ E2
+-- | Parses an xor operation expression.
 xorOp :: Parsec String () Exp
-xorOp = opChain ["^"] andOp
+xorOp =
+  -- XOr: E ^ E
+  opChain ["^"] andOp
 
--- And: E1 & E2
+-- | Parses an and operation expression.
 andOp :: Parsec String () Exp
-andOp = opChain ["&"] equalityOps
+andOp =
+  -- And: E & E
+  opChain ["&"] equalityOps
 
--- Equals: E1 == E2 (or similar)
+-- | Parses an equality operation expression.
 equalityOps :: Parsec String () Exp
-equalityOps = opChain ["==", "!="] relationalOps
+equalityOps =
+  -- Equals: E == E (or similar)
+  opChain ["==", "!="] relationalOps
 
--- Relation: E1 < E2 (or similar)
+-- | Parses a relational operation expression.
 relationalOps :: Parsec String () Exp
-relationalOps = opChain [">=", "<=", ">", "<"] additiveOps
+relationalOps =
+  -- Relation: E < E (or similar)
+  opChain [">=", "<=", ">", "<"] additiveOps
 
--- Addition E1 + E2 (or similar)
+-- | Parses an additive operation expression.
 additiveOps :: Parsec String () Exp
-additiveOps = opChain ["+", "-"] multiplicativeOps
+additiveOps =
+  -- Addition E + E (or similar)
+  opChain ["+", "-"] multiplicativeOps
 
--- Multiplication: E1 * E2 (or similar)
+-- | Parses a multiplicative operation expression.
 multiplicativeOps :: Parsec String () Exp
-multiplicativeOps = opChain ["*", "/", "%"] unary
+multiplicativeOps =
+  -- Multiplication: E * E (or similar)
+  opChain ["*", "/", "%"] unary
 
+-- | @opChain os p@ returns a parser that parses a chain of expressions parsed by `p` joined by the operators `os`;
 opChain :: [String] -> Parsec String () Exp -> Parsec String () Exp
 opChain ops lowerParser = do
   e1 <- lowerParser
   es <- many $ do op <- opChoice ops; e <- lowerParser; return (opMap op, e)
   return $ foldl (\x (y, z) -> Op y x z) e1 es
 
+-- | @opMap o@ returns the `Opr` represented by the operator string `o`.
 opMap :: [Char] -> Opr
 opMap "*" = Mult
 opMap "/" = Div

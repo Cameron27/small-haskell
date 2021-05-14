@@ -12,6 +12,7 @@ import TypeChecker.Helper.Control
 import TypeChecker.Helper.TEnv
 import TypeChecker.Helper.TypeModification
 
+-- | @typeCom c r@ type checks command `c` under the environment `r`.
 typeCom :: Com -> TEnv -> Either TypeError ()
 typeCom (Assign e1 e2) r = do
   t1 <- typeExp e1 r
@@ -71,7 +72,7 @@ typeCom (Return e1) r = do
 typeCom (WithDo e1 c1) r = do
   t <- typeExp e1 r >>= rval (WithDo e1 c1)
   if t <: TRecordAny
-    then typeCom c1 (updateTEnv (uncurry newTEnvMulti (unzip $ recordTypes t)) r)
+    then typeCom c1 (updateTEnv (recordEnvironment t) r)
     else err $ printf "with cannot be performed on type \"%s\" in \"%s\"" (show t) (pretty (WithDo e1 c1))
 typeCom (Block d1 c1) r = do
   r1 <- typeDec d1 r

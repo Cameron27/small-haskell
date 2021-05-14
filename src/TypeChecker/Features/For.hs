@@ -10,6 +10,7 @@ import TypeChecker.Helper.Control
 import TypeChecker.Helper.TypeModification
 import Prelude hiding (max)
 
+-- | @typeForCom c r@ type checks for command `c` under the environment `r`.
 typeForCom :: Com -> TEnv -> Either TypeError ()
 typeForCom (For i1 f1 c1) r = do
   t1 <- typeExp (I i1) r
@@ -18,6 +19,7 @@ typeForCom (For i1 f1 c1) r = do
     then typeCom c1 r
     else err $ printf "cannot assign \"%s\" to \"%s\" in \"%s\"" (show t2) (show t1) (pretty (For i1 f1 c1))
 
+-- | @typeFor f r@ returns the type `f` represents if `f` type checks under the environment `r`.
 typeFor :: For -> TEnv -> Either TypeError Type
 typeFor (ExpFor e1) r = do
   typeExp e1 r >>= rval (ExpFor e1)

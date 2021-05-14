@@ -13,24 +13,28 @@ import TypeChecker.Helper.Control
 import TypeChecker.Helper.TEnv
 import TypeChecker.Helper.TypeModification
 
+-- | @typeClassDec d r@ returns an environment containing the information of declaration `d` if class `d` type checks
+-- | under the environment `r`.
 typeClassDec :: Dec -> TEnv -> Either TypeError TEnv
 typeClassDec (ClassDec i1 cds) r = do
-  (TEnv c _ _) <- typeCDecInterface cds
+  (TEnv c _ _) <- typeCDecInterface cds -- Generate the interface
   let r' = newTEnv i1 $ TClass $ Class i1 c
-  typeCDec cds (updateThisTEnv emptyClass (updateTEnv r' r)) $ Class i1 c
+  typeCDec cds (updateThisTEnv emptyClass (updateTEnv r' r)) $ Class i1 c -- Type check the class using the interface
   return r'
 
+-- | @typeCDec cd r c@ returns an environment containing the information of class declaration `cd` if `cd` type
+-- | checks under the environment `r` using the class `c` as "this" where relevant.
 typeCDec :: Dec -> TEnv -> Class -> Either TypeError TEnv
 typeCDec (ProcDec i1 is ts c1) r c = do
   typeTypes ts r
-  typeCom c1 (updateThisTEnv c (updateTEnv (newTEnvMulti is ts) r))
-  return $ newTEnv i1 (TMethod $ TProc ts)
+  typeCom c1 (updateThisTEnv c (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
+  return $ newTEnv i1 (TMethod $ TProc ts) -- Procedures in classes are methods
 typeCDec (FuncDec i1 is ts t1 e1) r c = do
   typeTypes ts r
   typeType t1 r
-  t <- typeExp e1 (updateThisTEnv c (updateTEnv (newTEnvMulti is ts) r))
+  t <- typeExp e1 (updateThisTEnv c (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
   if t <: t1
-    then return $ newTEnv i1 (TMethod $ TFunc ts t1)
+    then return $ newTEnv i1 (TMethod $ TFunc ts t1) -- Functions in classes are methods
     else err $ printf "function result \"%s\" does not match type \"%s\" in \"%s\"" (show t) (show t1) (pretty (FuncDec i1 is ts t1 e1))
 typeCDec (ChainDec d1 d2) r c = do
   r1 <- typeCDec d1 r c
@@ -38,6 +42,8 @@ typeCDec (ChainDec d1 d2) r c = do
   return (updateTEnv r2 r1)
 typeCDec d1 r c = typeDec d1 r
 
+-- | @typeCDecInterface cd@ returns an environment containing the information of class declaration `cd` if `cd` type
+-- | checks but does not check any of the right hand values or procedure/function bodies.
 typeCDecInterface :: Dec -> Either TypeError TEnv
 typeCDecInterface (Const i1 t1 e1) = return $ newTEnv i1 t1
 typeCDecInterface (Var i1 t1 e1) = do
@@ -59,6 +65,7 @@ typeCDecInterface (ChainDec d1 d2) = do
   return (updateTEnv r2 r1)
 typeCDecInterface SkipDec = Right emptyTEnv
 
+-- | @typeNewExp e r@ returns the type `e` represents if the new expression `e` type checks under the environment `r`.
 typeNewExp :: Exp -> TEnv -> Either TypeError Type
 typeNewExp (New i1) r = do
   c <- lookupTEnv i1 r
@@ -66,8 +73,10 @@ typeNewExp (New i1) r = do
     then return $ TObject i1
     else err $ printf "no class %s in %s" i1 (pretty (New i1))
 
+-- | @typeThisExp e r@ returns the type `e` represents if the this expression `e` type checks under the environment `r`.
 typeThisExp :: Exp -> TEnv -> Either TypeError Type
 typeThisExp This (TEnv _ _ (Class i _)) = return $ TObject i
 
+-- | @typeNullExp e r@ returns the type `e` represents if the null expression `e` type checks under the environment `r`.
 typeNullExp :: Exp -> TEnv -> Either TypeError Type
 typeNullExp Null r = return TNull

@@ -5,6 +5,7 @@ import Interpreter.Features.DefaultEnvironment
 import TypeChecker.Core.Types
 import TypeChecker.Helper.TEnv
 
+-- | The starting environment to type check a small program under.
 defaultTEnv :: TEnv
 defaultTEnv =
   TEnv

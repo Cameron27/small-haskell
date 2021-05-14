@@ -10,12 +10,20 @@ import Data.List
 import System.Exit
 import Text.Printf
 
+-- | An `Ide` is a identifier in small.
 type Ide = String
 
+-- | A `Loc` is location.
 type Loc = Int
 
-data Posn = Posn Int | PosnChain Posn Int
+-- | A `Posn` is a code position.
+data Posn
+  = -- | @Posn i@ is the position `i`.
+    Posn Int
+  | -- | @PosnChain w i@ is the position `w` with `i` appended to the end.
+    PosnChain Posn Int
 
+-- | @w ! i@ returns a new position that is `w` with `i` appended to the end.
 (!) :: Posn -> Int -> Posn
 p ! i = PosnChain p i
 
@@ -32,6 +40,7 @@ instance Hashable Posn where
   hashWithSalt n (Posn i) = hashWithSalt n i
   hashWithSalt n (PosnChain p i) = hashWithSalt n p `xor` hashWithSalt n i
 
+-- | A `Dv` is a denotable value.
 data Dv
   = DInt Int
   | DDouble Double
@@ -47,7 +56,6 @@ data Dv
   | DClass Class
   | DObject Object
   | DNull
-  | DJump Jump
   | DCc Cc
 
 instance Pretty Dv where
@@ -66,9 +74,9 @@ instance Pretty Dv where
   pretty (DClass _) = printf "CLASS"
   pretty (DObject (Object x)) = printf "OBJECT(%s)" (pretty x)
   pretty DNull = "null"
-  pretty (DJump _) = "JUMP"
   pretty (DCc _) = "CC"
 
+-- | A `Sv` is a storable value.
 data Sv
   = SInt Int
   | SDouble Double
@@ -94,8 +102,10 @@ instance Pretty Sv where
   pretty (SObject (Object x)) = printf "OBJECT(%s)" (pretty x)
   pretty SNull = "null"
 
+-- | A `Ev` is a expressible value.
 type Ev = Dv
 
+-- | A `Rv` is a right hand value.
 data Rv
   = RInt Int
   | RDouble Double
@@ -118,42 +128,76 @@ instance Typeable Rv where
   typeStr (RObject (Object x)) = printf "object(%s)" (intercalate "," (HashMap.keys x))
   typeStr RNull = "null"
 
-data Env = Env (HashMap.HashMap Ide Dv) (HashMap.HashMap (Ide, Posn) Dv) Ec Object
+-- | An `Env` is an environment.
+data Env
+  = -- | @Env m1 m2 k o@ is an environment with `m1` being the mapping from identifiers to the values they represent,
+    -- | `m2` being the mapping from identifiers and locations to the values they represent for own declarations, `k`
+    -- | being the current return address and `o` being the current object represented by "this".
+    Env (HashMap.HashMap Ide Dv) (HashMap.HashMap (Ide, Posn) Dv) Ec Object
 
 instance Pretty Env where
   pretty (Env x y _ z) = printf "Env (%s) (%s) (%s)" (pretty x) (pretty y) (pretty (DObject z))
 
-data Store = Store (HashMap.HashMap Loc Sv) Loc
+-- | An `Store` is a store.
+data Store
+  = -- | @Store m l@ is a store with `m` being the mapping from location to the values at those locations and `l` being
+    -- | the next free location in the store.
+    Store (HashMap.HashMap Loc Sv) Loc
 
 instance Pretty Store where
   pretty (Store x y) = printf "Store (%s) %d" (pretty x) y
 
+-- | A `Cc` is a command continuation. It takes in a `Store` and produces an `Ans`.
 type Cc = Store -> Ans
 
-type Ec = Ev -> Cc
-
+-- | A `Dc` is a declaration continuation. It takes in an `Env` and a `Store` and produces an `Ans`.
 type Dc = Env -> Cc
 
+-- | A `Ec` is a expression continuation. It takes in an `Ev` and a `Store` and produces an `Ans`.
+type Ec = Ev -> Cc
+
+-- | A `CDc` is a class declaration continuation. It takes in a `Class` and a `Store` and produces an `Ans`.
 type CDc = Class -> Cc
 
-data Array = Array Int Int [Loc]
+-- | An `Array` is an array of locations.
+data Array
+  = -- | @Array i1 i2 ls@ is an array starting at `i1` and ending at `i2` with `ls` being the locations in the array.
+    Array Int Int [Loc]
 
-newtype Record = Record (HashMap.HashMap Ide Dv)
+-- | A `Record` is a record of values.
+newtype Record
+  = -- | @Record m@ is a record with `m` being the mapping from identifiers to the values they represent.
+    Record (HashMap.HashMap Ide Dv)
 
-data File = File [Rv] Int Loc
+-- | A `File` is list of values and a location.
+data File
+  = -- | @File es i l@ is a file containing the values `es`, currently at position `i` and using location `l` to put the
+    -- | current value.
+    File [Rv] Int Loc
 
+-- | A `Procedure` is a procedure. It takes in a `Cc` a list of `Ev`s and a `Store` and evaluates the procedure then
+-- | runs the `Cc`.
 type Procedure = Cc -> [Ev] -> Cc
 
+-- | A `Function` is a function. It takes in  an `Ev` a list of `Ev`s and a `Store` and evaluates the function then passes
+-- | the resulting value into the `Ec`.
 type Function = Ec -> [Ev] -> Cc
 
+-- | A `Method` is a `Procedure` or `Function` of an `Object`. It takes in an `Ev` an `Object` and a `Store` and bounds
+-- | the `Object` to "this" in the `Method` then passes the resulting `Procedure` or `Function` into the `Ec`.
 type Method = Ec -> Object -> Cc
 
-newtype Class = Class (Ec -> Cc)
+-- | A `Class` is a class.
+newtype Class
+  = -- | @Class c@ is a class which you can provide a `Ev` to `c` and it will generate an `Object` from that class.
+    Class (Ec -> Cc)
 
-newtype Object = Object (HashMap.HashMap Ide Dv)
+-- | A `Object` is an object.
+newtype Object
+  = -- | @Object m@ is an object with `m` being the mapping from identifiers to the values they represent.
+    Object (HashMap.HashMap Ide Dv)
 
-type Jump = Ev -> Ec -> Cc
-
+-- | An `Ans` is an `IO` representing what the small program does.
 type Ans = IO ExitCode
 
 instance Pretty (HashMap.HashMap Ide Dv) where

@@ -9,6 +9,7 @@ import Parser.Helper.Language
 import Text.Parsec
 import Prelude hiding (exp)
 
+-- | Parses a class declaration.
 classDec :: Parsec String () Dec
 classDec = do
   keyword "class"
@@ -16,10 +17,11 @@ classDec = do
   ds <- chainDec <$> braces (many $ try cdec)
   return $ ClassDec i ds
 
+-- | Parses a declaration within a declaration class.
 cdec :: Parsec String () Dec
 cdec = do
   choice
-    [ -- Constant: const T I = E ;
+    [ -- Constant: const I : T = E ;
       do
         keyword "const"
         i <- ide
@@ -29,7 +31,7 @@ cdec = do
         e <- exp
         semi
         return $ Const i t e,
-      -- Variable: T I = E ;
+      -- Variable: I : T = E ;
       do
         keyword "var"
         i <- ide
@@ -39,7 +41,7 @@ cdec = do
         e <- exp
         semi
         return $ Var i t e,
-      -- Array: array I [ E1 : E2 ] : T ;
+      -- Array: array I [ E : E ] : T ;
       do
         keyword "array"
         i <- ide
@@ -55,14 +57,14 @@ cdec = do
         t <- typeDeclaration
         semi
         return $ uncurry (ArrayDec i) es t,
-      -- Record: record I( I1 : T1, ..., In : Tn ) ;
+      -- Record: record I ( I : T , ... , I : T ) ;
       do
         keyword "record"
         i1 <- ide
         (is, ts) <- typedIdList
         semi
         return $ RecordDec i1 is ts,
-      -- File: file I1 withbuffer I2 : T ;
+      -- File: file I withbuffer I : T ;
       do
         keyword "file"
         i1 <- ide
@@ -72,13 +74,13 @@ cdec = do
         t <- typeDeclaration
         semi
         return $ FileDec i1 i2 t,
-      -- Procedure: (rec)? proc I( I1 : T1, ..., In : Tn ) { D* C* }
+      -- Procedure: (rec)? proc I( I : T , ... , I : T ) { D ... D C ... C }
       do
         keyword "proc"
         i1 <- ide
         (is, ts) <- typedIdList
         ProcDec i1 is ts <$> block,
-      -- Function: (rec)? func I ( I1 : T1, ..., In : T2 ) : T { E }
+      -- Function: (rec)? func I ( I : T , ... , I : T ) : T { E }
       do
         keyword "func"
         i1 <- ide
@@ -88,7 +90,7 @@ cdec = do
         FuncDec i1 is ts t <$> braces exp
     ]
   where
-    -- I1 : T1, ..., In : Tn
+    -- I : T, ..., I : T
     typedIdList =
       unzip
         <$> parens
@@ -101,19 +103,28 @@ cdec = do
               )
           )
 
+-- | Parses a new expression.
 newExp :: Parsec String () Exp
-newExp = do
-  keyword "new"
-  i <- ide
-  parens spaces
-  return $ New i
+newExp =
+  -- New: new I ( )
+  do
+    keyword "new"
+    i <- ide
+    parens spaces
+    return $ New i
 
+-- Parses a this expression.
 thisExp :: Parsec String () Exp
-thisExp = do
-  keyword "this"
-  return This
+thisExp =
+  -- This: this
+  do
+    keyword "this"
+    return This
 
+-- Parses a null expression.
 nullExp :: Parsec String () Exp
-nullExp = do
-  keyword "null"
-  return Null
+nullExp =
+  -- Null: null
+  do
+    keyword "null"
+    return Null

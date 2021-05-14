@@ -6,16 +6,25 @@ import Data.List
 import Data.Maybe
 import Text.Printf
 
+-- | An `Ide` is a identifier in small.
 type Ide = String
 
-newtype TypeError = TypeError String
+-- | A `TypeError` is an error produced during the type checking of small.
+newtype TypeError
+  = -- | @TypeError s@ is a type error with error message `s`.
+    TypeError String
 
 instance Show TypeError where
   show (TypeError err) = err
 
-data TEnv = TEnv (HashMap.HashMap Ide Type) Type Class
+-- | A `TEnv` is a type environment.
+data TEnv
+  = -- | @TEnv m t c@ is a type environment with `m` being the mapping from identifiers to the types they represent, `t`
+    -- | being the current type expected by the return address and `c` being the current class represented by "this".
+    TEnv (HashMap.HashMap Ide Type) Type Class
   deriving (Show)
 
+-- | A `Type` is a type in small.
 data Type
   = TInt
   | TDouble
@@ -47,9 +56,13 @@ data Type
   | TUnion [Type]
   deriving (Eq, Ord, Show)
 
-data Class = Class Ide (HashMap.HashMap Ide Type)
+-- | A `Class` represents a class type in small.
+data Class
+  = -- | @Class i m@ is a class named `i` with `m` being the mapping from identifiers to the types they represent.
+    Class Ide (HashMap.HashMap Ide Type)
   deriving (Eq, Ord, Show)
 
+-- | @t1 <: t2@ returns `True` iff `t1` is a subtype of `t2`.
 (<:) :: Type -> Type -> Bool
 -- any cases
 (TArray _) <: TArrayAny = True
@@ -73,10 +86,13 @@ t <: TUnion ts = any (t <:) ts
 (TRefMaybe t1) <: (TRefMaybe t2) = t1 <: t2
 t1 <: t2 = t1 == t2
 
+-- | @t1 <::> t2@ returns `True` iff `t1` is a subtype of `t2` or `t2` is a subtype of `t1`.
 (<::>) :: Type -> Type -> Bool
 t1 <::> t2 = t1 <: t2 || t2 <: t1
 
+-- | @max t1 t2@ returns `t2` if `t1` is a subtype of `t2` and returns `t1` if `t2` is a subtype of `t1`.
 max :: Type -> Type -> Type
 max t1 t2
   | t1 <: t2 = t2
   | t2 <: t1 = t1
+  | otherwise = error $ printf "neither %s or %s are a subtype of the other" (show t1) (show t2)

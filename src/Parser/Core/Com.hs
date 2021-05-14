@@ -8,21 +8,22 @@ import Parser.Helper.Language
 import Text.Parsec
 import Prelude hiding (exp)
 
+-- | Parses a command.
 com :: Parsec String () Com
 com = do
   choice
-    [ -- Block: { D* C* }
+    [ -- Block: { D ... D C ... C }
       block,
-      -- Assign and Procedure: E1 ... ;
+      -- Assign and Procedure: E ... ;
       do
         e1 <- exp
         c <-
           choice
-            [ -- Assign: E1 = E2 ;
+            [ -- Assign: E = E ;
               do
                 op "="
                 Assign e1 <$> exp,
-              -- Procedure: E ( E1, ..., En ) ;
+              -- Procedure: E ( E , ... , E ) ;
               case e1 of
                 Func e2 e3 -> return $ Proc e2 e3
                 _ -> fail ""
@@ -35,7 +36,7 @@ com = do
         e <- exp
         semi
         return $ Output e,
-      -- If: if ( E ) C1 else C2 | if ( E ) C1
+      -- If: if ( E ) C else C | if ( E ) C
       do
         keyword "if"
         e <- parens exp
@@ -62,7 +63,7 @@ com = do
         return $ Repeat e c,
       -- For: for ( I = F ) C
       forCom,
-      -- Trap: trap { C* D* (I1: C1)* }
+      -- Trap: trap { C ... C D ... D I : C ... I : C }
       do
         keyword "trap"
         braces $ do
@@ -97,17 +98,20 @@ com = do
         WithDo e <$> com
     ]
 
+-- | @chain cs@ returns a command that joins the commands `cs` using `Chain`.
 chain :: [Com] -> Com
 chain = foldr Chain Skip
 
--- Block Internals: D* C*
+-- | Parses the insides of a block.
 block' :: Parsec String () Com
 block' =
+  -- Block Internals: D ... D C ... C
   do
     ds <- many $ try dec
     cs <- many $ try com
     return $ Block (chainDec ds) (chain cs)
 
--- Block: { D* C* }
+-- | Parses a block.
 block :: Parsec String () Com
+-- Block: { D ... D C ... C }
 block = braces block'
