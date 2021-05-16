@@ -23,14 +23,14 @@ typeExp Read r = Right TString
 typeExp (I i1) r = lookupTEnv i1 r
 typeExp (RefExp e1) r = typeExp e1 r >>= ref (RefExp e1)
 typeExp (ArrayExp e1 e2 t1) r = do
-  typeType t1 r
+  t1 <- typeType t1 r
   te1 <- typeExp e1 r >>= rval (ArrayExp e1 e2 t1)
   te2 <- typeExp e2 r >>= rval (ArrayExp e1 e2 t1)
   if te1 <: TInt && te2 <: TInt
     then TArray <$> ref (ArrayExp e1 e2 t1) t1
     else err $ printf "array cannot have bounds of types \"%s:%s\" in \"%s\"" (show te1) (show te2) (pretty (ArrayExp e1 e2 t1))
 typeExp (RecordExp is ts) r = do
-  typeTypes ts r
+  ts <- typeTypes ts r
   if allDifferent is
     then do
       ts' <- foldr (\t ts' -> do t' <- ref (RecordExp is ts) t; (t' :) <$> ts') (Right []) ts -- Reference each type in the record
@@ -53,9 +53,9 @@ typeExp (IfExp e1 e2 e3) r = do
       t2 <- typeExp e3 r
       tryMerge (IfExp e1 e2 e3) t1 t2 -- Allows types where the only difference is one is references once more to be type compatible
     else err $ printf "test cannot be \"%s\" in \"%s\"" (show t) (pretty (IfExp e1 e2 e3))
-typeExp (Valof t1 c1) (TEnv r rt t) = do
-  typeType t1 (TEnv r rt t)
-  typeCom c1 (TEnv r t1 t)
+typeExp (Valof t1 c1) (TEnv r cr rt t i) = do
+  t1 <- typeType t1 (TEnv r cr rt t i)
+  typeCom c1 (TEnv r cr t1 t i)
   return t1
 typeExp (Cont e1) r = do
   t <- typeExp e1 r

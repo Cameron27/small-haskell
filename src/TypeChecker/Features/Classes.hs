@@ -17,21 +17,21 @@ import TypeChecker.Helper.TypeModification
 -- | under the environment `r`.
 typeClassDec :: Dec -> TEnv -> Either TypeError TEnv
 typeClassDec (ClassDec i1 cds) r = do
-  (TEnv c _ _) <- typeCDecInterface cds -- Generate the interface
-  let r' = newTEnv i1 $ TClass $ Class i1 c
-  typeCDec cds (updateThisTEnv emptyClass (updateTEnv r' r)) $ Class i1 c -- Type check the class using the interface
+  (TEnv c _ _ _ _) <- typeCDecInterface cds -- Generate the interface
+  let (r', c') = newClassTEnv i1 c r
+  typeCDec cds (updateThisTEnv emptyClass (updateTEnv r' r)) c' -- Type check the class using the interface
   return r'
 
 -- | @typeCDec cd r c@ returns an environment containing the information of class declaration `cd` if `cd` type
 -- | checks under the environment `r` using the class `c` as "this" where relevant.
 typeCDec :: Dec -> TEnv -> Class -> Either TypeError TEnv
 typeCDec (ProcDec i1 is ts c1) r c = do
-  typeTypes ts r
+  ts <- typeTypes ts r
   typeCom c1 (updateThisTEnv c (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
   return $ newTEnv i1 (TMethod $ TProc ts) -- Procedures in classes are methods
 typeCDec (FuncDec i1 is ts t1 e1) r c = do
-  typeTypes ts r
-  typeType t1 r
+  ts <- typeTypes ts r
+  t1 <- typeType t1 r
   t <- typeExp e1 (updateThisTEnv c (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
   if t <: t1
     then return $ newTEnv i1 (TMethod $ TFunc ts t1) -- Functions in classes are methods
@@ -70,12 +70,12 @@ typeNewExp :: Exp -> TEnv -> Either TypeError Type
 typeNewExp (New i1) r = do
   c <- lookupTEnv i1 r
   if c <: TClassAny
-    then return $ TObject i1
-    else err $ printf "no class %s in %s" i1 (pretty (New i1))
+    then let (TClass (Class i _)) = c in return $ TObject i
+    else err $ printf "no class \"%s\" in \"%s\"" i1 (pretty (New i1))
 
 -- | @typeThisExp e r@ returns the type `e` represents if the this expression `e` type checks under the environment `r`.
 typeThisExp :: Exp -> TEnv -> Either TypeError Type
-typeThisExp This (TEnv _ _ (Class i _)) = return $ TObject i
+typeThisExp This (TEnv _ _ _ (Class i _) _) = return $ TObject i
 
 -- | @typeNullExp e r@ returns the type `e` represents if the null expression `e` type checks under the environment `r`.
 typeNullExp :: Exp -> TEnv -> Either TypeError Type

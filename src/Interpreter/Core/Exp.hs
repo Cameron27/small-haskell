@@ -59,7 +59,7 @@ evalExp (Func e1 e2) w r k s = evalExp e1 (w ! 1) r (testFunc (length e2) (Func 
         params
         []
 evalExp (IfExp e1 e2 e3) w r k s = evalRVal e1 (w ! 1) r (testBool e1 $ \e -> cond (evalExp e2 (w ! 2) r k, evalExp e3 (w ! 3) r k) $ dvToBool e) s
-evalExp (Valof t1 c1) w r k s = evalCom c1 (w ! 1) (Env r' w' k t') (err $ printf "no return encountered in %s" $ show (Valof t1 c1)) s
+evalExp (Valof t1 c1) w r k s = evalCom c1 (w ! 1) (Env r' w' k t') (err $ printf "no return encountered in \"%s\"" $ show (Valof t1 c1)) s
   where
     (Env r' w' _ t') = r
 evalExp (Cont e1) w r k s = (evalExp e1 (w ! 1) r $ testLoc e1 $ cont k) s

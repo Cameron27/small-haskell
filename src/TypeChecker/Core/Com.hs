@@ -68,7 +68,7 @@ typeCom (Return e1) r = do
     then return ()
     else err $ printf "return type \"%s\" does not match expected return type \"%s\" in \"%s\"" (show t) (show rt) (pretty (Return e1))
   where
-    (TEnv _ rt _) = r
+    (TEnv _ _ rt _ _) = r
 typeCom (WithDo e1 c1) r = do
   t <- typeExp e1 r >>= rval (WithDo e1 c1)
   if t <: TRecordAny

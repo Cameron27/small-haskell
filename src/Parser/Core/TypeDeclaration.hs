@@ -63,5 +63,5 @@ typeDeclaration = do
         TRef <$> typeDeclaration,
       -- Object: I
       do
-        TObject <$> ide
+        TObjectNamed <$> ide
     ]

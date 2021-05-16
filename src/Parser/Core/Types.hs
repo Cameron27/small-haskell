@@ -160,7 +160,7 @@ instance Pretty Exp where
   pretty (Cont x) = printf "cont %s" (pretty x)
   pretty (ArrayAccess x y) = printf "%s[%s]" (pretty x) (pretty y)
   pretty (Dot x y) = printf "%s.%s" (pretty x) (pretty y)
-  pretty (New x) = printf "new %s" x
+  pretty (New x) = printf "new %s()" x
   pretty This = "this"
   pretty Null = "null"
   pretty (Not x) = printf "!%s" (pretty x)
