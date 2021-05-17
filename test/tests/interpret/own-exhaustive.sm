@@ -33,6 +33,12 @@
 27
 28
 29
+29\.1
+29\.2
+29\.3
+29\.4
+29\.5
+29\.6
 30
 31
 32
@@ -187,6 +193,29 @@ g:
             valof: int { own x: int = 0; x = a; return x; } == 29 ? 29 : h(a + 1)
         }
 
+        // class
+        class T {
+            // const
+            const j: float = valof: float { own x: float = 29.1; return x; };
+
+            // var
+            var k: float = valof: float { own x: float = 29.2; return x; };
+
+            // array
+            array l[valof: int { own x: int = 0; return x; }:valof: int { own x: int = 1; return x; }]: float;
+
+            // proc
+            proc m(a: float) {
+                output valof: float { own x: float = 0.0; x = a; return x; };
+            }
+
+            // func
+            func n(a: int): float {
+                valof: float { own x: float = 0.0; x = a + 0.6; return x; }
+            }
+        }
+        var i: T = new T();
+
         output a;
         output b;
         output c;
@@ -198,6 +227,14 @@ g:
         f(26);
         output g(28);
         output h(1);
+        output i.j;
+        output i.k;
+        i.l[0] = 29.3;
+        i.l[1] = 29.4;
+        output i.l[0];
+        output i.l[1];
+        i.m(29.5);
+        output i.n(29);
     }
 
     // ref

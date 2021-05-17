@@ -1,0 +1,152 @@
+// true
+// true
+// true
+/**/
+/*
+0
+1
+3
+7
+test
+test1
+test2
+5
+4
+0
+4
+16
+0
+8
+16
+1
+two
+1
+2
+*/
+
+program {
+    {
+        // Check all declatartion
+        class Test {
+            const a: int = 0;
+            var b: int = 1;
+            array c[0:4]: int;
+            record d(da: int, db: string, dc: bool);
+            file e withbuffer f: string;
+            proc g(x: int, y: float) {
+                output 5;
+            }
+            func h(a: int, b: bool): int {
+                b ? a : a * 2
+            }
+        }
+        var test: Test = new Test();
+        output test.a; // 0
+        output test.b; // 1
+        test.c[3] = 3;
+        output test.c[3]; // 3
+        test.d.da = 7;
+        test.d.db = "test";
+        output test.d.da; // 7
+        output test.d.db; // test
+        test.f = "test1";
+        put(test.e);
+        test.f = "test2";
+        put(test.e);
+        reset(test.e);
+        output (test.f); // test1
+        get(test.e);
+        output (test.f); // test2
+        test.g(1, 2.0); // 5
+        output test.h(4, true); // 4
+    }
+
+    // Test null, this, recursive usage and func/proc calls
+    {
+        class Node {
+            var next: Node = null;
+            var val: int = 0;
+
+            proc add(i: int) {
+                if (isNull(this.next)) {
+                    this.next = new Node();
+                    this.next.val = i;
+                } else {
+                    this.next.add(i);
+                }
+            }
+
+            func get(i: int): int {
+                valof: int {
+                    if (i == 0)
+                        return this.val;
+                    else
+                        return this.next.get(i - 1);
+                }
+            }
+
+            proc remove(i: int) {
+                if (i == 1) {
+                    var temp: Node = this.next.next;
+                    this.next = null;
+                    this.next = temp;
+                }
+                else
+                    this.remove(i - 1);
+            }
+        }
+
+        var l: Node = new Node();
+        var x: int = 1;
+        while (x < 20) {
+            l.add(cont x);
+            x = x * 2;
+        }
+        output l.get(0); // 0
+        output l.get(3); // 4
+        output this.l.get(5); // 16
+
+        l.remove(2);
+        output l.get(0); // 0
+        output l.get(3); // 8
+        output this.l.get(4); // 16
+    }
+
+    // Test class name shadowing
+    {
+        class Test {
+            const x: int = 1;
+        }
+        var x: Test = new Test();
+
+        {
+            class Test {
+                const y: string = "two";
+            }
+
+            var y: Test = new Test();
+            output x.x; // 1
+            output y.y; // two
+        }
+
+        x = new Test();
+    }
+
+    // Test environment capturing
+    {
+        var a: int = 1;
+        class Test {
+            var x: int = a;
+        }
+
+        var t1: Test = null;
+        var t2: Test = null;
+
+        t1 = new Test();
+        a = 2;
+        t2 = new Test();
+        output t1.x; // 1
+        output t2.x; // 2
+
+    }
+}

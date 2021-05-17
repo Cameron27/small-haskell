@@ -2,6 +2,7 @@ module TypeChecker.Features.Classes where
 
 import Common.Formatting
 import Common.Functions
+import qualified Data.HashMap.Strict as HashMap
 import Parser.Core.Types
 import Text.Printf
 import {-# SOURCE #-} TypeChecker.Core.Com
@@ -17,7 +18,7 @@ import TypeChecker.Helper.TypeModification
 -- | under the environment `r`.
 typeClassDec :: Dec -> TEnv -> Either TypeError TEnv
 typeClassDec (ClassDec i1 cds) r = do
-  (TEnv c _ _ _ _) <- typeCDecInterface cds -- Generate the interface
+  (TEnv c _ _ _ _) <- typeCDecInterface cds (updateTEnv (fst $ newClassTEnv i1 HashMap.empty r) r) -- Generate the interface
   let (r', c') = newClassTEnv i1 c r
   typeCDec cds (updateThisTEnv emptyClass (updateTEnv r' r)) c' -- Type check the class using the interface
   return r'
@@ -44,26 +45,38 @@ typeCDec d1 r c = typeDec d1 r
 
 -- | @typeCDecInterface cd@ returns an environment containing the information of class declaration `cd` if `cd` type
 -- | checks but does not check any of the right hand values or procedure/function bodies.
-typeCDecInterface :: Dec -> Either TypeError TEnv
-typeCDecInterface (Const i1 t1 e1) = return $ newTEnv i1 t1
-typeCDecInterface (Var i1 t1 e1) = do
+typeCDecInterface :: Dec -> TEnv -> Either TypeError TEnv
+typeCDecInterface (Const i1 t1 e1) r = do
+  t1 <- typeType t1 r
+  return $ newTEnv i1 t1
+typeCDecInterface (Var i1 t1 e1) r = do
+  t1 <- typeType t1 r
   t1' <- ref (Var i1 t1 e1) t1
   return $ newTEnv i1 t1'
-typeCDecInterface (ArrayDec i1 e1 e2 t1) = newTEnv i1 <$> (TArray <$> ref (ArrayDec i1 e1 e2 t1) t1)
-typeCDecInterface (RecordDec i1 is ts) = do
+typeCDecInterface (ArrayDec i1 e1 e2 t1) r = do
+  t1 <- typeType t1 r
+  newTEnv i1 <$> (TArray <$> ref (ArrayDec i1 e1 e2 t1) t1)
+typeCDecInterface (RecordDec i1 is ts) r = do
+  ts <- typeTypes ts r
   ts' <- foldr (\t ts' -> do t' <- ref (RecordDec i1 is ts) t; (t' :) <$> ts') (Right []) ts
   return $ newTEnv i1 $ TRecord (zip is ts')
-typeCDecInterface (FileDec i1 i2 t1) = do
+typeCDecInterface (FileDec i1 i2 t1) r = do
+  t1 <- typeType t1 r
   t1' <- ref (FileDec i1 i2 t1) t1
   t2' <- ref (FileDec i1 i2 t1) (TFile t1)
   return $ newTEnvMulti [i1, i2] [t2', t1']
-typeCDecInterface (ProcDec i1 is ts c1) = return $ newTEnv i1 (TMethod $ TProc ts)
-typeCDecInterface (FuncDec i1 is ts t1 e1) = return $ newTEnv i1 (TMethod $ TFunc ts t1)
-typeCDecInterface (ChainDec d1 d2) = do
-  r1 <- typeCDecInterface d1
-  r2 <- typeCDecInterface d2
+typeCDecInterface (ProcDec i1 is ts c1) r = do
+  ts <- typeTypes ts r
+  return $ newTEnv i1 (TMethod $ TProc ts)
+typeCDecInterface (FuncDec i1 is ts t1 e1) r = do
+  t1 <- typeType t1 r
+  ts <- typeTypes ts r
+  return $ newTEnv i1 (TMethod $ TFunc ts t1)
+typeCDecInterface (ChainDec d1 d2) r = do
+  r1 <- typeCDecInterface d1 r
+  r2 <- typeCDecInterface d2 r
   return (updateTEnv r2 r1)
-typeCDecInterface SkipDec = Right emptyTEnv
+typeCDecInterface SkipDec r = Right emptyTEnv
 
 -- | @typeNewExp e r@ returns the type `e` represents if the new expression `e` type checks under the environment `r`.
 typeNewExp :: Exp -> TEnv -> Either TypeError Type

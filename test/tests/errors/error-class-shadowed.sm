@@ -1,0 +1,20 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    class T {
+        var x: int = 1;
+    }
+
+    var y: T = new T();
+    {
+        class T {
+            var x: int = 1;
+        }
+
+        y = new T();
+    }
+}

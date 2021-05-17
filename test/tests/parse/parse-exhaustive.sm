@@ -14,6 +14,7 @@
 1
 1
 1
+6
 */
 
 program {
@@ -35,6 +36,24 @@ program {
     }
     rec func x(a: int, b: int): int {
         x(a + b, b)
+    }
+    class T {
+        const y: int = 1;
+        var z: int = 1;
+        array b[0:5]: int;
+        record r(a: int, b: int, c: int);
+        file f withbuffer fb: int;
+        proc a(a: int, b: int) {
+            this.z = a + b;
+            output this.z;
+        }
+        func x_8(a: int, b: int): int {
+            valof: int {
+                this.z = a + b;
+                output this.z;
+                return this.z;
+            }
+        }
     }
     z = y;
     output z;
@@ -95,6 +114,10 @@ b:
         const x: int = cont ref x;
         const x: int = b[2];
         const x: int = r.a;
+        const x: T = new T();
+        const y: int = x.z;
+        const y: int = x.x_8(1, 5);
+        const x: T = null;
         const x: bool = !false;
         const x: int = +1;
         const x: float = +1.1;
