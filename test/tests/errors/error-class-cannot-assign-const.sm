@@ -1,0 +1,15 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    class T {
+        const x: int = 1;
+        const y: int = 1;
+    }
+
+    const a: T = new T();
+    a.x = a.y;
+}

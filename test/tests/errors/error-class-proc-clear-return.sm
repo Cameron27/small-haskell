@@ -1,0 +1,17 @@
+// true
+// true
+// false
+/**/
+/**/
+
+program {
+    output valof: int {
+        class T {
+            proc t() {
+                return 1;
+            }
+        }
+
+        (new T()).t();
+    };
+}

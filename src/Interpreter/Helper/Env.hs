@@ -3,6 +3,7 @@ module Interpreter.Helper.Env where
 import Common.Formatting
 import qualified Data.HashMap.Strict as HashMap
 import Interpreter.Core.Types
+import Interpreter.Helper.Control
 import Text.Printf
 
 -- | @updateEnv r' r@ returns an environment which first checks @r'@ then `r` when a lookup is preformed. Keeps the return
@@ -12,7 +13,7 @@ updateEnv (Env r' w' _ _) (Env r w k t) = Env (HashMap.union r' r) (HashMap.unio
 
 -- | @updateThisEnv t r@ returns the environment `r` but with the current object updated to `t`.
 updateThisEnv :: Object -> Env -> Env
-updateThisEnv t (Env r w k _) = Env r w emptyEc t
+updateThisEnv t (Env r w k _) = Env r w k t
 
 -- | @lookupEnv i r@ returns the value that is assigned to `i` in `r`.
 lookupEnv :: Ide -> Env -> Dv
@@ -48,6 +49,10 @@ isUnboundEnv i (Env r _ _ _) = case HashMap.lookup i r of
 -- | The empty return address.
 emptyEc :: Ec
 emptyEc _ _ = error "This should not be the return address."
+
+-- | Default return address that produces an error.
+defaultReturn :: Dv -> Store -> Ans
+defaultReturn e s = putError "no return address"
 
 -- | The empty object.
 emptyObj :: Object

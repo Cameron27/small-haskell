@@ -1,0 +1,79 @@
+// true
+// true
+// true
+/**/
+/*
+1\.25
+1
+5
+5
+5
+8
+9
+4
+*/
+
+program {
+    // Array subtyping
+    var a: array of record(c: float, a: int) = array[1:5]: record(a: int, b: string, c: float);
+
+    // Record subtyping
+    var b: record(c: float, a: int) = record(a: int, b: string, c: float);
+
+    // Procedure subtyping
+    proc mainProc(a: proc(record(a: int, b: string))) {
+        record input(a: int, b: string);
+        input.a = 5;
+        input.b = "t";
+        a(input);
+    }
+    proc subtypeProc(x: record(a: int)) {
+        record val(a: int, b: string, c: float);
+        val.a = x.a;
+        val.b = "test";
+        val.c = 1.1;
+        output val.a;
+    }
+
+    // Fucntion subtyping
+    func mainFunc(a: func(record(a: int, b: string)) record(a: int)): int {
+        valof: int {
+            record input(a: int, b: string);
+            input.a = 5;
+            input.b = "t";
+            return a(input).a;
+
+        }
+    }
+    func subtypeFunc(x: record(a: int)): record(a: int, b: string) {
+        valof: record(a: int, b: string, c: float) {
+            record val(a: int, b: string, c: float);
+            val.a = x.a;
+            val.b = "test";
+            val.c = 1.1;
+            return val;
+        }
+    }
+    file c withbuffer cb: record(c: float, a: int, b: string);
+    proc cp(f: ref file record(c: float, a: int)) {
+        output 4;
+    }
+    var d: ref record(c: float, a: int) = ref ref record(a: int, b: string, c: float);
+    var e: record(a: int) = (true ? record(a: int, b: string, c: float) : record(a: int, c: float));
+
+    a[2] = record(a: int, b: string, c: float);
+    a[2].c = 1.25;
+    output a[2].c;
+    b.a = 1;
+    output b.a; // 1
+    mainProc(subtypeProc); // 5
+    output mainFunc(subtypeFunc); // 5 
+    (cont d).a = 5;
+    output (cont d).a; // 5
+    e.a = 8;
+    output e.a; // 8
+    e = (true ? record(a: int, c: float) : record(a: int, b: string, c: float));
+    e.a = 9;
+    output e.a; // 9
+    cp(c); // 4
+}

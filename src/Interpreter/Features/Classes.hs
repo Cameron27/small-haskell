@@ -21,7 +21,7 @@ evalClassDec (ClassDec i1 d1) w r u = u (newEnv i1 c)
   where
     c = DClass $ Class $ \k -> evalCDec d1 (w ! 2) (updateEnv (newEnv i1 c) r1) $ \(Env r' _ _ _) -> k (DObject $ Object r')
     (Env r1' w1' _ _) = r
-    r1 = Env r1' w1' emptyEc emptyObj
+    r1 = Env r1' w1' defaultReturn emptyObj
 
 -- | @evalCDec dec w r u s@ evaluates the declaration `dec` as a class declaration under the environment `r` and with
 -- | store `s` then passes the resulting environment into the rest of the program `u`.

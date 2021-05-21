@@ -1,0 +1,14 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    class T {
+        proc x() {}
+        proc y() {}
+    }
+
+    T = T;
+}

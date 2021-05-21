@@ -1,0 +1,15 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    class T {
+        proc x() {}
+        proc y() {}
+    }
+
+    const a: T = new T();
+    a.x = a.y;
+}

@@ -5,6 +5,7 @@ import Interpreter.Core.Types
 import Interpreter.Features.Classes
 import Interpreter.Features.Files
 import Interpreter.Helper.Control
+import Interpreter.Helper.Env
 import Parser.Core.Types
 import TypeChecker.Core.Types
 
@@ -14,7 +15,7 @@ defaultEnv =
   Env
     (HashMap.fromList $ map (\(a, b, _) -> (a, b)) defaultEnvAndTEnv)
     HashMap.empty
-    (\e s -> putError "cannot return at top level")
+    defaultReturn
     (Object HashMap.empty)
 
 -- | The names, values and types of the staring environment of small.

@@ -22,6 +22,25 @@ test2
 two
 1
 2
+1
+2
+4
+1
+2
+3
+true
+true
+false
+false
+true
+false
+1
+4
+1
+2
+3
+4
+5
 */
 
 program {
@@ -147,6 +166,122 @@ program {
         t2 = new Test();
         output t1.x; // 1
         output t2.x; // 2
+    }
 
+    // Test this capturing
+    {
+        class Test {
+            var a: int = 1;
+            proc p() {
+                output this.a;
+            }
+        }
+        const t: Test = new Test();
+        proc run3(p: proc()) {
+            p();
+            t.a = 2;
+            p();
+            t.a = 4;
+            p();
+        }
+
+        run3(t.p); // 1\n2\n4
+    }
+
+    // Test this restored
+    {
+        class Test1 {
+            var b: int = 2;
+
+            proc out() {
+                output this.b;
+            }
+        }
+
+        class Test2 {
+            var a: int = 1;
+            var t1: Test1 = new Test1();
+            var c: int = 3;
+
+            proc out() {
+                output this.a;
+                this.t1.out();
+                output this.c;
+            }
+        }
+
+        (new Test2()).out(); // 1\n2\n3
+    }
+
+    // Test isNull
+    {
+        class Test { }
+        const a: Test = null;
+        var b: Test = null;
+        const c: Test = new Test();
+        var d: Test = new Test();
+
+        output isNull(a); // true
+        output isNull(b); // true
+        output isNull(c); // false
+        output isNull(d); // false
+        output isNull(null); // true
+        output isNull(new Test()); // false
+    }
+
+    // Object as parameter
+    {
+        class Test {
+            var x: int = 1;
+        }
+
+        record a(test: Test);
+        proc b(test: ref Test) {
+            output test.x;
+        }
+        func c(test: ref Test): ref Test {
+            valof: ref Test {
+                test.x = 4;
+                return ref test;
+            }
+        }
+
+        a.test = new Test();
+        b(a.test); // 1
+        b(c(a.test)); // 4
+    }
+
+    // Object recursive types
+    {
+        var ii: int = 1;
+        class Test {
+            var i: int = ii;
+        }
+
+        var a: ref Test = ref ref new Test();
+        array b[1:2]: Test;
+        record c(cc: Test);
+        file d withbuffer e: Test;
+
+        output (cont a).i; // 1
+
+        ii = 2;
+        b[1] = new Test();
+        output b[1].i; // 2
+
+        ii = 3;
+        c.cc = new Test();
+        output c.cc.i; // 3
+
+        ii = 4;
+        e = new Test();
+        put(d);
+        ii = 5;
+        e = new Test();
+        put(d);
+        reset(d);
+        output e.i; // 4
+        get(d);
+        output e.i; // 5
     }
 }

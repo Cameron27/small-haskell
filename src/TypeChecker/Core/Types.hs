@@ -4,6 +4,7 @@ import qualified Data.HashMap.Strict as HashMap
 import Data.Hashable
 import Data.List
 import Data.Maybe
+import Debug.Trace
 import Text.Printf
 
 -- | An `Ide` is a identifier in small.
@@ -77,17 +78,19 @@ data Class
 (TRef _) <: TRefAny = True
 (TClass _) <: TClassAny = True
 (TObject _) <: TObjectAny = True
-(TMethod _) <: TMethodAny = True
+TNull <: TObjectAny = True
 TNull <: (TObject _) = True
+(TMethod _) <: TMethodAny = True
 t <: TUnion ts = any (t <:) ts
 -- nested cases
 (TArray t1) <: (TArray t2) = t1 <: t2
-(TRecord ts1) <: (TRecord ts2) = length ts1 <= length ts2 && all (\(i1, t1) -> isJust (find (\(i2, t2) -> i1 == i2 && t1 <: t2) ts2)) ts1
+(TRecord ts1) <: (TRecord ts2) = (length ts1 >= length ts2) && all (\(i2, t2) -> isJust (find (\(i1, t1) -> i1 == i2 && t1 <: t2) ts1)) ts2
 (TProc ts1) <: (TProc ts2) = length ts1 == length ts2 && all (uncurry (<:)) (zip ts2 ts1)
 (TFunc ts1 t1) <: (TFunc ts2 t2) = length ts1 == length ts2 && all (uncurry (<:)) (zip ts2 ts1) && t1 <: t2
 (TFile t1) <: (TFile t2) = t1 <: t2
 (TRef t1) <: (TRef t2) = t1 <: t2
 (TRefMaybe t1) <: (TRefMaybe t2) = t1 <: t2
+(TMethod t1) <: (TMethod t2) = t1 <: t2
 t1 <: t2 = t1 == t2
 
 -- | @t1 <::> t2@ returns `True` iff `t1` is a subtype of `t2` or `t2` is a subtype of `t1`.
