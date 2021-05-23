@@ -94,7 +94,7 @@ data Dec
   | RecProcDec Id [Id] [Type] Com
   | FuncDec Id [Id] [Type] Type Exp
   | RecFuncDec Id [Id] [Type] Type Exp
-  | ClassDec Id CDec
+  | ClassDec Id SCDec
   | ChainDec Dec Dec
   | SkipDec
   deriving (Show)
@@ -116,6 +116,20 @@ instance Pretty Dec where
 
 -- | A `CDec` is a small class declaration.
 type CDec = Dec
+
+-- | A `SCDec` is a small scoped class declaration.
+data SCDec
+  = Private CDec
+  | Public CDec
+  | ChainSCDec SCDec SCDec
+  | SkipSCDec
+  deriving (Show)
+
+instance Pretty SCDec where
+  pretty (Private x) = printf "private %s" (pretty x)
+  pretty (Public x) = printf "public %s" (pretty x)
+  pretty (ChainSCDec x y) = printf "%s %s" (pretty x) (pretty y)
+  pretty SkipSCDec = ""
 
 -- | A `Exp` is a small expression.
 data Exp

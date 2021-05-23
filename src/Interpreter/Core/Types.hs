@@ -72,7 +72,7 @@ instance Pretty Dv where
   pretty (DFunc _ y) = printf "FUNCTION%d" y
   pretty (DMethod _) = printf "METHOD"
   pretty (DClass _) = printf "CLASS"
-  pretty (DObject (Object x)) = printf "OBJECT(%s)" (pretty x)
+  pretty (DObject (Object x y z)) = printf "OBJECT%d(%s)(%s)" z (pretty x) (pretty y)
   pretty DNull = "null"
   pretty (DCc _) = "CC"
 
@@ -84,7 +84,7 @@ instance Typeable Dv where
   typeStr (DLoc _) = "location"
   typeStr (DArray (Array x y _)) = printf "array[%s:%s]" x y
   typeStr (DRecord (Record x)) = printf "record(%s)" (intercalate "," (HashMap.keys x))
-  typeStr (DObject (Object x)) = printf "object(%s)" (intercalate "," (HashMap.keys x))
+  typeStr (DObject (Object x y z)) = printf "object%d(%s)(%s)" z (intercalate "," (HashMap.keys x)) (intercalate "," (HashMap.keys y))
   typeStr DNull = "null"
   typeStr e = error $ printf "%s is not right hand value." (pretty e)
 
@@ -98,7 +98,7 @@ data Env
 instance Pretty Env where
   pretty (Env x y _ z) = printf "Env (%s) (%s) (%s)" (pretty x) (pretty y) (pretty (DObject z))
 
--- | An `Store` is a store.
+-- | A `Store` is a store.
 data Store
   = -- | @Store m l@ is a store with `m` being the mapping from location to the values at those locations and `l` being
     -- | the next free location in the store.
@@ -112,6 +112,10 @@ type Cc = Store -> Ans
 
 -- | A `Dc` is a declaration continuation. It takes in an `Env` and a `Store` and produces an `Ans`.
 type Dc = Env -> Cc
+
+-- | A `DDc` is a scoped class declaration continuation. It takes in an `(Env, Env)` and a `Store` and produces an
+-- | `Ans`.
+type DDc = (Env, Env) -> Cc
 
 -- | A `Ec` is a expression continuation. It takes in an `Dv` and a `Store` and produces an `Ans`.
 type Ec = Dv -> Cc
@@ -153,9 +157,10 @@ newtype Class
     Class (Ec -> Cc)
 
 -- | A `Object` is an object.
-newtype Object
-  = -- | @Object m@ is an object with `m` being the mapping from identifiers to the values they represent.
-    Object (HashMap.HashMap Ide Dv)
+data Object
+  = -- | @Object m1 m2 i@ is an object with `m1` and `m2` being the mapping from identifiers to the public and private
+    -- | values they represent respectively and is a unique id for the class the object is from.
+    Object (HashMap.HashMap Ide Dv) (HashMap.HashMap Ide Dv) Int
 
 -- | An `Ans` is an `IO` representing what the small program does.
 type Ans = IO ExitCode

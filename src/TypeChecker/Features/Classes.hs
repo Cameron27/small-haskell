@@ -17,15 +17,46 @@ import TypeChecker.Helper.TypeModification
 -- | @typeClassDec d r@ returns an environment containing the information of declaration `d` if class `d` type checks
 -- | under the environment `r`.
 typeClassDec :: Dec -> TEnv -> Either TypeError TEnv
-typeClassDec (ClassDec i1 cds) r = do
-  (TEnv c _ _ _ _) <- typeCDecInterface cds (updateTEnv (fst $ newClassTEnv i1 HashMap.empty r) r) -- Generate the interface
-  let (r', c') = newClassTEnv i1 c r
-  typeCDec cds (updateThisTEnv emptyClass (updateTEnv r' r)) c' -- Type check the class using the interface
-  return r'
+typeClassDec (ClassDec i1 scds) r = do
+  (TEnv c11 _ _ _ _, TEnv c12 _ _ _ _) <- typeSCDecInterface scds (updateTEnv (fst $ newClassTEnv i1 HashMap.empty r) r) -- Generate the interface with public and private variables
+  let (r1', c') = newClassTEnv i1 (HashMap.union c12 c11) r
+  (TEnv c2 _ _ _ _) <- typeSCDec scds (updateThisTEnv emptyClass (updateTEnv r1' r)) c' -- Type check the class using the interface with only public variables
+  let (r2', _) = newClassTEnv i1 c2 r
+  return r2'
+
+-- | @typeSCDec scd r c@ returns an environment containing the public information of scoped class declaration `scd` if `scd`
+-- | type checks under the environment `r` using the class `c` as "this" where relevant.
+typeSCDec :: SCDec -> TEnv -> Class -> Either TypeError TEnv
+typeSCDec (Public cd1) r c = typeCDec cd1 r c
+typeSCDec (Private cd1) r c = do
+  typeCDec cd1 r c
+  return emptyTEnv
+typeSCDec SkipSCDec r c = return emptyTEnv
+typeSCDec (ChainSCDec scd1 scd2) r c = do
+  r1 <- typeSCDec scd1 r c
+  r2 <- typeSCDec scd2 r c
+  return (updateTEnv r2 r1)
+
+-- | @typeSCDecInterface scd r@ returns an environment containing the public and private information of scoped class
+-- | declaration `scd` if `scd` type checks under the environment `r` but does not check any of the right hand values or
+-- | procedure/function bodies. \\
+-- | This is used to generate the type information of a class which can then be used to fully type check a class.
+typeSCDecInterface :: SCDec -> TEnv -> Either TypeError (TEnv, TEnv)
+typeSCDecInterface (Public cd1) r = do
+  r' <- typeCDecInterface cd1 r
+  return (r', emptyTEnv)
+typeSCDecInterface (Private cd1) r = do
+  r' <- typeCDecInterface cd1 r
+  return (emptyTEnv, r')
+typeSCDecInterface SkipSCDec r = return (emptyTEnv, emptyTEnv)
+typeSCDecInterface (ChainSCDec scd1 scd2) r = do
+  (r11, r12) <- typeSCDecInterface scd1 r
+  (r21, r22) <- typeSCDecInterface scd2 r
+  return (updateTEnv r21 r11, updateTEnv r22 r12)
 
 -- | @typeCDec cd r c@ returns an environment containing the information of class declaration `cd` if `cd` type
 -- | checks under the environment `r` using the class `c` as "this" where relevant.
-typeCDec :: Dec -> TEnv -> Class -> Either TypeError TEnv
+typeCDec :: CDec -> TEnv -> Class -> Either TypeError TEnv
 typeCDec (ProcDec i1 is ts c1) r c = do
   ts <- typeTypes ts r
   typeCom c1 (updateThisTEnv c (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
@@ -37,15 +68,11 @@ typeCDec (FuncDec i1 is ts t1 e1) r c = do
   if t <: t1
     then return $ newTEnv i1 (TMethod $ TFunc ts t1) -- Functions in classes are methods
     else err $ printf "function result \"%s\" does not match type \"%s\" in \"%s\"" (show t) (show t1) (pretty (FuncDec i1 is ts t1 e1))
-typeCDec (ChainDec d1 d2) r c = do
-  r1 <- typeCDec d1 r c
-  r2 <- typeCDec d2 r c
-  return (updateTEnv r2 r1)
 typeCDec d1 r c = typeDec d1 r
 
--- | @typeCDecInterface cd@ returns an environment containing the information of class declaration `cd` if `cd` type
--- | checks but does not check any of the right hand values or procedure/function bodies.
-typeCDecInterface :: Dec -> TEnv -> Either TypeError TEnv
+-- | @typeCDecInterface cd r@ returns an environment containing the information of class declaration `cd` if `cd` type
+-- | checks under the environment `r` but does not check any of the right hand values or procedure/function bodies.
+typeCDecInterface :: CDec -> TEnv -> Either TypeError TEnv
 typeCDecInterface (Const i1 t1 e1) r = do
   t1 <- typeType t1 r
   return $ newTEnv i1 t1

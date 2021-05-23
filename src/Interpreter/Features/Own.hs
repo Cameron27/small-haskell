@@ -49,9 +49,17 @@ evalOwnDec (ProcDec _ _ _ c1) w r u = evalOwnCom c1 (w ! 3) r u
 evalOwnDec (RecProcDec _ _ _ c1) w r u = evalOwnCom c1 (w ! 3) r u
 evalOwnDec (FuncDec _ _ _ _ e1) w r u = evalOwnExp e1 (w ! 3) r u
 evalOwnDec (RecFuncDec _ _ _ _ e1) w r u = evalOwnExp e1 (w ! 3) r u
-evalOwnDec (ClassDec _ d1) w r u = evalOwnDec d1 (w ! 2) r u
+evalOwnDec (ClassDec _ scd1) w r u = evalOwnSCDec scd1 (w ! 2) r u
 evalOwnDec (ChainDec d1 d2) w r u = evalOwnDec d1 (w ! 1) r (\r1 -> evalOwnDec d2 (w ! 2) r (u . updateEnv r1))
 evalOwnDec SkipDec w r u = u emptyEnv
+
+-- | @evalOwnSCDec scdec w r v s@ evaluates the declaration `scdec` under the environment `r` and with store `s` for own
+-- | declarations then passes the resulting environment into the rest of the program `u`.
+evalOwnSCDec :: SCDec -> Posn -> Env -> Dc -> Cc
+evalOwnSCDec (Public cd1) w r u = evalOwnDec cd1 (w ! 1) r u
+evalOwnSCDec (Private cd1) w r u = evalOwnDec cd1 (w ! 1) r u
+evalOwnSCDec (ChainSCDec scd1 scd2) w r u = evalOwnSCDec scd1 (w ! 1) r (\r1 -> evalOwnSCDec scd2 (w ! 2) r (u . updateEnv r1))
+evalOwnSCDec SkipSCDec w r u = u emptyEnv
 
 -- | @evalOwnExp exp w r u s@ evaluates the expression `exp` under the environment `r` and with store `s` for own
 -- | declarations then passes the resulting environment into the rest of the program `u`.

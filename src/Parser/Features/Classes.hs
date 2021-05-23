@@ -14,11 +14,28 @@ classDec :: Parsec String () Dec
 classDec = do
   keyword "class"
   i <- ide
-  ds <- chainDec <$> braces (many $ try cdec)
-  return $ ClassDec i ds
+  scds <- chainSCDec <$> braces (many $ try scdec)
+  return $ ClassDec i scds
 
--- | Parses a declaration within a declaration class.
-cdec :: Parsec String () Dec
+-- | Parses a scoped class declaration.
+scdec :: Parsec String () SCDec
+scdec =
+  choice
+    [ do
+        keyword "public"
+        Public <$> cdec,
+      do
+        keyword "private"
+        Private <$> cdec,
+      Private <$> cdec
+    ]
+
+-- | @chainSCDec scds@ returns a scoped class declaration that joins the declarations `scds` using `ChainSCDec`.
+chainSCDec :: [SCDec] -> SCDec
+chainSCDec = foldr ChainSCDec SkipSCDec
+
+-- | Parses a class declaration.
+cdec :: Parsec String () CDec
 cdec = do
   choice
     [ -- Constant: const I : T = E ;

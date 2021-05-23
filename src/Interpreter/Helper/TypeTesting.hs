@@ -64,9 +64,13 @@ dvToBool e = error $ printf "Tried to convert \"%s\" to a bool." (pretty e)
 recordToEnv :: Record -> Env
 recordToEnv (Record r) = Env r HashMap.empty emptyEc emptyObj
 
--- | @objectToEnv r@ returns the environment `r` represents.
-objectToEnv :: Object -> Env
-objectToEnv (Object r) = Env r HashMap.empty emptyEc emptyObj
+-- | @objectToPublicEnv o@ returns the public environment `o` represents.
+objectToPublicEnv :: Object -> Env
+objectToPublicEnv (Object r _ _) = Env r HashMap.empty emptyEc emptyObj
+
+-- | @objectToPrivateEnv o@ returns the private environment `o` represents.
+objectToPrivateEnv :: Object -> Env
+objectToPrivateEnv (Object r1 r2 _) = Env (HashMap.union r2 r1) HashMap.empty emptyEc emptyObj
 
 -- Type Checks --
 

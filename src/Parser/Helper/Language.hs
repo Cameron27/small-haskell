@@ -59,7 +59,9 @@ tinyDef =
           "class",
           "new",
           "this",
-          "null"
+          "null",
+          "public",
+          "private"
         ],
       reservedOpNames =
         [ "*",

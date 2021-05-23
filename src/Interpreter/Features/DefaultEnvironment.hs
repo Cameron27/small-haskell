@@ -16,7 +16,7 @@ defaultEnv =
     (HashMap.fromList $ map (\(a, b, _) -> (a, b)) defaultEnvAndTEnv)
     HashMap.empty
     defaultReturn
-    (Object HashMap.empty)
+    emptyObj
 
 -- | The names, values and types of the staring environment of small.
 defaultEnvAndTEnv :: [([Char], Dv, Type)]
