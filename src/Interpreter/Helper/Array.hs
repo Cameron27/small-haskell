@@ -8,7 +8,7 @@ import Interpreter.Helper.TypeTesting
 import Text.Printf
 
 -- | @newArray (i1, i2) k s@ creates a new array with store `s` using `i1` and `i2` as the bounds then passes the
--- | resulting value into the rest of the program `k`.
+-- resulting value into the rest of the program `k`.
 newArray :: (Int, Int) -> Ec -> Cc
 newArray (n1, n2) k s =
   (n1 > n2)
@@ -19,7 +19,7 @@ newArray (n1, n2) k s =
     (locs, s') = newLocsStore (n2 - n1 + 1) s
 
 -- | @arrayAccess a k e s@ gets the value of index `e` in array `a` with store `s` then passes the resulting value into
--- | the rest of the program `k`.
+-- the rest of the program `k`.
 arrayAccess :: Array -> Ec -> Ec
 arrayAccess (Array n1 n2 ls) k e =
   isInt e

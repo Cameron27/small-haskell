@@ -14,7 +14,7 @@ import Interpreter.Helper.TypeTesting
 import Parser.Core.Types
 
 -- | @evalDec dec w r u s@ evaluates the declaration `dec` under the environment `r` and with store `s` then passes the
--- | resulting environment into the rest of the program `u`.
+-- resulting environment into the rest of the program `u`.
 evalDec :: Dec -> Posn -> Env -> Dc -> Cc
 evalDec (Const i1 _ e1) w r u s = evalRVal e1 (w ! 2) r (u . newEnv i1) s
 evalDec (Var i1 _ e1) w r u s = (evalRVal e1 (w ! 2) r $ ref (u . newEnv i1)) s

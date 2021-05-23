@@ -15,7 +15,7 @@ import TypeChecker.Helper.TEnv
 import TypeChecker.Helper.TypeModification
 
 -- | @typeClassDec d r@ returns an environment containing the information of declaration `d` if class `d` type checks
--- | under the environment `r`.
+-- under the environment `r`.
 typeClassDec :: Dec -> TEnv -> Either TypeError TEnv
 typeClassDec (ClassDec i1 scds) r = do
   (TEnv c11 _ _ _ _, TEnv c12 _ _ _ _) <- typeSCDecInterface scds (updateTEnv (fst $ newClassTEnv i1 HashMap.empty r) r) -- Generate the interface with public and private variables
@@ -25,7 +25,7 @@ typeClassDec (ClassDec i1 scds) r = do
   return r2'
 
 -- | @typeSCDec scd r c@ returns an environment containing the public information of scoped class declaration `scd` if `scd`
--- | type checks under the environment `r` using the class `c` as "this" where relevant.
+-- type checks under the environment `r` using the class `c` as "this" where relevant.
 typeSCDec :: SCDec -> TEnv -> Class -> Either TypeError TEnv
 typeSCDec (Public cd1) r c = typeCDec cd1 r c
 typeSCDec (Private cd1) r c = do
@@ -38,9 +38,9 @@ typeSCDec (ChainSCDec scd1 scd2) r c = do
   return (updateTEnv r2 r1)
 
 -- | @typeSCDecInterface scd r@ returns an environment containing the public and private information of scoped class
--- | declaration `scd` if `scd` type checks under the environment `r` but does not check any of the right hand values or
--- | procedure/function bodies. \\
--- | This is used to generate the type information of a class which can then be used to fully type check a class.
+-- declaration `scd` if `scd` type checks under the environment `r` but does not check any of the right hand values or
+-- procedure/function bodies. \\
+-- This is used to generate the type information of a class which can then be used to fully type check a class.
 typeSCDecInterface :: SCDec -> TEnv -> Either TypeError (TEnv, TEnv)
 typeSCDecInterface (Public cd1) r = do
   r' <- typeCDecInterface cd1 r
@@ -55,7 +55,7 @@ typeSCDecInterface (ChainSCDec scd1 scd2) r = do
   return (updateTEnv r21 r11, updateTEnv r22 r12)
 
 -- | @typeCDec cd r c@ returns an environment containing the information of class declaration `cd` if `cd` type
--- | checks under the environment `r` using the class `c` as "this" where relevant.
+-- checks under the environment `r` using the class `c` as "this" where relevant.
 typeCDec :: CDec -> TEnv -> Class -> Either TypeError TEnv
 typeCDec (ProcDec i1 is ts c1) r c = do
   ts <- typeTypes ts r
@@ -71,7 +71,7 @@ typeCDec (FuncDec i1 is ts t1 e1) r c = do
 typeCDec d1 r c = typeDec d1 r
 
 -- | @typeCDecInterface cd r@ returns an environment containing the information of class declaration `cd` if `cd` type
--- | checks under the environment `r` but does not check any of the right hand values or procedure/function bodies.
+-- checks under the environment `r` but does not check any of the right hand values or procedure/function bodies.
 typeCDecInterface :: CDec -> TEnv -> Either TypeError TEnv
 typeCDecInterface (Const i1 t1 e1) r = do
   t1 <- typeType t1 r

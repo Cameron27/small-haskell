@@ -15,12 +15,12 @@ import Parser.Core.Types
 import Text.Printf
 
 -- | @evalExp exp w r k s@ evaluates the right hand value of expression `exp` under the environment `r` and with store
--- | `s` then passes the resulting value into the rest of the program `k`.
+-- `s` then passes the resulting value into the rest of the program `k`.
 evalRVal :: Exp -> Posn -> Env -> Ec -> Cc
 evalRVal e1 w r k = evalExp e1 w r $ deref $ testRv e1 k
 
 -- | @evalExp exp w r k s@ evaluates the expression `exp` under the environment `r` and with store `s` then passes the
--- | resulting value into the rest of the program `k`.
+-- resulting value into the rest of the program `k`.
 evalExp :: Exp -> Posn -> Env -> Ec -> Cc
 evalExp (Int x) w r k s = k (DInt x) s
 evalExp (Double x) w r k s = k (DDouble x) s

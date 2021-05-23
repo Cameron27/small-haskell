@@ -10,7 +10,7 @@ import TypeChecker.Helper.TEnv
 import Prelude hiding (max)
 
 -- | @ref src t@ returns the references version of `t` if it is a storable value. `src` is the expression to use in the
--- | error message.
+-- error message.
 ref :: Pretty a => a -> Type -> Either TypeError Type
 ref src t =
   if isSv t
@@ -24,7 +24,7 @@ deref (TRefMaybe t) = t
 deref t = t
 
 -- | @rval src t@ returns the dereferences version of `t` if it is a right hand value. `src` is the expression to use in
--- | the error message.
+-- the error message.
 rval :: Pretty a => a -> Type -> Either TypeError Type
 rval src t =
   if isRv t'
@@ -34,8 +34,8 @@ rval src t =
     t' = deref t
 
 -- | @tryMerge src t1 t2@ returns the merged type of `t1` and `t2`. This means returning whichever type is the super
--- | type of the other and resolving difference in the level of referencing by 1 with a `TRefMaybe`. `src` is the
--- | expression to use in the error message.
+-- type of the other and resolving difference in the level of referencing by 1 with a `TRefMaybe`. `src` is the
+-- expression to use in the error message.
 tryMerge :: Pretty a => a -> Type -> Type -> Either TypeError Type
 tryMerge src (TRef t1) (TRef t2) = case TRef <$> tryMerge src t1 t2 of
   Left _ -> err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRef t1) (show $ TRef t2) (pretty src)

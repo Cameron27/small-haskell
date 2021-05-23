@@ -8,7 +8,7 @@ import TypeChecker.Helper.Control
 import TypeChecker.Helper.TypeModification
 
 -- | @typeOp src o (t1, t2)@ returns the type obtained from applying operation `o` to types `t1` and `t2`. `src` is the
--- | expression to use in the error message.
+-- expression to use in the error message.
 typeOp :: Exp -> Opr -> (Type, Type) -> Either TypeError Type
 typeOp _ Mult (TInt, TInt) = return TInt
 typeOp _ Mult (TDouble, TDouble) = return TDouble

@@ -6,7 +6,7 @@ import TypeChecker.Core.Types
 import TypeChecker.Helper.Control
 
 -- | @updateTEnv r' r@ returns an environment which first checks @r'@ then `r` when a lookup is preformed. Keeps the
--- | return address and current class from `r` and takes the largest next unique id.
+-- return address and current class from `r` and takes the largest next unique id.
 updateTEnv :: TEnv -> TEnv -> TEnv
 updateTEnv (TEnv r' cr' _ _ i') (TEnv r cr rt c i) = TEnv (HashMap.union r' r) (HashMap.union cr' cr) rt c (Prelude.max i i')
 
@@ -36,7 +36,7 @@ newTEnvMulti :: [Ide] -> [Type] -> TEnv
 newTEnvMulti is ts = TEnv (HashMap.fromList $ reverse $ zip is ts) HashMap.empty TVoid emptyClass (-1)
 
 -- | @newTEnv i c r@ returns a new environment with just `i` bound to `c` and `c` in the class environment. `r` is used
--- | to get the next available unique id.
+-- to get the next available unique id.
 newClassTEnv :: Ide -> HashMap.HashMap Ide Type -> TEnv -> (TEnv, Class)
 newClassTEnv i c (TEnv _ _ _ _ id) = (TEnv (HashMap.fromList [(i, TClass c')]) (HashMap.fromList [(id, c')]) TVoid emptyClass (id + 1), c')
   where

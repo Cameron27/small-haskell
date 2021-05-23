@@ -15,7 +15,7 @@ import Parser.Core.Types
 import Text.Printf
 
 -- | @evalClassDec dec w r u s@ evaluates the class declaration `dec` under the environment `r` and with store `s` then
--- | passes the resulting environment into the rest of the program `u`.
+-- passes the resulting environment into the rest of the program `u`.
 evalClassDec :: Dec -> Posn -> Env -> Dc -> Cc
 evalClassDec (ClassDec i1 scd1) w r u (Store s' n) = u (newEnv i1 (c n)) (Store s' (n + 1))
   where
@@ -24,7 +24,7 @@ evalClassDec (ClassDec i1 scd1) w r u (Store s' n) = u (newEnv i1 (c n)) (Store 
     r1 = Env r1' w1' defaultReturn emptyObj
 
 -- | @evalSCDec scdec w r v s@ evaluates the scoped class declaration `scdec` under the environment `r` and with store
--- | `s` then passes the resulting environment into the rest of the program `v`.
+-- `s` then passes the resulting environment into the rest of the program `v`.
 evalSCDec :: SCDec -> Posn -> Env -> DDc -> Store -> Ans
 evalSCDec (Public cd1) w r v = evalCDec cd1 (w ! 1) r $ \r' -> v (r', emptyEnv)
 evalSCDec (Private cd1) w r v = evalCDec cd1 (w ! 1) r $ \r' -> v (emptyEnv, r')
@@ -33,7 +33,7 @@ evalSCDec (ChainSCDec scd1 scd2) w r v = evalSCDec scd1 (w ! 1) r $ \(r11, r12) 
 evalSCDec SkipSCDec w r v = v (emptyEnv, emptyEnv)
 
 -- | @evalCDec cdec w r u s@ evaluates the declaration `cdec` as a class declaration under the environment `r` and with
--- | store `s` then passes the resulting environment into the rest of the program `u`.
+-- store `s` then passes the resulting environment into the rest of the program `u`.
 evalCDec :: Dec -> Posn -> Env -> Dc -> Cc
 evalCDec (ProcDec i1 i2 _ c1) w r u s = u (newEnv i1 meth) s
   where
@@ -48,19 +48,19 @@ evalCDec (FuncDec i1 i2 _ _ e1) w r u s = u (newEnv i1 meth) s
 evalCDec d1 w r u s = evalDec d1 w r u s
 
 -- | @evalNewExp exp w r k s@ evaluates the new expression `exp` under the environment `r` and with store `s` then
--- | passes the resulting value into the rest of the program `k`.
+-- passes the resulting value into the rest of the program `k`.
 evalNewExp :: Exp -> Posn -> Env -> Ec -> Cc
 evalNewExp (New i1) w r k = evalExp (I i1) (w ! 1) r $ testClass (New i1) $ \(DClass (Class c)) -> c k
 
 -- | @evalThisExp exp w r k s@ evaluates the this expression `exp` under the environment `r` and with store `s` then
--- | passes the resulting value into the rest of the program `k`.
+-- passes the resulting value into the rest of the program `k`.
 evalThisExp :: Exp -> Posn -> Env -> Ec -> Cc
 evalThisExp This w r k = k (DObject this)
   where
     (Env _ _ _ this) = r
 
 -- | @evalNullExp exp w r k s@ evaluates the null expression `exp` under the environment `r` and with store `s` then
--- | passes the resulting value into the rest of the program `k`.
+-- passes the resulting value into the rest of the program `k`.
 evalNullExp :: Exp -> Posn -> Env -> Ec -> Cc
 evalNullExp Null w r k = k DNull
 
@@ -69,7 +69,7 @@ isNullF :: Function
 isNullF k [e] = deref (\e' -> isNull e' ?> (k (DBool True), k (DBool False))) e
 
 -- | @evalDotExp exp w r k s@ evaluates the dot expression `exp` under the environment `r` and with store `s` then
--- | passes the resulting value into the rest of the program `k`.
+-- passes the resulting value into the rest of the program `k`.
 evalDotExp :: Exp -> Posn -> Env -> Ec -> Cc
 evalDotExp (Dot e1 e2) w r k = evalRVal e1 (w ! 1) r $ \e -> process e
   where

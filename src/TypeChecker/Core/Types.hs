@@ -21,9 +21,9 @@ instance Show TypeError where
 -- | A `TEnv` is a type environment.
 data TEnv
   = -- | @TEnv m1 m2 t c i@ is a type environment with `m1` being the mapping from identifiers to the types they
-    -- | represent, `m2` being the mapping from unique ids to the classes they represent, `t` being the current type
-    -- | expected by the return address, `c` being the current class represented by "this" and `i` being the next
-    -- | available unique id.
+    -- represent, `m2` being the mapping from unique ids to the classes they represent, `t` being the current type
+    -- expected by the return address, `c` being the current class represented by "this" and `i` being the next
+    -- available unique id.
     TEnv (HashMap.HashMap Ide Type) (HashMap.HashMap Int Class) Type Class Int
   deriving (Show)
 
@@ -63,7 +63,7 @@ data Type
 -- | A `Class` represents a class type in small.
 data Class
   = -- | @Class i m@ is a class with unique id `i` and with `m` being the mapping from identifiers to the types they
-    -- | represent.
+    -- represent.
     Class Int (HashMap.HashMap Ide Type)
   deriving (Eq, Ord, Show)
 

@@ -14,7 +14,7 @@ import Interpreter.Helper.TypeTesting
 import Parser.Core.Types
 
 -- | @evalCom com w r c s@ evaluates the command `com` under the environment `r` and with store `s` then runs the rest
--- | of the program `c`.
+-- of the program `c`.
 evalCom :: Com -> Posn -> Env -> Cc -> Cc
 evalCom (Assign e1 e2) w r c = evalExp e1 (w ! 1) r $ testLoc e1 (\l -> evalRVal e2 (w ! 2) r $ update (dvToLoc l) c)
 evalCom (Output e1) w r c = evalRVal e1 (w ! 1) r (\e s -> putStrLn (print e) >> c s)

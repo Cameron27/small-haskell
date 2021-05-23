@@ -90,9 +90,9 @@ instance Typeable Dv where
 
 -- | An `Env` is an environment.
 data Env
-  = -- | @Env m1 m2 k o@ is an environment with `m1` being the mapping from identifiers to the values they represent,
-    -- | `m2` being the mapping from identifiers and locations to the values they represent for own declarations, `k`
-    -- | being the current return address and `o` being the current object represented by "this".
+  = -- @Env m1 m2 k o@ is an environment with `m1` being the mapping from identifiers to the values they represent,
+    -- `m2` being the mapping from identifiers and locations to the values they represent for own declarations, `k`
+    -- being the current return address and `o` being the current object represented by "this".
     Env (HashMap.HashMap Ide Dv) (HashMap.HashMap (Ide, Posn) Dv) Ec Object
 
 instance Pretty Env where
@@ -101,7 +101,7 @@ instance Pretty Env where
 -- | A `Store` is a store.
 data Store
   = -- | @Store m l@ is a store with `m` being the mapping from location to the values at those locations and `l` being
-    -- | the next free location in the store.
+    -- the next free location in the store.
     Store (HashMap.HashMap Loc Dv) Loc
 
 instance Pretty Store where
@@ -114,7 +114,7 @@ type Cc = Store -> Ans
 type Dc = Env -> Cc
 
 -- | A `DDc` is a scoped class declaration continuation. It takes in an `(Env, Env)` and a `Store` and produces an
--- | `Ans`.
+-- `Ans`.
 type DDc = (Env, Env) -> Cc
 
 -- | A `Ec` is a expression continuation. It takes in an `Dv` and a `Store` and produces an `Ans`.
@@ -136,19 +136,19 @@ newtype Record
 -- | A `File` is list of values and a location.
 data File
   = -- | @File es i l@ is a file containing the values `es`, currently at position `i` and using location `l` to put the
-    -- | current value.
+    -- current value.
     File [Dv] Int Loc
 
 -- | A `Procedure` is a procedure. It takes in a `Cc` a list of `Dv`s and a `Store` and evaluates the procedure then
--- | runs the `Cc`.
+-- runs the `Cc`.
 type Procedure = Cc -> [Dv] -> Cc
 
 -- | A `Function` is a function. It takes in  an `Ev` a list of `Dv`s and a `Store` and evaluates the function then passes
--- | the resulting value into the `Ec`.
+-- the resulting value into the `Ec`.
 type Function = Ec -> [Dv] -> Cc
 
 -- | A `Method` is a `Procedure` or `Function` of an `Object`. It takes in an `Ev` an `Object` and a `Store` and bounds
--- | the `Object` to "this" in the `Method` then passes the resulting `Procedure` or `Function` into the `Ec`.
+-- the `Object` to "this" in the `Method` then passes the resulting `Procedure` or `Function` into the `Ec`.
 type Method = Ec -> Object -> Cc
 
 -- | A `Class` is a class.
@@ -159,7 +159,7 @@ newtype Class
 -- | A `Object` is an object.
 data Object
   = -- | @Object m1 m2 i@ is an object with `m1` and `m2` being the mapping from identifiers to the public and private
-    -- | values they represent respectively and is a unique id for the class the object is from.
+    -- values they represent respectively and is a unique id for the class the object is from.
     Object (HashMap.HashMap Ide Dv) (HashMap.HashMap Ide Dv) Int
 
 -- | An `Ans` is an `IO` representing what the small program does.

@@ -8,7 +8,7 @@ import Parser.Core.Types
 import Text.Printf
 
 -- | @evalOp src o (e1, e2) k s@ calculates the value of operation `o` applied to values `e1` and `e2` with store `s`
--- | then passes the result to the rest of the program `k`.
+-- then passes the result to the rest of the program `k`.
 evalOp :: Exp -> Opr -> (Dv, Dv) -> Ec -> Cc
 evalOp _ Mult (DInt a, DInt b) k = k (DInt $ a * b)
 evalOp _ Mult (DDouble a, DDouble b) k = k (DDouble $ a * b)

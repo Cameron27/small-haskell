@@ -15,7 +15,7 @@ data Filestate
     Filestate [Dv] Int (Maybe Dv)
 
 -- | @evalFileDec dec w r u s@ evaluates the file declaration `dec` under the environment `r` and with store `s` then
--- | passes the resulting environment into the rest of the program `u`.
+-- passes the resulting environment into the rest of the program `u`.
 evalFileDec :: Dec -> Posn -> Env -> Dc -> Cc
 evalFileDec (FileDec i1 i2 _) w r u s = u (newEnvMulti [i1, i2] ls) (updateStore l1 (Just $ DFile $ File [] 1 l2) s')
   where
@@ -39,7 +39,7 @@ eofFunc k [e1] =
     else err $ printf "\"%s\" is not a location." (pretty e1)
 
 -- | @doFile f c e s@ applies the filestate transformation `f` to `e` with state `s` then runs the rest of the program
--- | `c`.
+-- `c`.
 doFile :: (Filestate -> Either String Filestate) -> Cc -> Ec
 doFile f c e s =
   if isLoc e -- check e is a location
