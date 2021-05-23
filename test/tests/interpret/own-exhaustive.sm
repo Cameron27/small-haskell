@@ -39,6 +39,12 @@
 29\.(4|399999999999999)
 29\.5
 29\.6(00000000000001)?
+29.7
+29.8
+29.9
+29.91
+29.92
+29.93
 30
 31
 32
@@ -196,22 +202,52 @@ g:
         // class
         class T {
             // const
-            const j: float = valof: float { own x: float = 29.1; return x; };
+            public const j: float = valof: float { own x: float = 29.1; return x; };
 
             // var
-            var k: float = valof: float { own x: float = 29.2; return x; };
+            public var k: float = valof: float { own x: float = 29.2; return x; };
 
             // array
-            array l[valof: int { own x: int = 0; return x; }:valof: int { own x: int = 1; return x; }]: float;
+            public array l[valof: int { own x: int = 0; return x; }:valof: int { own x: int = 1; return x; }]: float;
 
             // proc
-            proc m(a: float) {
+            public proc m(a: float) {
                 output valof: float { own x: float = 0.0; x = a; return x; };
             }
 
             // func
-            func n(a: int): float {
+            public func n(a: int): float {
                 valof: float { own x: float = 0.0; x = a + 0.6; return x; }
+            }
+
+            // const
+            private const o: float = valof: float { own x: float = 29.7; return x; };
+
+            // var
+            private var p: float = valof: float { own x: float = 29.8; return x; };
+
+            // array
+            private array q[valof: int { own x: int = 0; return x; }:valof: int { own x: int = 1; return x; }]: float;
+
+            // proc
+            private proc r(a: float) {
+                output valof: float { own x: float = 0.0; x = a; return x; };
+            }
+
+            // func
+            private func s(a: int): float {
+                valof: float { own x: float = 0.0; x = a + 0.93; return x; }
+            }
+
+            public proc t() {
+                output this.o;
+                output this.p;
+                this.q[0] = 29.9;
+                this.q[1] = 29.91;
+                output this.q[0];
+                output this.q[1];
+                this.r(29.92);
+                output this.s(29);
             }
         }
         var i: T = new T();
@@ -235,6 +271,7 @@ g:
         output i.l[1];
         i.m(29.5);
         output i.n(29);
+        i.t();        
     }
 
     // ref

@@ -1,0 +1,14 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    class T {
+        var x: int = 1;
+    }
+
+    const a: T = new T();
+    output a.x;
+}

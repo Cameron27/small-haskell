@@ -1,0 +1,13 @@
+// false
+// false
+// false
+/**/
+/**/
+
+program {
+    class T {
+        public rec func x(): int {
+            1
+        }
+    }
+}

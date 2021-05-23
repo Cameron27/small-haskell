@@ -38,6 +38,38 @@ program {
         x(a + b, b)
     }
     class T {
+        public const y: int = 1;
+        public var z: int = 1;
+        public array b[0:5]: int;
+        public record r(a: int, b: int, c: int);
+        public file f withbuffer fb: int;
+        public proc a(a: int, b: int) {
+            this.z = a + b;
+            output this.z;
+        }
+        public func x_8(a: int, b: int): int {
+            valof: int {
+                this.z = a + b;
+                output this.z;
+                return this.z;
+            }
+        }
+        private const y: int = 1;
+        private var z: int = 1;
+        private array b[0:5]: int;
+        private record r(a: int, b: int, c: int);
+        private file f withbuffer fb: int;
+        private proc a(a: int, b: int) {
+            this.z = a + b;
+            output this.z;
+        }
+        private func x_8(a: int, b: int): int {
+            valof: int {
+                this.z = a + b;
+                output this.z;
+                return this.z;
+            }
+        }
         const y: int = 1;
         var z: int = 1;
         array b[0:5]: int;

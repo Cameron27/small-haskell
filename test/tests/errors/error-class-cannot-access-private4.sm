@@ -1,0 +1,16 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    class T {
+        private var x: int = 1;
+        public func y(): T {
+            this
+        }
+    }
+
+    output (new T()).y().x;
+}

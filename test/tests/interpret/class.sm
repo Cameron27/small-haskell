@@ -47,15 +47,15 @@ program {
     {
         // Check all declatartion
         class Test {
-            const a: int = 0;
-            var b: int = 1;
-            array c[0:4]: int;
-            record d(da: int, db: string, dc: bool);
-            file e withbuffer f: string;
-            proc g(x: int, y: float) {
+            public const a: int = 0;
+            public var b: int = 1;
+            public array c[0:4]: int;
+            public record d(da: int, db: string, dc: bool);
+            public file e withbuffer f: string;
+            public proc g(x: int, y: float) {
                 output 5;
             }
-            func h(a: int, b: bool): int {
+            public func h(a: int, b: bool): int {
                 b ? a : a * 2
             }
         }
@@ -83,10 +83,10 @@ program {
     // Test null, this, recursive usage and func/proc calls
     {
         class Node {
-            var next: Node = null;
-            var val: int = 0;
+            public var next: Node = null;
+            public var val: int = 0;
 
-            proc add(i: int) {
+            public proc add(i: int) {
                 if (isNull(this.next)) {
                     this.next = new Node();
                     this.next.val = i;
@@ -95,7 +95,7 @@ program {
                 }
             }
 
-            func get(i: int): int {
+            public func get(i: int): int {
                 valof: int {
                     if (i == 0)
                         return this.val;
@@ -104,7 +104,7 @@ program {
                 }
             }
 
-            proc remove(i: int) {
+            public proc remove(i: int) {
                 if (i == 1) {
                     var temp: Node = this.next.next;
                     this.next = null;
@@ -134,13 +134,13 @@ program {
     // Test class name shadowing
     {
         class Test {
-            const x: int = 1;
+            public const x: int = 1;
         }
         var x: Test = new Test();
 
         {
             class Test {
-                const y: string = "two";
+                public const y: string = "two";
             }
 
             var y: Test = new Test();
@@ -155,7 +155,7 @@ program {
     {
         var a: int = 1;
         class Test {
-            var x: int = a;
+            public var x: int = a;
         }
 
         var t1: Test = null;
@@ -171,8 +171,8 @@ program {
     // Test this capturing
     {
         class Test {
-            var a: int = 1;
-            proc p() {
+            public var a: int = 1;
+            public proc p() {
                 output this.a;
             }
         }
@@ -191,19 +191,19 @@ program {
     // Test this restored
     {
         class Test1 {
-            var b: int = 2;
+            public var b: int = 2;
 
-            proc out() {
+            public proc out() {
                 output this.b;
             }
         }
 
         class Test2 {
-            var a: int = 1;
-            var t1: Test1 = new Test1();
-            var c: int = 3;
+            public var a: int = 1;
+            public var t1: Test1 = new Test1();
+            public var c: int = 3;
 
-            proc out() {
+            public proc out() {
                 output this.a;
                 this.t1.out();
                 output this.c;
@@ -232,7 +232,7 @@ program {
     // Object as parameter
     {
         class Test {
-            var x: int = 1;
+            public var x: int = 1;
         }
 
         record a(test: Test);
@@ -255,7 +255,7 @@ program {
     {
         var ii: int = 1;
         class Test {
-            var i: int = ii;
+            public var i: int = ii;
         }
 
         var a: ref Test = ref ref new Test();

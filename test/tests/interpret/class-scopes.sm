@@ -1,0 +1,186 @@
+// true
+// true
+// true
+/**/
+/*
+4
+6
+8
+9
+this
+1this
+2this
+10
+4
+0
+1
+3
+7
+test
+test1
+test2
+5
+16
+12
+32
+4
+6
+0
+4
+16
+0
+8
+16
+*/
+
+program {
+    // Check all declatartion
+    {
+        class Test {
+            private const a: int = 0;
+            private var b: int = 1;
+            private array c[0:4]: int;
+            private record d(da: int, db: string, dc: bool);
+            private file e withbuffer f: string;
+            private proc g(x: int, y: float) {
+                output 5;
+            }
+            private func h(a: int, b: bool): int {
+                b ? a : a * 2
+            }
+
+            const i: int = 4;
+            var j: int = 6;
+            array k[0:4]: int;
+            record l(la: int, lb: string, lc: bool);
+            file m withbuffer n: string;
+            proc o(x: int, y: float) {
+                output 10;
+            }
+            func p(a: int, b: bool): int {
+                b ? a : a * 2
+            }
+
+
+            public proc out() {
+                output this.i; // 5
+                output this.j; // 6
+                this.k[3] = 8;
+                output this.k[3]; // 8
+                this.l.la = 9;
+                this.l.lb = "this";
+                output this.l.la; // 9
+                output this.l.lb; // this
+                this.n = "1this";
+                put(this.m);
+                this.n = "2this";
+                put(this.m);
+                reset(this.m);
+                output (this.n); // 1this
+                get(this.m);
+                output (this.n); // 2this
+                this.o(1, 2.0); // 10
+                output this.p(4, true); // 4
+
+                output this.a; // 0
+                output this.b; // 1
+                this.c[3] = 3;
+                output this.c[3]; // 3
+                this.d.da = 7;
+                this.d.db = "test";
+                output this.d.da; // 7
+                output this.d.db; // test
+                this.f = "test1";
+                put(this.e);
+                this.f = "test2";
+                put(this.e);
+                reset(this.e);
+                output (this.f); // test1
+                get(this.e);
+                output (this.f); // test2
+                this.g(1, 2.0); // 5
+                output this.h(8, false); // 16
+            }
+        }
+
+        (new Test()).out();
+    }
+
+    // Private dominates
+    {
+        class Test1 {
+            public const i: string = "1";
+            private const i: int = 2;
+            
+            public func j(): int {
+                this.i + 2
+            }
+        }
+        class Test2 {
+            private const i: int = 4;
+            public const i: string = "3";
+
+            public func j(): int {
+                this.i + 2
+            }
+        }
+        const a: Test1 = new Test1();
+        const b: Test2 = new Test2();
+
+        output a.i + "2"; //12
+        output b.i + "2"; //32
+        output a.j(); // 4
+        output b.j(); // 6
+    }
+
+    // Can access other instances private
+    {
+        class Node {
+            private var next: Node = null;
+            private var val: int = 0;
+
+            public proc add(i: int) {
+                if (isNull(this.next)) {
+                    this.next = new Node();
+                    this.next.val = i;
+                } else {
+                    this.next.add(i);
+                }
+            }
+
+            public func get(i: int): int {
+                valof: int {
+                    if (i == 0)
+                        return this.val;
+                    else
+                        return this.next.get(i - 1);
+                }
+            }
+
+            public proc remove(i: int) {
+                if (i == 1) {
+                    var temp: Node = this.next.next;
+                    this.next = null;
+                    this.next = temp;
+                }
+                else
+                    this.remove(i - 1);
+            }
+        }
+
+        var l: Node = new Node();
+        var x: int = 1;
+        while (x < 20) {
+            l.add(cont x);
+            x = x * 2;
+        }
+        output l.get(0); // 0
+        output l.get(3); // 4
+        output this.l.get(5); // 16
+
+        l.remove(2);
+        output l.get(0); // 0
+        output l.get(3); // 8
+        output this.l.get(4); // 16
+    }
+}

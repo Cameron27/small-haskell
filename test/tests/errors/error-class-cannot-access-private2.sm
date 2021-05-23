@@ -1,0 +1,19 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    class U {
+        private var y: int = 1;
+    }
+
+    class T {
+        private var u: U = new U();
+
+        public proc x() {
+            output this.u.y;
+        }
+    }
+}
