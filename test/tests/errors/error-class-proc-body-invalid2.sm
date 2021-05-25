@@ -1,0 +1,13 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    class T {
+        private proc a() {
+            output a;
+        }
+    }
+}

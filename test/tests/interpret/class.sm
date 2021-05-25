@@ -284,4 +284,13 @@ program {
         get(d);
         output e.i; // 5
     }
+
+    {
+        class Test {
+            public file f withbuffer f: int;
+        }
+
+        const t: Test = new Test();
+        reset(t.f);
+    }
 }
