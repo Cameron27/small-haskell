@@ -1,6 +1,6 @@
 module Interpreter.Features.DefaultEnvironment (defaultEnv, defaultEnvAndTEnv) where
 
-import qualified Data.HashMap.Strict as HashMap
+import Data.List
 import Interpreter.Core.Types
 import Interpreter.Features.Classes
 import Interpreter.Features.Files
@@ -11,8 +11,8 @@ import TypeChecker.Core.Types
 defaultEnv :: Env
 defaultEnv =
   Env
-    (HashMap.fromList $ map (\(a, b, _) -> (a, b)) defaultEnvAndTEnv)
-    HashMap.empty
+    (fromListEnv $ map (\(a, b, _) -> (a, b)) defaultEnvAndTEnv)
+    unboundEnv
     defaultReturn
     emptyObj
 

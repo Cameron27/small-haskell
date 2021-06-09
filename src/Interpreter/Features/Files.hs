@@ -47,9 +47,9 @@ doFile f c e s =
       if not (isUnusedStore (evToLoc e) s) -- check e is bound to something
         then case lookupStore (evToLoc e) s of -- check if the value at location e is a file
           (EFile (File es n l)) ->
-            let e' = if isUnusedStore l s then Nothing else Just $ lookupStore l s -- get current value in file buffer
+            let e' = if isUnassignedStore l s then Nothing else Just $ lookupStore l s -- get current value in file buffer
              in case f (Filestate es n e') of -- apply file state change function
-                  Right (Filestate es' n' e'') -> c (updateStoreMulti [evToLoc e, l] [Just $ EFile $ File es' n' l, e''] s)
+                  Right (Filestate es' n' e'') -> c (updateStoreMulti [(evToLoc e, Just $ EFile $ File es' n' l), (l, e'')] s)
                   Left err -> putError err
           notFile -> putError $ printf "\"%s\" is not a file." (pretty notFile)
         else putError $ printf "\"%s\" is unbound." (pretty e)

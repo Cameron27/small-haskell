@@ -1,6 +1,5 @@
 module Interpreter.Core.Dec where
 
-import qualified Data.HashMap.Strict as HashMap
 import {-# SOURCE #-} Interpreter.Core.Com
 import {-# SOURCE #-} Interpreter.Core.Exp
 import Interpreter.Core.Types

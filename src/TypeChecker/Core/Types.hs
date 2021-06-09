@@ -1,6 +1,5 @@
 module TypeChecker.Core.Types where
 
-import qualified Data.HashMap.Strict as HashMap
 import Data.List
 import Data.Maybe
 import Text.Printf
@@ -16,14 +15,16 @@ newtype TypeError
 instance Show TypeError where
   show (TypeError err) = err
 
+-- | A `TEnvVal` is a value that a type environment can map to.
+data TEnvVal = T Type | Unbound
+
 -- | A `TEnv` is a type environment.
 data TEnv
   = -- | @TEnv m1 m2 t c i@ is a type environment with `m1` being the mapping from identifiers to the types they
     -- represent, `m2` being the mapping from unique ids to the classes they represent, `t` being the current type
     -- expected by the return address, `c` being the current class represented by "this" and `i` being the next
     -- available unique id.
-    TEnv (HashMap.HashMap Ide Type) (HashMap.HashMap Int Class) Type Class Int
-  deriving (Show)
+    TEnv (Ide -> TEnvVal) (Int -> TEnvVal) Type Class Int
 
 -- | A `Type` is a type in small.
 data Type
@@ -56,14 +57,19 @@ data Type
   | TMethod Type
   | TMethodAny
   | TUnion [Type]
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Show)
 
 -- | A `Class` represents a class type in small.
 data Class
   = -- | @Class i m@ is a class with unique id `i` and with `m` being the mapping from identifiers to the types they
     -- represent.
-    Class Int (HashMap.HashMap Ide Type)
-  deriving (Eq, Ord, Show)
+    Class Int (Ide -> TEnvVal)
+
+instance Eq Class where
+  (Class i1 _) == (Class i2 _) = i1 == i2
+
+instance Show Class where
+  show (Class i _) = printf "Class %d" i
 
 -- | @t1 <: t2@ returns `True` iff `t1` is a subtype of `t2`.
 (<:) :: Type -> Type -> Bool

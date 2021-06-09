@@ -11,7 +11,10 @@ import Text.Printf
 cont :: Ec -> Ec
 cont k e s =
   isLoc e
-    ?> ( isUnusedStore l s ?> (putError $ printf "\"Loc(%d)\" is unbound." l, k d s),
+    ?> ( isUnassignedStore l s
+           ?> ( putError $ printf "\"Loc(%d)\" is unassigned." l,
+                isUnusedStore l s ?> (putError $ printf "\"Loc(%d)\" is unused." l, k d s)
+              ),
          error $ printf "\"%s\" is not a location." (pretty e)
        )
   where

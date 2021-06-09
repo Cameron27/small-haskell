@@ -1,7 +1,6 @@
 module TypeChecker.Helper.TypeModification where
 
 import Common.Formatting
-import qualified Data.HashMap.Strict as HashMap
 import Text.Printf
 import TypeChecker.Core.Types
 import TypeChecker.Helper.Control
@@ -80,7 +79,7 @@ recordEnvironment (TRecord ts) = uncurry newTEnvMulti (unzip ts)
 objectEnvironment :: Type -> TEnv -> TEnv
 objectEnvironment (TObject i1) r = do
   case lookupClassTEnv i1 r of
-    (Right (Class _ c)) -> TEnv c HashMap.empty TVoid emptyClass (-1)
+    (Right (Class _ c)) -> TEnv c unboundTEnv TVoid emptyClass (-1)
 
 -- | @arrayType a@ returns the type of a array `a`.
 arrayType :: Type -> Type

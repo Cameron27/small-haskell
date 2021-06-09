@@ -25,7 +25,6 @@ dependencies:
 - HUnit
 - MissingH
 - directory
-- unordered-containers
 - silently
 - main-tester
 - bytestring

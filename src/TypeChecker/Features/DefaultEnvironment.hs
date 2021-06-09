@@ -1,6 +1,6 @@
 module TypeChecker.Features.DefaultEnvironment (defaultTEnv) where
 
-import qualified Data.HashMap.Strict as HashMap
+import Data.List
 import Interpreter.Features.DefaultEnvironment
 import TypeChecker.Core.Types
 import TypeChecker.Helper.TEnv
@@ -9,8 +9,8 @@ import TypeChecker.Helper.TEnv
 defaultTEnv :: TEnv
 defaultTEnv =
   TEnv
-    (HashMap.fromList $ map (\(a, _, c) -> (a, c)) defaultEnvAndTEnv ++ [("", TClass emptyClass)])
-    (HashMap.fromList [(-1, Class (-1) HashMap.empty)])
+    (fromListTEnv $ map (\(a, _, c) -> (a, c)) defaultEnvAndTEnv ++ [("", TClass emptyClass)])
+    (fromValTEnv (-1) $ TClass $ Class (-1) unboundTEnv)
     TVoid
-    (Class (-1) HashMap.empty)
+    (Class (-1) unboundTEnv)
     0

@@ -3,10 +3,6 @@
 module Interpreter.Core.Types where
 
 import Common.Formatting
-import Data.Bits
-import qualified Data.HashMap.Strict as HashMap
-import Data.Hashable
-import Data.List
 import System.Exit
 import Text.Printf
 
@@ -36,11 +32,7 @@ instance Eq Posn where
   PosnChain p1 i1 == PosnChain p2 i2 = i1 == i2 && p1 == p2
   _ == _ = False
 
-instance Hashable Posn where
-  hashWithSalt n (Posn i) = hashWithSalt n i
-  hashWithSalt n (PosnChain p i) = hashWithSalt n p `xor` hashWithSalt n i
-
--- | A `Ev` is a denotable value.
+-- | A `Ev` is an expressible value.
 data Ev
   = EInt Int
   | EDouble Double
@@ -66,13 +58,13 @@ instance Pretty Ev where
   pretty (EString x) = show x
   pretty (ELoc x) = printf "Loc(%d)" x
   pretty (EArray (Array x y _)) = printf "ARRAY[%d:%d]" x y
-  pretty (ERecord (Record x)) = printf "RECORD(%s)" (pretty x)
+  pretty (ERecord (Record x)) = printf "RECORD"
   pretty (EFile _) = "FILESTATE"
   pretty (EProc _ y) = printf "PROCEDURE%d" y
   pretty (EFunc _ y) = printf "FUNCTION%d" y
   pretty (EMethod _) = printf "METHOD"
   pretty (EClass _) = printf "CLASS"
-  pretty (EObject (Object x y z)) = printf "OBJECT%d(%s)(%s)" z (pretty x) (pretty y)
+  pretty (EObject (Object x y z)) = printf "OBJECT%d" z
   pretty ENull = "null"
   pretty (ECc _) = "CC"
 
@@ -83,29 +75,44 @@ instance Typeable Ev where
   typeStr (EString _) = "string"
   typeStr (ELoc _) = "location"
   typeStr (EArray (Array x y _)) = printf "array[%s:%s]" x y
-  typeStr (ERecord (Record x)) = printf "record(%s)" (intercalate "," (HashMap.keys x))
-  typeStr (EObject (Object x y z)) = printf "object%d(%s)(%s)" z (intercalate "," (HashMap.keys x)) (intercalate "," (HashMap.keys y))
+  typeStr (ERecord (Record x)) = printf "record"
+  typeStr (EObject (Object x y z)) = printf "object%d" z
   typeStr ENull = "null"
   typeStr e = error $ printf "%s is not right hand value." (pretty e)
+
+-- | An `EnvVal` is a value that an environment can map to.
+data EnvVal = Dv Ev | Unbound
+
+instance Pretty EnvVal where
+  pretty (Dv e) = pretty e
+  pretty Unbound = "unbound"
 
 -- | An `Env` is an environment.
 data Env
   = -- @Env m1 m2 k o@ is an environment with `m1` being the mapping from identifiers to the values they represent,
     -- `m2` being the mapping from identifiers and locations to the values they represent for own declarations, `k`
     -- being the current return address and `o` being the current object represented by "this".
-    Env (HashMap.HashMap Ide Ev) (HashMap.HashMap (Ide, Posn) Ev) Ec Object
+    Env (Ide -> EnvVal) ((Ide, Posn) -> EnvVal) Ec Object
 
 instance Pretty Env where
-  pretty (Env x y _ z) = printf "Env (%s) (%s) (%s)" (pretty x) (pretty y) (pretty (EObject z))
+  pretty (Env x y _ z) = printf "Env (%s)" (pretty (EObject z))
+
+-- | A `StoreVal` is a value that a store can map to.
+data StoreVal = Sv Ev | Unused | Unassigned
+
+instance Pretty StoreVal where
+  pretty (Sv e) = pretty e
+  pretty Unused = "unused"
+  pretty Unassigned = "unassigned"
 
 -- | A `Store` is a store.
 data Store
   = -- | @Store m l@ is a store with `m` being the mapping from location to the values at those locations and `l` being
     -- the next free location in the store.
-    Store (HashMap.HashMap Loc Ev) Loc
+    Store (Loc -> StoreVal) Loc
 
 instance Pretty Store where
-  pretty (Store x y) = printf "Store (%s) %d" (pretty x) y
+  pretty (Store x y) = printf "Store %d" y
 
 -- | A `Cc` is a command continuation. It takes in a `Store` and produces an `Ans`.
 type Cc = Store -> Ans
@@ -131,7 +138,7 @@ data Array
 -- | A `Record` is a record of values.
 newtype Record
   = -- | @Record m@ is a record with `m` being the mapping from identifiers to the values they represent.
-    Record (HashMap.HashMap Ide Ev)
+    Record (Ide -> EnvVal)
 
 -- | A `File` is list of values and a location.
 data File
@@ -160,16 +167,7 @@ newtype Class
 data Object
   = -- | @Object m1 m2 i@ is an object with `m1` and `m2` being the mapping from identifiers to the public and private
     -- values they represent respectively and is a unique id for the class the object is from.
-    Object (HashMap.HashMap Ide Ev) (HashMap.HashMap Ide Ev) Int
+    Object (Ide -> EnvVal) (Ide -> EnvVal) Int
 
 -- | An `Ans` is an `IO` representing what the small program does.
 type Ans = IO ExitCode
-
-instance Pretty (HashMap.HashMap Ide Ev) where
-  pretty x = intercalate "," (zipWith (\a b -> printf "%s = %s" a (pretty b)) (HashMap.keys x) (HashMap.elems x))
-
-instance Pretty (HashMap.HashMap Loc Ev) where
-  pretty x = intercalate "," (zipWith (\a b -> printf "%d = %s" a (pretty b)) (HashMap.keys x) (HashMap.elems x))
-
-instance Pretty (HashMap.HashMap (Ide, Posn) Ev) where
-  pretty x = intercalate "," (zipWith (\(a, b) c -> printf "%s = %s" ("(" ++ a ++ "," ++ pretty b ++ ")") (pretty c)) (HashMap.keys x) (HashMap.elems x))

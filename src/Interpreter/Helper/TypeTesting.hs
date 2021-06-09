@@ -1,7 +1,6 @@
 module Interpreter.Helper.TypeTesting where
 
 import Common.Formatting
-import qualified Data.HashMap.Strict as HashMap
 import Interpreter.Core.Types
 import Interpreter.Helper.Control
 import Interpreter.Helper.Env
@@ -60,15 +59,15 @@ evToBool e = error $ printf "Tried to convert \"%s\" to a bool." (pretty e)
 
 -- | @recordToEnv r@ returns the environment `r` represents.
 recordToEnv :: Record -> Env
-recordToEnv (Record r) = Env r HashMap.empty emptyEc emptyObj
+recordToEnv (Record r) = Env r unboundEnv emptyEc emptyObj
 
 -- | @objectToPublicEnv o@ returns the public environment `o` represents.
 objectToPublicEnv :: Object -> Env
-objectToPublicEnv (Object r _ _) = Env r HashMap.empty emptyEc emptyObj
+objectToPublicEnv (Object r _ _) = Env r unboundEnv emptyEc emptyObj
 
 -- | @objectToPrivateEnv o@ returns the private environment `o` represents.
 objectToPrivateEnv :: Object -> Env
-objectToPrivateEnv (Object r1 r2 _) = Env (HashMap.union r2 r1) HashMap.empty emptyEc emptyObj
+objectToPrivateEnv (Object r1 r2 _) = Env (unionEnv r2 r1) unboundEnv emptyEc emptyObj
 
 -- Type Checks --
 

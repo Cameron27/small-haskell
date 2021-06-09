@@ -1,7 +1,6 @@
 module TypeChecker.Features.Classes where
 
 import Common.Formatting
-import qualified Data.HashMap.Strict as HashMap
 import Parser.Core.Types
 import Text.Printf
 import {-# SOURCE #-} TypeChecker.Core.Com
@@ -17,8 +16,8 @@ import TypeChecker.Helper.TypeModification
 -- under the environment `r`.
 typeClassDec :: Dec -> TEnv -> Either TypeError TEnv
 typeClassDec (ClassDec i1 scds) r = do
-  (TEnv c11 _ _ _ _, TEnv c12 _ _ _ _) <- typeSCDecInterface scds (updateTEnv (fst $ newClassTEnv i1 HashMap.empty r) r) -- Generate the interface with public and private variables
-  let (r1', c') = newClassTEnv i1 (HashMap.union c12 c11) r
+  (TEnv c11 _ _ _ _, TEnv c12 _ _ _ _) <- typeSCDecInterface scds (updateTEnv (fst $ newClassTEnv i1 unboundTEnv r) r) -- Generate the interface with public and private variables
+  let (r1', c') = newClassTEnv i1 (unionTEnv c12 c11) r
   (TEnv c2 _ _ _ _) <- typeSCDec scds (updateThisTEnv emptyClass (updateTEnv r1' r)) c' -- Type check the class using the interface with only public variables
   let (r2', _) = newClassTEnv i1 c2 r
   return r2'
