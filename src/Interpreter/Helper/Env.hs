@@ -16,28 +16,28 @@ updateThisEnv :: Object -> Env -> Env
 updateThisEnv t (Env r w k _) = Env r w k t
 
 -- | @lookupEnv i r@ returns the value that is assigned to `i` in `r`.
-lookupEnv :: Ide -> Env -> Dv
+lookupEnv :: Ide -> Env -> Ev
 lookupEnv i (Env r _ _ _) = case HashMap.lookup i r of
   Just s -> s
   Nothing -> error $ printf "Tried to lookup identifier \"%s\" which has no value assigned to it.\n%s" i (pretty r)
 
 -- | @lookupEnv (i, w) r@ returns the value that is assigned to `(i, w)` in `r`.
-lookupEnvOwn :: (Ide, Posn) -> Env -> Dv
+lookupEnvOwn :: (Ide, Posn) -> Env -> Ev
 lookupEnvOwn i (Env _ w _ _) = case HashMap.lookup i w of
   Just s -> s
   Nothing -> error $ printf "Tried to lookup identifier \"(%s, %s)\" which has no value assigned to it.\n%s" (fst i) (pretty $ snd i) (pretty w)
 
 -- | @newEnv i d@ returns a new environment with just `i` bound to `d`.
-newEnv :: Ide -> Dv -> Env
+newEnv :: Ide -> Ev -> Env
 newEnv i l = Env (HashMap.fromList [(i, l)]) HashMap.empty emptyEc emptyObj
 
 -- | @newEnvOwn (i, w) d@ returns a new environment with just `(i, w)` bound to `d`.
-newEnvOwn :: (Ide, Posn) -> Dv -> Env
+newEnvOwn :: (Ide, Posn) -> Ev -> Env
 newEnvOwn i l = Env HashMap.empty (HashMap.fromList [(i, l)]) emptyEc emptyObj
 
 -- | @newEnvMulti is ds@ returns a new environment with each `i` in `is` bound to the corresponding `d` in `ds`. If the
 -- same `i` appears more than once in `is` the first occurrence take overrides the later instances.
-newEnvMulti :: [Ide] -> [Dv] -> Env
+newEnvMulti :: [Ide] -> [Ev] -> Env
 newEnvMulti is ls = Env (HashMap.fromList $ reverse $ zip is ls) HashMap.empty emptyEc emptyObj
 
 -- | @isUnboundEnv i r@ is `True` iff `i` is unbound in `r`.
@@ -51,7 +51,7 @@ emptyEc :: Ec
 emptyEc _ _ = error "This should not be the return address."
 
 -- | Default return address that produces an error.
-defaultReturn :: Dv -> Store -> Ans
+defaultReturn :: Ev -> Store -> Ans
 defaultReturn e s = putError "no return address"
 
 -- | The empty object.

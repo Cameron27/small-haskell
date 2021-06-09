@@ -19,12 +19,12 @@ defaultEnv =
     emptyObj
 
 -- | The names, values and types of the staring environment of small.
-defaultEnvAndTEnv :: [([Char], Dv, Type)]
+defaultEnvAndTEnv :: [([Char], Ev, Type)]
 defaultEnvAndTEnv =
-  [ ("reset", DProc resetFProc 1, TProc [TRef TFileAny]),
-    ("rewrite", DProc rewriteFProc 1, TProc [TRef TFileAny]),
-    ("get", DProc getFProc 1, TProc [TRef TFileAny]),
-    ("put", DProc putFProc 1, TProc [TRef TFileAny]),
-    ("eof", DFunc eofFunc 1, TFunc [TRef TFileAny] TBool),
-    ("isNull", DFunc isNullF 1, TFunc [TUnion [TObjectAny, TRef TObjectAny]] TBool)
+  [ ("reset", EProc resetFProc 1, TProc [TRef TFileAny]),
+    ("rewrite", EProc rewriteFProc 1, TProc [TRef TFileAny]),
+    ("get", EProc getFProc 1, TProc [TRef TFileAny]),
+    ("put", EProc putFProc 1, TProc [TRef TFileAny]),
+    ("eof", EFunc eofFunc 1, TFunc [TRef TFileAny] TBool),
+    ("isNull", EFunc isNullF 1, TFunc [TUnion [TObjectAny, TRef TObjectAny]] TBool)
   ]

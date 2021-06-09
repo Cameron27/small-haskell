@@ -15,7 +15,7 @@ cont k e s =
          error $ printf "\"%s\" is not a location." (pretty e)
        )
   where
-    l = dvToLoc e
+    l = evToLoc e
     d = lookupStore l s
 
 -- | @update l c e s@ stores `e` at `l` and passes the resulting store to `c`.
@@ -25,7 +25,7 @@ update l c e s = isSv e ?> (c (updateStore l (Just e) s), putError $ printf "tri
 -- | @ref k e s@ gets an unused location in `s`, updates it with `e` then passes it, along with the updated store, to
 -- `k`.
 ref :: Ec -> Ec
-ref k e s = update newLoc (k (DLoc newLoc)) e s'
+ref k e s = update newLoc (k (ELoc newLoc)) e s'
   where
     (newLoc, s') = newLocStore s
 
