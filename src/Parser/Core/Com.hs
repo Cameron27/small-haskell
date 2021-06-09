@@ -73,7 +73,7 @@ com = do
               ( do
                   i <- ide
                   symbol ":"
-                  cs <- many1 $ try com
+                  cs <- many $ try com
                   return (i, chain cs)
               )
           let pairs' = unzip pairs

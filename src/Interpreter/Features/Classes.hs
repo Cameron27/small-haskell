@@ -79,6 +79,6 @@ evalDotExp (Dot e1 e2) w r k = evalRVal e1 (w ! 1) r $ \e -> process e
         let (DObject (Object r1 r2 n)) = r'
          in let (Env _ _ _ (Object _ _ n')) = r
              in evalExp e2 (w ! 2) (updateEnv ((if n == n' then objectToPrivateEnv else objectToPublicEnv) $ dvToObject r') r) $ \e -> case e of -- Object updates the environment
-                  (DMethod f) -> f k $ dvToObject r' -- Methods have "this" passed in
+                  (DMethod m) -> m k $ dvToObject r' -- Methods have "this" passed in
                   _ -> k e -- Anything else passed through
       | otherwise = err $ printf "\"%s\", evaluated as \"%s\", is not an object or a record." (pretty e1) (pretty r') -- Anything else is an error

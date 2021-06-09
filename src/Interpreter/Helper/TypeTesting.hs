@@ -132,6 +132,7 @@ isSv (DString _) = True
 isSv (DLoc _) = True
 isSv (DArray _) = True
 isSv (DRecord _) = True
+isSv (DFile _) = True
 isSv (DObject _) = True
 isSv DNull = True
 isSv _ = False
