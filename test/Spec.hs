@@ -1,4 +1,3 @@
-import Control.Concurrent
 import Control.Concurrent.ParallelIO
 import Control.Monad
 import qualified Data.ByteString.Char8 as Char8
@@ -6,8 +5,6 @@ import Data.Either
 import Data.List
 import Data.Maybe
 import Data.String.Utils
-import GHC.IO.Handle
-import Interpreter.Core.Types
 import Interpreter.Small
 import Parser.Small
 import System.Directory

@@ -1,11 +1,9 @@
 module Interpreter.Core.Com where
 
 import Common.Formatting
-import Debug.Trace
 import {-# SOURCE #-} Interpreter.Core.Dec
 import {-# SOURCE #-} Interpreter.Core.Exp
 import Interpreter.Core.Types
-import Interpreter.Features.Classes
 import Interpreter.Features.For
 import Interpreter.Helper.Continuation
 import Interpreter.Helper.Control

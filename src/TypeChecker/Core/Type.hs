@@ -1,7 +1,6 @@
 module TypeChecker.Core.Type where
 
 import Common.Functions
-import qualified Data.HashMap.Strict as HashMap
 import Text.Printf
 import TypeChecker.Core.Types
 import TypeChecker.Helper.Control

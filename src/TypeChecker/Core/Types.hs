@@ -1,10 +1,8 @@
 module TypeChecker.Core.Types where
 
 import qualified Data.HashMap.Strict as HashMap
-import Data.Hashable
 import Data.List
 import Data.Maybe
-import Debug.Trace
 import Text.Printf
 
 -- | An `Ide` is a identifier in small.

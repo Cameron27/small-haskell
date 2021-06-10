@@ -1,7 +1,6 @@
 module TypeChecker.Features.Classes where
 
 import Common.Formatting
-import Common.Functions
 import qualified Data.HashMap.Strict as HashMap
 import Parser.Core.Types
 import Text.Printf

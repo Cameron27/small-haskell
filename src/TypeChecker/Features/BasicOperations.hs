@@ -5,7 +5,6 @@ import Parser.Core.Types
 import Text.Printf
 import TypeChecker.Core.Types
 import TypeChecker.Helper.Control
-import TypeChecker.Helper.TypeModification
 
 -- | @typeOp2 src o (t1, t2)@ returns the type obtained from applying operation `o` to types `t1` and `t2`. `src` is the
 -- expression to use in the error message.

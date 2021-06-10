@@ -1,8 +1,6 @@
 module Interpreter.Features.Classes where
 
 import Common.Formatting
-import qualified Data.HashMap.Strict as HashMap
-import Debug.Trace
 import {-# SOURCE #-} Interpreter.Core.Com
 import {-# SOURCE #-} Interpreter.Core.Dec
 import {-# SOURCE #-} Interpreter.Core.Exp

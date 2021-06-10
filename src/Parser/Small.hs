@@ -1,6 +1,5 @@
 module Parser.Small (parseSmall) where
 
-import Data.List
 import Parser.Core.Com
 import Parser.Core.Types
 import Parser.Helper.Language

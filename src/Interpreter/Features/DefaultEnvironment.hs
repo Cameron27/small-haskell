@@ -4,9 +4,7 @@ import qualified Data.HashMap.Strict as HashMap
 import Interpreter.Core.Types
 import Interpreter.Features.Classes
 import Interpreter.Features.Files
-import Interpreter.Helper.Control
 import Interpreter.Helper.Env
-import Parser.Core.Types
 import TypeChecker.Core.Types
 
 -- | The starting environment to run a small program under.

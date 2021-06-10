@@ -2,7 +2,6 @@ module TypeChecker.Helper.TypeModification where
 
 import Common.Formatting
 import qualified Data.HashMap.Strict as HashMap
-import qualified Data.Set as Set
 import Text.Printf
 import TypeChecker.Core.Types
 import TypeChecker.Helper.Control

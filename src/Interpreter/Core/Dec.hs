@@ -54,4 +54,4 @@ evalDec (RecFuncDec i1 i2 _ _ e1) w r u s = u (newEnv i1 func) s
 evalDec (FileDec i1 i2 t1) w r u s = evalFileDec (FileDec i1 i2 t1) w r u s
 evalDec (ClassDec i1 scd1) w r u s = evalClassDec (ClassDec i1 scd1) w r u s
 evalDec (ChainDec d1 d2) w r u s = evalDec d1 (w ! 1) r (\r1 -> evalDec d2 (w ! 2) (updateEnv r1 r) (\r2 -> u (updateEnv r2 r1))) s
-evalDec SkipDec w r u s = u (Env HashMap.empty HashMap.empty emptyEc emptyObj) s
+evalDec SkipDec w r u s = u emptyEnv s

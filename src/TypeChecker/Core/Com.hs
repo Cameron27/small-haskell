@@ -1,7 +1,6 @@
 module TypeChecker.Core.Com where
 
 import Common.Formatting
-import Debug.Trace
 import Parser.Core.Types
 import Text.Printf
 import {-# SOURCE #-} TypeChecker.Core.Dec

@@ -3,7 +3,6 @@ module Parser.Helper.Language where
 import Data.Char
 import Data.Functor.Identity
 import Numeric
-import Parser.Core.Types
 import Text.Parsec
 import Text.Parsec.Token hiding (whiteSpace)
 import qualified Text.Parsec.Token as Token

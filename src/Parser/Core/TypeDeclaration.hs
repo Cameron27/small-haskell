@@ -1,6 +1,5 @@
 module Parser.Core.TypeDeclaration (typeDeclaration) where
 
-import Common.Functions
 import Parser.Helper.Language
 import Text.Parsec
 import TypeChecker.Core.Types

@@ -1,6 +1,5 @@
 module Interpreter.Core.Exp where
 
-import Common.Formatting
 import {-# SOURCE #-} Interpreter.Core.Com
 import Interpreter.Core.Types
 import Interpreter.Features.BasicOperations

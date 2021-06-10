@@ -1,7 +1,6 @@
 module Parser.Features.Classes where
 
 import {-# SOURCE #-} Parser.Core.Com
-import {-# SOURCE #-} Parser.Core.Dec
 import {-# SOURCE #-} Parser.Core.Exp
 import Parser.Core.TypeDeclaration
 import Parser.Core.Types
