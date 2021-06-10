@@ -89,10 +89,8 @@ evalOwnExp (Dot e1 e2) w r u = evalOwnExp e1 (w ! 1) r (\r1 -> evalOwnExp e2 (w 
 evalOwnExp (New _) w r u = u emptyEnv
 evalOwnExp This w r u = u emptyEnv
 evalOwnExp Null w r u = u emptyEnv
-evalOwnExp (Not e1) w r u = evalOwnExp e1 (w ! 1) r u
-evalOwnExp (Positive e1) w r u = evalOwnExp e1 (w ! 1) r u
-evalOwnExp (Negative e1) w r u = evalOwnExp e1 (w ! 1) r u
-evalOwnExp (Op _ e1 e2) w r u = evalOwnExp e1 (w ! 2) r (\r1 -> evalOwnExp e2 (w ! 3) r (u . updateEnv r1))
+evalOwnExp (Op2 _ e1 e2) w r u = evalOwnExp e1 (w ! 2) r (\r1 -> evalOwnExp e2 (w ! 3) r (u . updateEnv r1))
+evalOwnExp (Op1 _ e1) w r u = evalOwnExp e1 (w ! 2) r u
 
 -- | @evalOwnFor for w r u s@ evaluates the for expression `for` under the environment `r` and with store `s` for own
 -- declarations then passes the resulting environment into the rest of the program `u`.

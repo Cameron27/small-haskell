@@ -86,22 +86,10 @@ typeExp (Dot e1 e2) r = do
 typeExp (New i1) r = typeNewExp (New i1) r
 typeExp Null r = typeNullExp Null r
 typeExp This r = typeThisExp This r
-typeExp (Not e1) r = do
-  t <- typeExp e1 r >>= rval (Not e1)
-  if t <: TBool
-    then return TBool
-    else err $ printf "! cannot be applied to type \"%s\" in \"%s\"" (show t) (pretty (Not e1))
-typeExp (Positive e1) r = do
-  t <- typeExp e1 r >>= rval (Positive e1)
-  if t <: TInt || t <: TDouble
-    then return t
-    else err $ printf "+ cannot be applied to type \"%s\" in \"%s\"" (show t) (pretty (Positive e1))
-typeExp (Negative e1) r = do
-  t <- typeExp e1 r >>= rval (Negative e1)
-  if t <: TInt || t <: TDouble
-    then return t
-    else err $ printf "- cannot be applied to type \"%s\" in \"%s\"" (show t) (pretty (Negative e1))
-typeExp (Op o1 e1 e2) r = do
-  t1 <- typeExp e1 r >>= rval (Op o1 e1 e2)
-  t2 <- typeExp e2 r >>= rval (Op o1 e1 e2)
-  typeOp (Op o1 e1 e2) o1 (t1, t2)
+typeExp (Op2 o1 e1 e2) r = do
+  t1 <- typeExp e1 r >>= rval (Op2 o1 e1 e2)
+  t2 <- typeExp e2 r >>= rval (Op2 o1 e1 e2)
+  typeOp2 (Op2 o1 e1 e2) o1 (t1, t2)
+typeExp (Op1 o1 e1) r = do
+  t1 <- typeExp e1 r >>= rval (Op1 o1 e1)
+  typeOp1 (Op1 o1 e1) o1 t1

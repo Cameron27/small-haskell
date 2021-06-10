@@ -34,6 +34,7 @@ unary :: Parsec String () Exp
 unary =
   choice
     ( accessOp :
+      unaryOp :
       map
         unaryKey
         [ -- Continuation: cont E
@@ -41,24 +42,11 @@ unary =
           -- Reference: ref E
           ("ref", RefExp)
         ]
-        ++ map
-          unaryOp
-          [ -- Not: ! E
-            ("!", Not),
-            -- Positive: + E
-            ("+", Positive),
-            -- Negative: - E
-            ("-", Negative)
-          ]
     )
   where
     unaryKey :: (String, Exp -> Exp) -> Parsec String () Exp
     unaryKey (kw, e) = do
       keyword kw
-      e <$> unary
-    unaryOp :: (String, Exp -> Exp) -> Parsec String () Exp
-    unaryOp (opr, e) = do
-      op opr
       e <$> unary
 
 -- | Parses an access expression.

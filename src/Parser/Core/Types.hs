@@ -8,8 +8,8 @@ import TypeChecker.Core.Types
 -- | An `Ide` is a identifier in small.
 type Id = String
 
--- | An `Opr` is a binary operation.
-data Opr
+-- | An `Opr2` is a binary operation.
+data Opr2
   = Mult
   | Div
   | Mod
@@ -26,7 +26,7 @@ data Opr
   | Or
   deriving (Show)
 
-instance Pretty Opr where
+instance Pretty Opr2 where
   pretty Mult = "*"
   pretty Div = "/"
   pretty Mod = "%"
@@ -41,6 +41,18 @@ instance Pretty Opr where
   pretty And = "&"
   pretty Xor = "^"
   pretty Or = "|"
+
+-- | An `Opr1` is a unary operation.
+data Opr1
+  = Not
+  | Positive
+  | Negative
+  deriving (Show)
+
+instance Pretty Opr1 where
+  pretty Not = "!"
+  pretty Positive = "+"
+  pretty Negative = "-"
 
 -- | A `Pgm` is a small program.
 newtype Pgm = Program Com deriving (Show)
@@ -151,10 +163,8 @@ data Exp
   | New Ide
   | This
   | Null
-  | Not Exp
-  | Positive Exp
-  | Negative Exp
-  | Op Opr Exp Exp
+  | Op2 Opr2 Exp Exp
+  | Op1 Opr1 Exp
   deriving (Show)
 
 instance Pretty Exp where
@@ -177,10 +187,8 @@ instance Pretty Exp where
   pretty (New x) = printf "new %s()" x
   pretty This = "this"
   pretty Null = "null"
-  pretty (Not x) = printf "!%s" (pretty x)
-  pretty (Positive x) = printf "+%s" (pretty x)
-  pretty (Negative x) = printf "-%s" (pretty x)
-  pretty (Op x y z) = printf "%s %s %s" (pretty y) (pretty x) (pretty z)
+  pretty (Op2 x y z) = printf "%s %s %s" (pretty y) (pretty x) (pretty z)
+  pretty (Op1 x y) = printf "%s %s" (pretty y) (pretty x)
 
 -- | A `For` is a small for expression.
 data For

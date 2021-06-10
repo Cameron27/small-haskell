@@ -74,18 +74,9 @@ evalExp (Dot e1 e2) w r k s = evalDotExp (Dot e1 e2) w r k s
 evalExp (New i1) w r k s = evalNewExp (New i1) w r k s
 evalExp This w r k s = evalThisExp This w r k s
 evalExp Null w r k s = evalNullExp Null w r k s
-evalExp (Not e1) w r k s = (evalRVal e1 (w ! 1) r $ testBool e1 (\e -> k (EBool (not $ evToBool e)))) s
-evalExp (Positive e1) w r k s = (evalRVal e1 (w ! 1) r $ testNumber e1 k) s
-evalExp (Negative e1) w r k s =
-  ( evalRVal e1 (w ! 1) r $
-      testNumber
-        e1
-        ( \e ->
-            isInt e
-              ?> (k (EInt (- evToInt e)), k (EDouble (- evToDouble e)))
-        )
-  )
-    s
-evalExp (Op o1 e1 e2) w r k s = evalRVal e1 (w ! 2) r (\e1 -> evalRVal e2 (w ! 3) r (\e2 -> evalOp ef o1 (e1, e2) k)) s
+evalExp (Op2 o1 e1 e2) w r k s = evalRVal e1 (w ! 2) r (\e1 -> evalRVal e2 (w ! 3) r (\e2 -> evalOp2 ef o1 (e1, e2) k)) s
   where
-    ef = Op o1 e1 e2
+    ef = Op2 o1 e1 e2
+evalExp (Op1 o1 e1) w r k s = evalRVal e1 (w ! 2) r (\e1 -> evalOp1 ef o1 e1 k) s
+  where
+    ef = Op1 o1 e1

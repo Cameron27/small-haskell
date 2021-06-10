@@ -1,4 +1,4 @@
-module TypeChecker.Features.BasicOperations (typeOp) where
+module TypeChecker.Features.BasicOperations (typeOp2, typeOp1) where
 
 import Common.Formatting
 import Parser.Core.Types
@@ -7,59 +7,69 @@ import TypeChecker.Core.Types
 import TypeChecker.Helper.Control
 import TypeChecker.Helper.TypeModification
 
--- | @typeOp src o (t1, t2)@ returns the type obtained from applying operation `o` to types `t1` and `t2`. `src` is the
+-- | @typeOp2 src o (t1, t2)@ returns the type obtained from applying operation `o` to types `t1` and `t2`. `src` is the
 -- expression to use in the error message.
-typeOp :: Exp -> Opr -> (Type, Type) -> Either TypeError Type
-typeOp _ Mult (TInt, TInt) = return TInt
-typeOp _ Mult (TDouble, TDouble) = return TDouble
-typeOp _ Mult (TInt, TDouble) = return TDouble
-typeOp _ Mult (TDouble, TInt) = return TDouble
-typeOp _ Div (TInt, TInt) = return TInt
-typeOp _ Div (TDouble, TDouble) = return TDouble
-typeOp _ Div (TInt, TDouble) = return TDouble
-typeOp _ Div (TDouble, TInt) = return TDouble
-typeOp _ Mod (TInt, TInt) = return TInt
-typeOp _ Add (TInt, TInt) = return TInt
-typeOp _ Add (TDouble, TDouble) = return TDouble
-typeOp _ Add (TInt, TDouble) = return TDouble
-typeOp _ Add (TDouble, TInt) = return TDouble
-typeOp _ Add (TString, TString) = return TString
-typeOp _ Sub (TInt, TInt) = return TInt
-typeOp _ Sub (TDouble, TDouble) = return TDouble
-typeOp _ Sub (TInt, TDouble) = return TDouble
-typeOp _ Sub (TDouble, TInt) = return TDouble
-typeOp _ Less (TInt, TInt) = return TBool
-typeOp _ Less (TDouble, TDouble) = return TBool
-typeOp _ Less (TInt, TDouble) = return TBool
-typeOp _ Less (TDouble, TInt) = return TBool
-typeOp _ LessEq (TInt, TInt) = return TBool
-typeOp _ LessEq (TDouble, TDouble) = return TBool
-typeOp _ LessEq (TInt, TDouble) = return TBool
-typeOp _ LessEq (TDouble, TInt) = return TBool
-typeOp _ Great (TInt, TInt) = return TBool
-typeOp _ Great (TDouble, TDouble) = return TBool
-typeOp _ Great (TInt, TDouble) = return TBool
-typeOp _ Great (TDouble, TInt) = return TBool
-typeOp _ GreatEq (TInt, TInt) = return TBool
-typeOp _ GreatEq (TDouble, TDouble) = return TBool
-typeOp _ GreatEq (TInt, TDouble) = return TBool
-typeOp _ GreatEq (TDouble, TInt) = return TBool
-typeOp _ Equal (TInt, TInt) = return TBool
-typeOp _ Equal (TDouble, TDouble) = return TBool
-typeOp _ Equal (TInt, TDouble) = return TBool
-typeOp _ Equal (TDouble, TInt) = return TBool
-typeOp _ Equal (TBool, TBool) = return TBool
-typeOp _ Equal (TString, TString) = return TBool
-typeOp _ NEqual (TInt, TInt) = return TBool
-typeOp _ NEqual (TDouble, TDouble) = return TBool
-typeOp _ NEqual (TInt, TDouble) = return TBool
-typeOp _ NEqual (TDouble, TInt) = return TBool
-typeOp _ NEqual (TBool, TBool) = return TBool
-typeOp _ NEqual (TString, TString) = return TBool
-typeOp _ And (TInt, TInt) = return TInt
-typeOp _ And (TBool, TBool) = return TBool
-typeOp _ Xor (TInt, TInt) = return TInt
-typeOp _ Xor (TBool, TBool) = return TBool
-typeOp _ Or (TInt, TInt) = return TInt
-typeOp _ Or (TBool, TBool) = return TBool
-typeOp e o (a, b) = err $ printf "operation \"%s\" cannot be applied to types \"%s\" and \"%s\" in \"%s\"" (pretty o) (show a) (show b) (pretty e)
+typeOp2 :: Exp -> Opr2 -> (Type, Type) -> Either TypeError Type
+typeOp2 _ Mult (TInt, TInt) = return TInt
+typeOp2 _ Mult (TDouble, TDouble) = return TDouble
+typeOp2 _ Mult (TInt, TDouble) = return TDouble
+typeOp2 _ Mult (TDouble, TInt) = return TDouble
+typeOp2 _ Div (TInt, TInt) = return TInt
+typeOp2 _ Div (TDouble, TDouble) = return TDouble
+typeOp2 _ Div (TInt, TDouble) = return TDouble
+typeOp2 _ Div (TDouble, TInt) = return TDouble
+typeOp2 _ Mod (TInt, TInt) = return TInt
+typeOp2 _ Add (TInt, TInt) = return TInt
+typeOp2 _ Add (TDouble, TDouble) = return TDouble
+typeOp2 _ Add (TInt, TDouble) = return TDouble
+typeOp2 _ Add (TDouble, TInt) = return TDouble
+typeOp2 _ Add (TString, TString) = return TString
+typeOp2 _ Sub (TInt, TInt) = return TInt
+typeOp2 _ Sub (TDouble, TDouble) = return TDouble
+typeOp2 _ Sub (TInt, TDouble) = return TDouble
+typeOp2 _ Sub (TDouble, TInt) = return TDouble
+typeOp2 _ Less (TInt, TInt) = return TBool
+typeOp2 _ Less (TDouble, TDouble) = return TBool
+typeOp2 _ Less (TInt, TDouble) = return TBool
+typeOp2 _ Less (TDouble, TInt) = return TBool
+typeOp2 _ LessEq (TInt, TInt) = return TBool
+typeOp2 _ LessEq (TDouble, TDouble) = return TBool
+typeOp2 _ LessEq (TInt, TDouble) = return TBool
+typeOp2 _ LessEq (TDouble, TInt) = return TBool
+typeOp2 _ Great (TInt, TInt) = return TBool
+typeOp2 _ Great (TDouble, TDouble) = return TBool
+typeOp2 _ Great (TInt, TDouble) = return TBool
+typeOp2 _ Great (TDouble, TInt) = return TBool
+typeOp2 _ GreatEq (TInt, TInt) = return TBool
+typeOp2 _ GreatEq (TDouble, TDouble) = return TBool
+typeOp2 _ GreatEq (TInt, TDouble) = return TBool
+typeOp2 _ GreatEq (TDouble, TInt) = return TBool
+typeOp2 _ Equal (TInt, TInt) = return TBool
+typeOp2 _ Equal (TDouble, TDouble) = return TBool
+typeOp2 _ Equal (TInt, TDouble) = return TBool
+typeOp2 _ Equal (TDouble, TInt) = return TBool
+typeOp2 _ Equal (TBool, TBool) = return TBool
+typeOp2 _ Equal (TString, TString) = return TBool
+typeOp2 _ NEqual (TInt, TInt) = return TBool
+typeOp2 _ NEqual (TDouble, TDouble) = return TBool
+typeOp2 _ NEqual (TInt, TDouble) = return TBool
+typeOp2 _ NEqual (TDouble, TInt) = return TBool
+typeOp2 _ NEqual (TBool, TBool) = return TBool
+typeOp2 _ NEqual (TString, TString) = return TBool
+typeOp2 _ And (TInt, TInt) = return TInt
+typeOp2 _ And (TBool, TBool) = return TBool
+typeOp2 _ Xor (TInt, TInt) = return TInt
+typeOp2 _ Xor (TBool, TBool) = return TBool
+typeOp2 _ Or (TInt, TInt) = return TInt
+typeOp2 _ Or (TBool, TBool) = return TBool
+typeOp2 e o (a, b) = err $ printf "operation \"%s\" cannot be applied to types \"%s\" and \"%s\" in \"%s\"" (pretty o) (show a) (show b) (pretty e)
+
+-- | @typeOp1 src o t1@ returns the type obtained from applying operation `o` to types `t1` . `src` is the expression to
+-- use in the error message.
+typeOp1 :: Exp -> Opr1 -> Type -> Either TypeError Type
+typeOp1 _ Not TBool = return TBool
+typeOp1 _ Positive TInt = return TInt
+typeOp1 _ Positive TDouble = return TDouble
+typeOp1 _ Negative TInt = return TInt
+typeOp1 _ Negative TDouble = return TDouble
+typeOp1 e o a = err $ printf "operation \"%s\" cannot be applied to type \"%s\" in \"%s\"" (pretty o) (show a) (pretty e)
