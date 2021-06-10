@@ -14,7 +14,7 @@ pgm =
   do
     spaces
     keyword "program"
-    Program <$> com
+    Program <$> block
 
 -- | @stripComments s@ returns the small program `s` but with comments removed.
 stripComments :: String -> String
