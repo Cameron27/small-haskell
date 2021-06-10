@@ -12,9 +12,9 @@ import qualified Text.Parsec.Token as Token
 tinyDef :: LanguageDef st
 tinyDef =
   LanguageDef
-    { commentStart = "",
-      commentEnd = "",
-      commentLine = "",
+    { commentStart = "/*",
+      commentEnd = "*/",
+      commentLine = "//",
       nestedComments = False,
       identStart = letter <|> char '_',
       identLetter = alphaNum <|> char '_',
