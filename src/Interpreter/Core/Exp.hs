@@ -11,6 +11,7 @@ import Interpreter.Helper.Env
 import Interpreter.Helper.Store
 import Interpreter.Helper.TypeTesting
 import Parser.Core.Types
+import System.IO
 import Text.Printf
 
 -- | @evalExp exp w r k s@ evaluates the right hand value of expression `exp` under the environment `r` and with store
@@ -26,8 +27,12 @@ evalExp (Double x) w r k s = k (EDouble x) s
 evalExp (Bool x) w r k s = k (EBool x) s
 evalExp (String x) w r k s = k (EString x) s
 evalExp Read w r k s = do
-  input <- getLine
-  k (EString input) s
+  eof <- isEOF
+  if eof
+    then putError "no remaining input"
+    else do
+      input <- getLine
+      k (EString input) s
 evalExp (I i1) w r k s = isUnboundEnv i1 r ?> (putError $ printf "\"%s\" is unassigned\"" i1, k (lookupEnv i1 r) s)
 evalExp (RefExp e1) w r k s = (evalExp e1 (w ! 1) r $ ref k) s
 evalExp (ArrayExp e1 e2 _) w r k s =
