@@ -53,15 +53,15 @@ evalExp (RecordExp is _) w r k s = k (ERecord record) s'
     ls = map ELoc ls'
     (Env record' _ _ _) = newEnvMulti is ls
     record = Record record'
-evalExp (Func e1 e2) w r k s = evalExp e1 (w ! 1) r (testFunc (length e2) (Func e1 e2) chainEval) s
+evalExp (Func e1 es) w r k s = evalExp e1 (w ! 1) r (testFunc (length es) (Func e1 es) chainEval) s
   where
-    params = zip e2 [2 ..]
+    params = zip es [2 ..]
     chainEval p =
       foldr
-        (\(e, i) x es -> evalExp e (w ! i) r (\e -> x (es ++ [e])))
-        (evToFunc p k)
-        params
-        []
+        (\(e, i) f' es' -> evalExp e (w ! i) r (\e' -> f' (es' ++ [e']))) -- Evaluate the expression, add it to list and pass it on
+        (evToFunc p k) -- End by running the function
+        params -- Apply to each expression
+        [] -- Start with an empty list of values
 evalExp (IfExp e1 e2 e3) w r k s = evalRVal e1 (w ! 1) r (testBool e1 $ \e -> cond (evalExp e2 (w ! 2) r k, evalExp e3 (w ! 3) r k) $ evToBool e) s
 evalExp (Valof t1 c1) w r k s = evalCom c1 (w ! 1) (Env r' w' k t') (err $ printf "no return encountered in \"%s\"" $ show (Valof t1 c1)) s
   where

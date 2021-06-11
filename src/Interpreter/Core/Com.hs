@@ -20,13 +20,13 @@ evalCom (Output e1) w r c = evalRVal e1 (w ! 1) r (\e s -> putStrLn (print e) >>
     print e = case e of
       EString s -> s
       e -> pretty e
-evalCom (Proc e1 e2) w r c = evalExp e1 (w ! 1) r $ testProc (length e2) (Proc e1 e2) chainEval
+evalCom (Proc e1 es) w r c = evalExp e1 (w ! 1) r $ testProc (length es) (Proc e1 es) chainEval
   where
-    params = zip e2 [2 ..]
+    params = zip es [2 ..]
     chainEval p =
       foldr
-        (\(e, i) x es -> evalExp e (w ! i) r (\e -> x (es ++ [e]))) -- Evaluate the expression, add it to list and pass it on
-        (evToProc p c) -- Eny by running the procedure
+        (\(e, i) p' es' -> evalExp e (w ! i) r (\e' -> p' (es' ++ [e']))) -- Evaluate the expression, add it to list and pass it on
+        (evToProc p c) -- End by running the procedure
         params -- Apply to each expression
         [] -- Start with an empty list of values
 evalCom (If e1 c1 c2) w r c = evalRVal e1 (w ! 1) r $ testBool e1 $ \e -> cond (evalCom c1 (w ! 2) r c, evalCom c2 (w ! 3) r c) $ evToBool e
