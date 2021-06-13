@@ -176,6 +176,7 @@ stringLiteral =
         b <- hexDigit
         case readHex [a, b] of
           [(i, "")] -> return $ chr i
+          _ -> fail ""
 
 -- | `semi` parses the character ';' and skips any trailing white space.
 semi :: ParsecT String u Identity ()

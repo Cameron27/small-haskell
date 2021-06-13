@@ -4,6 +4,7 @@ import {-# SOURCE #-} Parser.Core.Exp
 import Parser.Core.Types
 import Parser.Helper.Language
 import Text.Parsec
+import Text.Printf
 
 -- | Parses a binary operation expression.
 binaryOps :: Parsec String () Exp
@@ -82,9 +83,11 @@ op2Map "!=" = NEqual
 op2Map "&" = And
 op2Map "^" = Xor
 op2Map "|" = Or
+op2Map s = error $ printf "\"%s\" is not a binary operation." s
 
 -- | @op1Map o@ returns the `Opr1` represented by the operator string `o`.
 op1Map :: [Char] -> Opr1
 op1Map "!" = Not
 op1Map "+" = Positive
 op1Map "-" = Negative
+op1Map s = error $ printf "\"%s\" is not a unary operation." s

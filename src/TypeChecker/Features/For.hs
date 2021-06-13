@@ -18,6 +18,7 @@ typeForCom (For i1 f1 c1) r = do
   if t2 `assignable` t1
     then typeCom c1 r
     else err $ printf "cannot assign \"%s\" to \"%s\" in \"%s\"" (show t2) (show t1) (pretty (For i1 f1 c1))
+typeForCom c1 _ = error $ printf "Cannot run typeForCom with \"%s\"." (pretty c1)
 
 -- | @typeFor f r@ returns the type `f` represents if `f` type checks under the environment `r`.
 typeFor :: For -> TEnv -> Either TypeError Type

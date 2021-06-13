@@ -22,6 +22,7 @@ typeClassDec (ClassDec i1 scds) r = do
   (TEnv c2 _ _ _ _) <- typeSCDec scds (updateThisTEnv emptyClass (updateTEnv r1' r)) c' -- Type check the class using the interface with only public variables
   let (r2', _) = newClassTEnv i1 c2 r
   return r2'
+typeClassDec d1 _ = error $ printf "Cannot run typeClassDec with \"%s\"." (pretty d1)
 
 -- | @typeSCDec scd r c@ returns an environment containing the public information of scoped class declaration `scd` if `scd`
 -- type checks under the environment `r` using the class `c` as "this" where relevant.
@@ -103,6 +104,7 @@ typeCDecInterface (ChainDec d1 d2) r = do
   r2 <- typeCDecInterface d2 r
   return (updateTEnv r2 r1)
 typeCDecInterface SkipDec r = Right emptyTEnv
+typeCDecInterface cd1 _ = error $ printf "Cannot run typeCDecInterface with \"%s\"." (pretty cd1)
 
 -- | @typeNewExp e r@ returns the type `e` represents if the new expression `e` type checks under the environment `r`.
 typeNewExp :: Exp -> TEnv -> Either TypeError Type
@@ -111,11 +113,14 @@ typeNewExp (New i1) r = do
   if c <: TClassAny
     then let (TClass (Class i _)) = c in return $ TObject i
     else err $ printf "no class \"%s\" in \"%s\"" i1 (pretty (New i1))
+typeNewExp e1 _ = error $ printf "Cannot run typeNewExp with \"%s\"." (pretty e1)
 
 -- | @typeThisExp e r@ returns the type `e` represents if the this expression `e` type checks under the environment `r`.
 typeThisExp :: Exp -> TEnv -> Either TypeError Type
 typeThisExp This (TEnv _ _ _ (Class i _) _) = return $ TObject i
+typeThisExp e1 _ = error $ printf "Cannot run typeThisExp with \"%s\"." (pretty e1)
 
 -- | @typeNullExp e r@ returns the type `e` represents if the null expression `e` type checks under the environment `r`.
 typeNullExp :: Exp -> TEnv -> Either TypeError Type
 typeNullExp Null r = return TNull
+typeNullExp e1 _ = error $ printf "Cannot run typeNullExp with \"%s\"." (pretty e1)

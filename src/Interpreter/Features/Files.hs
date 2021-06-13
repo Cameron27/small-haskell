@@ -22,6 +22,7 @@ evalFileDec (FileDec i1 i2 _) w r u s = u (newEnvMulti [i1, i2] ls) (updateStore
     (ls', s') = newLocsStore 2 s
     ls = map ELoc ls'
     [l1, l2] = ls'
+evalFileDec d1 _ _ _ _ = error $ printf "Cannot run evalFileDec with \"%s\"." (pretty d1)
 
 -- | A function that returns true iff the file passed in is at the end.
 eofFunc :: Function
@@ -37,8 +38,9 @@ eofFunc k [e1] =
       )
         e1
     else err $ printf "\"%s\" is not a location." (pretty e1)
+eofFunc k es = error $ printf "Should only run eofFunc with a single parameter, not %d." (length es)
 
--- | @doFile f c e s@ applies the filestate transformation `f` to `e` with state `s` then runs the rest of the program
+-- | @doFile f c e s@ applies the filestate transformation `f` to `e` with store `s` then runs the rest of the program
 -- `c`.
 doFile :: (Filestate -> Either String Filestate) -> Cc -> Ec
 doFile f c e s =
@@ -62,6 +64,7 @@ resetf (Filestate es n e) = null es ?> (Right $ Filestate es 1 Nothing, Right $ 
 -- | A procedure that resets the file passed in.
 resetFProc :: Procedure
 resetFProc c [e1] = doFile resetf c e1
+resetFProc k es = error $ printf "Should only run resetFProc with a single parameter, not %d." (length es)
 
 -- | @rewritef f@ clears the `Filestate` `f`.
 rewritef :: Filestate -> Either String Filestate
@@ -70,19 +73,21 @@ rewritef (Filestate es n e) = Right $ Filestate [] 1 Nothing
 -- | A procedure that rewrites the file passed in.
 rewriteFProc :: Procedure
 rewriteFProc c [e1] = doFile rewritef c e1
+rewriteFProc k es = error $ printf "Should only run rewriteFProc with a single parameter, not %d." (length es)
 
 -- | @getf f@ gets the next value in the `Filestate` `f`.
 getf :: Filestate -> Either String Filestate
 getf (Filestate es n e)
   | n > esLength = Left "cannot get value from beyond end of file."
   | n == esLength = Right (Filestate es (n + 1) Nothing)
-  | n < esLength = Right (Filestate es (n + 1) (Just $ es !! n))
+  | otherwise = Right (Filestate es (n + 1) (Just $ es !! n))
   where
     esLength = length es
 
 -- | A procedure that get the next value of the file passed in.
 getFProc :: Procedure
 getFProc c [e1] = doFile getf c e1
+getFProc k es = error $ printf "Should only run getFProc with a single parameter, not %d." (length es)
 
 -- | @rewritef f@ put the current value onto the end of the `Filestate` `f`.
 putf :: Filestate -> Either String Filestate
@@ -96,3 +101,4 @@ putf (Filestate es n e) =
 -- | A procedure that puts current value on the end of the file passed in.
 putFProc :: Procedure
 putFProc c [e1] = doFile putf c e1
+putFProc k es = error $ printf "Should only run putFProc with a single parameter, not %d." (length es)

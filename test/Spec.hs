@@ -96,6 +96,7 @@ testHaskellProgram testSpec =
     let shouldType = isRight pgm && parsed testSpec
     let typeCheckResult = case pgm of
           Right pgm -> typeCheckSmall pgm
+          _ -> error "Cannot occur."
     let typedTest =
           case typeCheckResult of
             Just err -> TestCase $ assertEqual (show err) (typed testSpec) False
@@ -113,6 +114,7 @@ testHaskellProgram testSpec =
             Left (ExitFailure 1, err) -> TestCase $ assertEqual (show err) (ran testSpec) False
             Right res -> TestCase $ assertEqual "program ran when it should not have" (ran testSpec) True
             Left (ExitFailure i, err) -> TestCase $ assertFailure $ "Unexpected exit-code: " ++ show i ++ "\n" ++ show err
+            _ -> error "Cannot occur."
     let shouldCheckResult = shouldRun && isRight runResult && ran testSpec
     let regex = expected testSpec
     let resultTest =
@@ -125,6 +127,7 @@ testHaskellProgram testSpec =
                       then strip res == ""
                       else (strip res =~ regex) == strip res
                   )
+            _ -> error "Cannot occur."
     return $
       name testSpec
         ~: TestList (["Parsed" ~: parseTest] ++ ["Typed" ~: typedTest | shouldType] ++ ["Ran" ~: runTest | shouldRun] ++ ["Output" ~: resultTest | shouldCheckResult])

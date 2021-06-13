@@ -1,5 +1,6 @@
 module Interpreter.Features.For (evalForCom) where
 
+import Common.Formatting
 import {-# SOURCE #-} Interpreter.Core.Com
 import Interpreter.Core.Exp
 import Interpreter.Core.Types
@@ -7,11 +8,13 @@ import Interpreter.Helper.Continuation
 import Interpreter.Helper.Control
 import Interpreter.Helper.TypeTesting
 import Parser.Core.Types
+import Text.Printf
 
 -- | @evalForCom com w r c s@ evaluates the for command `com` under the environment `r` and with store `s` then runs the
 -- rest of the program `c`.
 evalForCom :: Com -> Posn -> Env -> Cc -> Cc
 evalForCom (For i1 f1 c1) w r c = evalExp (I i1) (w ! 1) r $ testLoc (I i1) (\l -> evalFor f1 (w ! 2) r (\c' [e] -> update (evToLoc l) (evalCom c1 (w ! 3) r c') e) c)
+evalForCom c1 _ _ _ = error $ printf "Cannot run evalForCom with \"%s\"." (pretty c1)
 
 -- | @evalFor for w r p c s@ evaluates the for expression `for` under the environment `r` and with store `s` then passes
 -- the resulting value and rest of the program `c` into the procedure `p`.

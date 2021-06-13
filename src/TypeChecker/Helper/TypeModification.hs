@@ -75,16 +75,20 @@ tryMerge src t1 t2 =
 -- | @recordEnvironment r@ returns the type environment record `r` represents.
 recordEnvironment :: Type -> TEnv
 recordEnvironment (TRecord ts) = uncurry newTEnvMulti (unzip ts)
+recordEnvironment t = error $ printf "Tried to get the record environment of a \"%s\"." (show t)
 
 -- | @objectEnvironment o r@ returns the type environment object `o` represents under the environment `r`.
 objectEnvironment :: Type -> TEnv -> TEnv
 objectEnvironment (TObject i1) r = do
   case lookupClassTEnv i1 r of
     (Right (Class _ c)) -> TEnv c HashMap.empty TVoid emptyClass (-1)
+    _ -> error $ printf "There is no class with id %d." i1
+objectEnvironment t _ = error $ printf "Tried to get the object environment of a \"%s\"." (show t)
 
 -- | @arrayType a@ returns the type of a array `a`.
 arrayType :: Type -> Type
 arrayType (TArray t) = t
+arrayType t = error $ printf "Tried to get the array type of a \"%s\"." (show t)
 
 -- @isSv t@ returns `True` iff `t` is a storable value.
 isSv :: Type -> Bool

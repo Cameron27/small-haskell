@@ -20,6 +20,7 @@ evalClassDec (ClassDec i1 scd1) w r u (Store s' n) = u (newEnv i1 (c n)) (Store 
     c n = EClass $ Class $ \k -> evalSCDec scd1 (w ! 2) (updateEnv (newEnv i1 (c n)) r1) $ \(Env r1 _ _ _, Env r2 _ _ _) -> k (EObject $ Object r1 r2 n)
     (Env r1' w1' _ _) = r
     r1 = Env r1' w1' defaultReturn emptyObj
+evalClassDec d1 _ _ _ _ = error $ printf "Cannot run evalClassDec with \"%s\"." (pretty d1)
 
 -- | @evalSCDec scdec w r v s@ evaluates the scoped class declaration `scdec` under the environment `r` and with store
 -- `s` then passes the resulting environment into the rest of the program `v`.
@@ -49,6 +50,7 @@ evalCDec d1 w r u s = evalDec d1 w r u s
 -- passes the resulting value into the rest of the program `k`.
 evalNewExp :: Exp -> Posn -> Env -> Ec -> Cc
 evalNewExp (New i1) w r k = evalExp (I i1) (w ! 1) r $ testClass (New i1) $ \(EClass (Class c)) -> c k
+evalNewExp e1 _ _ _ = error $ printf "Cannot run evalNewExp with \"%s\"." (pretty e1)
 
 -- | @evalThisExp exp w r k s@ evaluates the this expression `exp` under the environment `r` and with store `s` then
 -- passes the resulting value into the rest of the program `k`.
@@ -56,15 +58,18 @@ evalThisExp :: Exp -> Posn -> Env -> Ec -> Cc
 evalThisExp This w r k = k (EObject this)
   where
     (Env _ _ _ this) = r
+evalThisExp e1 _ _ _ = error $ printf "Cannot run evalThisExp with \"%s\"." (pretty e1)
 
 -- | @evalNullExp exp w r k s@ evaluates the null expression `exp` under the environment `r` and with store `s` then
 -- passes the resulting value into the rest of the program `k`.
 evalNullExp :: Exp -> Posn -> Env -> Ec -> Cc
 evalNullExp Null w r k = k ENull
+evalNullExp e1 _ _ _ = error $ printf "Cannot run evalNullExp with \"%s\"." (pretty e1)
 
 -- | A function that returns true iff the value passed in was null.
 isNullF :: Function
 isNullF k [e] = deref (\e' -> isNull e' ?> (k (EBool True), k (EBool False))) e
+isNullF k es = error $ printf "Should only run isNullF with a single parameter, not %d." (length es)
 
 -- | @evalDotExp exp w r k s@ evaluates the dot expression `exp` under the environment `r` and with store `s` then
 -- passes the resulting value into the rest of the program `k`.
@@ -80,3 +85,4 @@ evalDotExp (Dot e1 e2) w r k = evalRVal e1 (w ! 1) r $ \e -> process e
                   (EMethod m) -> m k $ evToObject r' -- Methods have "this" passed in
                   _ -> k e -- Anything else passed through
       | otherwise = err $ printf "\"%s\", evaluated as \"%s\", is not an object or a record." (pretty e1) (pretty r') -- Anything else is an error
+evalDotExp e1 _ _ _ = error $ printf "Cannot run evalDotExp with \"%s\"." (pretty e1)
