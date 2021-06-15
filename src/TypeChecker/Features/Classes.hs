@@ -67,7 +67,7 @@ typeCDec (FuncDec i1 is ts t1 e1) r c = do
   t <- typeExp e1 (updateThisTEnv c (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
   if t <: t1
     then return $ newTEnv i1 (TMethod $ TFunc ts t1) -- Functions in classes are methods
-    else err $ printf "function result \"%s\" does not match type \"%s\" in \"%s\"" (show t) (show t1) (pretty (FuncDec i1 is ts t1 e1))
+    else err $ printf "function result \"%s\" does not match type \"%s\" in \"%s\"." (show t) (show t1) (pretty (FuncDec i1 is ts t1 e1))
 typeCDec d1 r c = typeDec d1 r
 
 -- | @typeCDecInterface cd r@ returns an environment containing the information of class declaration `cd` if `cd` type
@@ -112,7 +112,7 @@ typeNewExp (New i1) r = do
   c <- lookupTEnv i1 r
   if c <: TClassAny
     then let (TClass (Class i _)) = c in return $ TObject i
-    else err $ printf "no class \"%s\" in \"%s\"" i1 (pretty (New i1))
+    else err $ printf "no class \"%s\" in \"%s\"." i1 (pretty (New i1))
 typeNewExp e1 _ = error $ printf "Cannot run typeNewExp with \"%s\"." (pretty e1)
 
 -- | @typeThisExp e r@ returns the type `e` represents if the this expression `e` type checks under the environment `r`.

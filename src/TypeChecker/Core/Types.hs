@@ -100,4 +100,4 @@ max :: Type -> Type -> Type
 max t1 t2
   | t1 <: t2 = t2
   | t2 <: t1 = t1
-  | otherwise = error $ printf "neither \"%s\" or \"%s\" are a subtype of the other" (show t1) (show t2)
+  | otherwise = error $ printf "neither \"%s\" or \"%s\" are a subtype of the other." (show t1) (show t2)

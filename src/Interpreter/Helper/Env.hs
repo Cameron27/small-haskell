@@ -2,6 +2,7 @@ module Interpreter.Helper.Env where
 
 import Common.Formatting
 import qualified Data.HashMap.Strict as HashMap
+import Data.Maybe
 import Interpreter.Core.Types
 import Interpreter.Helper.Control
 import Text.Printf
@@ -16,35 +17,25 @@ updateThisEnv :: Object -> Env -> Env
 updateThisEnv t (Env r w k _) = Env r w k t
 
 -- | @lookupEnv i r@ returns the value that is assigned to `i` in `r`.
-lookupEnv :: Ide -> Env -> Ev
-lookupEnv i (Env r _ _ _) = case HashMap.lookup i r of
-  Just s -> s
-  Nothing -> error $ printf "Tried to lookup identifier \"%s\" which has no value assigned to it.\n%s" i (pretty r)
+lookupEnv :: Ide -> Env -> EnvVal
+lookupEnv i (Env r _ _ _) = fromMaybe Unbound (HashMap.lookup i r)
 
 -- | @lookupEnv (i, w) r@ returns the value that is assigned to `(i, w)` in `r`.
-lookupEnvOwn :: (Ide, Posn) -> Env -> Ev
-lookupEnvOwn i (Env _ w _ _) = case HashMap.lookup i w of
-  Just s -> s
-  Nothing -> error $ printf "Tried to lookup identifier \"(%s, %s)\" which has no value assigned to it.\n%s" (fst i) (pretty $ snd i) (pretty w)
+lookupEnvOwn :: (Ide, Posn) -> Env -> EnvVal
+lookupEnvOwn i (Env _ w _ _) = fromMaybe Unbound (HashMap.lookup i w)
 
 -- | @newEnv i d@ returns a new environment with just `i` bound to `d`.
 newEnv :: Ide -> Ev -> Env
-newEnv i l = Env (HashMap.fromList [(i, l)]) HashMap.empty emptyEc emptyObj
+newEnv i d = Env (HashMap.fromList [(i, Dv d)]) HashMap.empty emptyEc emptyObj
 
 -- | @newEnvOwn (i, w) d@ returns a new environment with just `(i, w)` bound to `d`.
 newEnvOwn :: (Ide, Posn) -> Ev -> Env
-newEnvOwn i l = Env HashMap.empty (HashMap.fromList [(i, l)]) emptyEc emptyObj
+newEnvOwn i d = Env HashMap.empty (HashMap.fromList [(i, Dv d)]) emptyEc emptyObj
 
 -- | @newEnvMulti is ds@ returns a new environment with each `i` in `is` bound to the corresponding `d` in `ds`. If the
 -- same `i` appears more than once in `is` the first occurrence take overrides the later instances.
 newEnvMulti :: [Ide] -> [Ev] -> Env
-newEnvMulti is ls = Env (HashMap.fromList $ reverse $ zip is ls) HashMap.empty emptyEc emptyObj
-
--- | @isUnboundEnv i r@ is `True` iff `i` is unbound in `r`.
-isUnboundEnv :: Ide -> Env -> Bool
-isUnboundEnv i (Env r _ _ _) = case HashMap.lookup i r of
-  Just _ -> False
-  Nothing -> True
+newEnvMulti is ds = Env (HashMap.fromList $ reverse $ zip is (map Dv ds)) HashMap.empty emptyEc emptyObj
 
 -- | The empty return address.
 emptyEc :: Ec

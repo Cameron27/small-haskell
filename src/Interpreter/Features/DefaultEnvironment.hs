@@ -11,7 +11,7 @@ import TypeChecker.Core.Types
 defaultEnv :: Env
 defaultEnv =
   Env
-    (HashMap.fromList $ map (\(a, b, _) -> (a, b)) defaultEnvAndTEnv)
+    (HashMap.fromList $ map (\(a, b, _) -> (a, Dv b)) defaultEnvAndTEnv)
     HashMap.empty
     defaultReturn
     emptyObj

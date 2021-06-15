@@ -18,13 +18,13 @@ updateThisTEnv t (TEnv r cr rt _ i) = TEnv r cr rt t i
 lookupTEnv :: Ide -> TEnv -> Either TypeError Type
 lookupTEnv i (TEnv r _ _ _ _) = case HashMap.lookup i r of
   Just s -> Right s
-  Nothing -> err $ printf "\"%s\" is not defined" i
+  Nothing -> err $ printf "\"%s\" is not defined." i
 
 -- | @lookupClassTEnv i r@ returns the class that is assigned to `i` in `r`.
 lookupClassTEnv :: Int -> TEnv -> Either TypeError Class
 lookupClassTEnv i (TEnv _ cr _ _ _) = case HashMap.lookup i cr of
   Just s -> Right s
-  Nothing -> err $ printf "\"%s\" is not defined" i
+  Nothing -> err $ printf "\"%s\" is not defined." i
 
 -- | @newTEnv i t@ returns a new environment with just `i` bound to `t`.
 newTEnv :: Ide -> Type -> TEnv

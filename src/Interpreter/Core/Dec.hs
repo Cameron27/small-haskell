@@ -1,5 +1,6 @@
 module Interpreter.Core.Dec where
 
+import Common.Formatting
 import qualified Data.HashMap.Strict as HashMap
 import {-# SOURCE #-} Interpreter.Core.Com
 import {-# SOURCE #-} Interpreter.Core.Exp
@@ -8,17 +9,21 @@ import Interpreter.Features.Classes
 import Interpreter.Features.Files
 import Interpreter.Helper.Array
 import Interpreter.Helper.Continuation
+import Interpreter.Helper.Control
 import Interpreter.Helper.Env
 import Interpreter.Helper.Store
 import Interpreter.Helper.TypeTesting
 import Parser.Core.Types
+import Text.Printf
 
 -- | @evalDec dec w r u s@ evaluates the declaration `dec` under the environment `r` and with store `s` then passes the
 -- resulting environment into the rest of the program `u`.
 evalDec :: Dec -> Posn -> Env -> Dc -> Cc
 evalDec (Const i1 _ e1) w r u s = evalRVal e1 (w ! 2) r (u . newEnv i1) s
 evalDec (Var i1 _ e1) w r u s = (evalRVal e1 (w ! 2) r $ ref (u . newEnv i1)) s
-evalDec (Own i1 _ e1) w r u s = u (newEnv i1 (lookupEnvOwn (i1, w) r)) s
+evalDec (Own i1 _ e1) w r u s = case lookupEnvOwn (i1, w) r of
+  Dv e -> u (newEnv i1 e) s
+  Unbound -> putError $ printf "\"(%s,%s)\" is unbound." i1 (pretty w)
 evalDec (ArrayDec i1 e1 e2 _) w r u s =
   ( evalRVal e1 (w ! 2) r $
       testInt

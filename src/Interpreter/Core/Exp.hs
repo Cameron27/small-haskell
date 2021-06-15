@@ -29,11 +29,13 @@ evalExp (String x) w r k s = k (EString x) s
 evalExp Read w r k s = do
   eof <- isEOF
   if eof
-    then putError "no remaining input"
+    then putError "no remaining input."
     else do
       input <- getLine
       k (EString input) s
-evalExp (I i1) w r k s = isUnboundEnv i1 r ?> (putError $ printf "\"%s\" is unassigned\"" i1, k (lookupEnv i1 r) s)
+evalExp (I i1) w r k s = case lookupEnv i1 r of
+  Dv e -> k e s
+  Unbound -> putError $ printf "\"%s\" is unbound." i1
 evalExp (RefExp e1) w r k s = (evalExp e1 (w ! 1) r $ ref k) s
 evalExp (ArrayExp e1 e2 _) w r k s =
   ( evalRVal e1 (w ! 1) r $
@@ -63,7 +65,7 @@ evalExp (Func e1 es) w r k s = evalExp e1 (w ! 1) r (testFunc (length es) (Func 
         params -- Apply to each expression
         [] -- Start with an empty list of values
 evalExp (IfExp e1 e2 e3) w r k s = evalRVal e1 (w ! 1) r (testBool e1 $ \e -> cond (evalExp e2 (w ! 2) r k, evalExp e3 (w ! 3) r k) $ evToBool e) s
-evalExp (Valof t1 c1) w r k s = evalCom c1 (w ! 1) (Env r' w' k t') (err $ printf "no return encountered in \"%s\"" $ show (Valof t1 c1)) s
+evalExp (Valof t1 c1) w r k s = evalCom c1 (w ! 1) (Env r' w' k t') (err $ printf "no return encountered in \"%s\"." $ show (Valof t1 c1)) s
   where
     (Env r' w' _ t') = r
 evalExp (Cont e1) w r k s = (evalExp e1 (w ! 1) r $ testLoc e1 $ cont k) s

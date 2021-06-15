@@ -16,6 +16,9 @@ type Ide = String
 -- | A `Loc` is location.
 type Loc = Int
 
+instance Pretty Loc where
+  pretty l = printf "Loc(%d)" l
+
 -- | A `Posn` is a code position.
 data Posn
   = -- | @Posn i@ is the position `i`.
@@ -88,21 +91,36 @@ instance Typeable Ev where
   typeStr ENull = "null"
   typeStr e = error $ printf "%s is not right hand value." (pretty e)
 
+-- | A `EnvValue` is a value that can be in a environment.
+data EnvVal = Dv Ev | Unbound
+
+instance Pretty EnvVal where
+  pretty (Dv e) = pretty e
+  pretty Unbound = "Unbound"
+
 -- | An `Env` is an environment.
 data Env
   = -- @Env m1 m2 k o@ is an environment with `m1` being the mapping from identifiers to the values they represent,
     -- `m2` being the mapping from identifiers and locations to the values they represent for own declarations, `k`
     -- being the current return address and `o` being the current object represented by "this".
-    Env (HashMap.HashMap Ide Ev) (HashMap.HashMap (Ide, Posn) Ev) Ec Object
+    Env (HashMap.HashMap Ide EnvVal) (HashMap.HashMap (Ide, Posn) EnvVal) Ec Object
 
 instance Pretty Env where
   pretty (Env x y _ z) = printf "Env (%s) (%s) (%s)" (pretty x) (pretty y) (pretty (EObject z))
+
+-- | A `StoreValue` is a value that can be in a store.
+data StoreVal = Sv Ev | Unassigned | Unused
+
+instance Pretty StoreVal where
+  pretty (Sv e) = pretty e
+  pretty Unassigned = "Unassigned"
+  pretty Unused = "Unused"
 
 -- | A `Store` is a store.
 data Store
   = -- | @Store m l@ is a store with `m` being the mapping from location to the values at those locations and `l` being
     -- the next free location in the store.
-    Store (HashMap.HashMap Loc Ev) Loc
+    Store (HashMap.HashMap Loc StoreVal) Loc
 
 instance Pretty Store where
   pretty (Store x y) = printf "Store (%s) %d" (pretty x) y
@@ -131,7 +149,7 @@ data Array
 -- | A `Record` is a record of values.
 newtype Record
   = -- | @Record m@ is a record with `m` being the mapping from identifiers to the values they represent.
-    Record (HashMap.HashMap Ide Ev)
+    Record (HashMap.HashMap Ide EnvVal)
 
 -- | A `File` is list of values and a location.
 data File
@@ -160,16 +178,16 @@ newtype Class
 data Object
   = -- | @Object m1 m2 i@ is an object with `m1` and `m2` being the mapping from identifiers to the public and private
     -- values they represent respectively and is a unique id for the class the object is from.
-    Object (HashMap.HashMap Ide Ev) (HashMap.HashMap Ide Ev) Int
+    Object (HashMap.HashMap Ide EnvVal) (HashMap.HashMap Ide EnvVal) Int
 
 -- | An `Ans` is an `IO` representing what the small program does.
 type Ans = IO ExitCode
 
-instance Pretty (HashMap.HashMap Ide Ev) where
+instance Pretty (HashMap.HashMap Ide EnvVal) where
   pretty x = intercalate "," (zipWith (\a b -> printf "%s = %s" a (pretty b)) (HashMap.keys x) (HashMap.elems x))
 
-instance Pretty (HashMap.HashMap Loc Ev) where
+instance Pretty (HashMap.HashMap Loc StoreVal) where
   pretty x = intercalate "," (zipWith (\a b -> printf "%d = %s" a (pretty b)) (HashMap.keys x) (HashMap.elems x))
 
-instance Pretty (HashMap.HashMap (Ide, Posn) Ev) where
+instance Pretty (HashMap.HashMap (Ide, Posn) EnvVal) where
   pretty x = intercalate "," (zipWith (\(a, b) c -> printf "%s = %s" ("(" ++ a ++ "," ++ pretty b ++ ")") (pretty c)) (HashMap.keys x) (HashMap.elems x))

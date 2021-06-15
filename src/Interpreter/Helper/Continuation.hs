@@ -11,12 +11,12 @@ import Text.Printf
 cont :: Ec -> Ec
 cont k e s =
   isLoc e
-    ?> ( isUnusedStore l s ?> (putError $ printf "\"Loc(%d)\" is unbound." l, k d s),
+    ?> ( case lookupStore (evToLoc e) s of
+           Sv e' -> k e' s
+           Unassigned -> putError $ printf "\"%s\" is unassigned." (pretty e)
+           Unused -> putError $ printf "\"%s\" is unused." (pretty e),
          error $ printf "\"%s\" is not a location." (pretty e)
        )
-  where
-    l = evToLoc e
-    d = lookupStore l s
 
 -- | @update l c e s@ stores `e` at `l` and passes the resulting store to `c`.
 update :: Loc -> Cc -> Ec

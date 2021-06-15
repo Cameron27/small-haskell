@@ -18,7 +18,7 @@ typeType (TRecord ts) r =
     then do
       ts' <- typeTypes (map snd ts) r
       return $ TRecord (zip (map fst ts) ts')
-    else err $ printf "all identifiers must be unique in \"%s\"" (show (TRecord ts))
+    else err $ printf "all identifiers must be unique in \"%s\"." (show (TRecord ts))
 typeType (TProc ts) r = TProc <$> typeTypes ts r
 typeType (TFunc ts t) r = do
   ts <- typeTypes ts r
@@ -30,7 +30,7 @@ typeType (TObjectNamed i) r = do
   c <- lookupTEnv i r
   if c <: TClassAny
     then let (TClass (Class i _)) = c in return $ TObject i
-    else err $ printf "no class \"%s\"" i
+    else err $ printf "no class \"%s\"." i
 typeType t _ = error $ printf "Should not be type checking \"%s\"." (show t)
 
 -- | @typeType ts r@ returns the type `ts` represents if `ts` type checks under the environment `r`.

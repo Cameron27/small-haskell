@@ -14,15 +14,15 @@ evalOp2 _ Mult (EInt a, EInt b) k = k (EInt $ a * b)
 evalOp2 _ Mult (EDouble a, EDouble b) k = k (EDouble $ a * b)
 evalOp2 _ Mult (EInt a, EDouble b) k = k (EDouble $ fromIntegral a * b)
 evalOp2 _ Mult (EDouble a, EInt b) k = k (EDouble $ a * fromIntegral b)
-evalOp2 _ Div (EInt _, EInt 0) k = err "division by 0"
-evalOp2 _ Div (EDouble _, EDouble 0) k = err "division by 0"
-evalOp2 _ Div (EInt _, EDouble 0) k = err "division by 0"
-evalOp2 _ Div (EDouble _, EInt 0) k = err "division by 0"
+evalOp2 _ Div (EInt _, EInt 0) k = err "division by 0."
+evalOp2 _ Div (EDouble _, EDouble 0) k = err "division by 0."
+evalOp2 _ Div (EInt _, EDouble 0) k = err "division by 0."
+evalOp2 _ Div (EDouble _, EInt 0) k = err "division by 0."
 evalOp2 _ Div (EInt a, EInt b) k = k (EInt $ a `div` b)
 evalOp2 _ Div (EDouble a, EDouble b) k = k (EDouble $ a / b)
 evalOp2 _ Div (EInt a, EDouble b) k = k (EDouble $ fromIntegral a / b)
 evalOp2 _ Div (EDouble a, EInt b) k = k (EDouble $ a / fromIntegral b)
-evalOp2 _ Mod (EInt _, EInt 0) k = err "modulo by 0"
+evalOp2 _ Mod (EInt _, EInt 0) k = err "modulo by 0."
 evalOp2 _ Mod (EInt a, EInt b) k = k (EInt $ a `mod` b)
 evalOp2 _ Add (EInt a, EInt b) k = k (EInt $ a + b)
 evalOp2 _ Add (EDouble a, EDouble b) k = k (EDouble $ a + b)
@@ -67,7 +67,7 @@ evalOp2 _ Xor (EInt a, EInt b) k = k (EInt $ a `xor` b)
 evalOp2 _ Xor (EBool a, EBool b) k = k (EBool $ a `xor` b)
 evalOp2 _ Or (EInt a, EInt b) k = k (EInt $ a .|. b)
 evalOp2 _ Or (EBool a, EBool b) k = k (EBool $ a || b)
-evalOp2 src o (a, b) _ = err $ printf "operation \"%s\" cannot be applied to types \"%s\" and \"%s\" in the expression \"%s\"" (pretty o) (typeStr a) (typeStr b) (pretty src)
+evalOp2 src o (a, b) _ = err $ printf "operation \"%s\" cannot be applied to types \"%s\" and \"%s\" in the expression \"%s\"." (pretty o) (typeStr a) (typeStr b) (pretty src)
 
 -- | @evalOp1 src o e k s@ calculates the value of operation `o` applied to values `e` with store `s` then passes the
 -- result to the rest of the program `k`.
@@ -77,4 +77,4 @@ evalOp1 _ Positive (EInt a) k = k (EInt a)
 evalOp1 _ Positive (EDouble a) k = k (EDouble a)
 evalOp1 _ Negative (EInt a) k = k (EInt $ - a)
 evalOp1 _ Negative (EDouble a) k = k (EDouble $ - a)
-evalOp1 src o a _ = err $ printf "operation \"%s\" cannot be applied to type \"%s\" in the expression \"%s\"" (pretty o) (typeStr a) (pretty src)
+evalOp1 src o a _ = err $ printf "operation \"%s\" cannot be applied to type \"%s\" in the expression \"%s\"." (pretty o) (typeStr a) (pretty src)

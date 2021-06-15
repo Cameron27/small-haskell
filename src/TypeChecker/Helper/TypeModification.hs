@@ -14,7 +14,7 @@ ref :: Pretty a => a -> Type -> Either TypeError Type
 ref src t =
   if isSv t
     then return $ TRef t
-    else err $ printf "\"%s\" is not a storable value in \"%s\"" (show t) (pretty src)
+    else err $ printf "\"%s\" is not a storable value in \"%s\"." (show t) (pretty src)
 
 -- | @deref t@ returns the dereferences version of `t`.
 deref :: Type -> Type
@@ -28,7 +28,7 @@ rval :: Pretty a => a -> Type -> Either TypeError Type
 rval src t =
   if isRv t'
     then return t'
-    else err $ printf "\"%s\" is not a right hand value in \"%s\"" (show t') (pretty src)
+    else err $ printf "\"%s\" is not a right hand value in \"%s\"." (show t') (pretty src)
   where
     t' = deref t
 
@@ -37,40 +37,40 @@ rval src t =
 -- expression to use in the error message.
 tryMerge :: Pretty a => a -> Type -> Type -> Either TypeError Type
 tryMerge src (TRef t1) (TRef t2) = case TRef <$> tryMerge src t1 t2 of
-  Left _ -> err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRef t1) (show $ TRef t2) (pretty src)
+  Left _ -> err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show $ TRef t1) (show $ TRef t2) (pretty src)
   x -> x
 tryMerge src (TRefMaybe t1) (TRefMaybe t2) =
   if t1 <::> t2
     then return $ TRefMaybe $ max t1 t2
-    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRef t1) (show $ TRefMaybe t2) (pretty src)
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show $ TRef t1) (show $ TRefMaybe t2) (pretty src)
 tryMerge src (TRef t1) (TRefMaybe t2) =
   if t1 <::> t2
     then return $ TRefMaybe $ max t1 t2
-    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRef t1) (show $ TRefMaybe t2) (pretty src)
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show $ TRef t1) (show $ TRefMaybe t2) (pretty src)
 tryMerge src (TRefMaybe t1) (TRef t2) =
   if t1 <::> t2
     then return $ TRefMaybe $ max t1 t2
-    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRefMaybe t1) (show $ TRef t2) (pretty src)
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show $ TRefMaybe t1) (show $ TRef t2) (pretty src)
 tryMerge src t1 (TRefMaybe t2) =
   if t1 <::> t2
     then return $ TRefMaybe $ max t1 t2
-    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show t1) (show $ TRefMaybe t2) (pretty src)
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show t1) (show $ TRefMaybe t2) (pretty src)
 tryMerge src (TRefMaybe t1) t2 =
   if t1 <::> t2
     then return $ TRefMaybe $ max t1 t2
-    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRefMaybe t1) (show t2) (pretty src)
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show $ TRefMaybe t1) (show t2) (pretty src)
 tryMerge src t1 (TRef t2) =
   if t1 <::> t2
     then return $ TRefMaybe $ max t1 t2
-    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show t1) (show $ TRef t2) (pretty src)
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show t1) (show $ TRef t2) (pretty src)
 tryMerge src (TRef t1) t2 =
   if t1 <::> t2
     then return $ TRefMaybe $ max t1 t2
-    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show $ TRef t1) (show t2) (pretty src)
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show $ TRef t1) (show t2) (pretty src)
 tryMerge src t1 t2 =
   if t1 <::> t2
     then return $ max t1 t2
-    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"" (show t1) (show t2) (pretty src)
+    else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show t1) (show t2) (pretty src)
 
 -- | @recordEnvironment r@ returns the type environment record `r` represents.
 recordEnvironment :: Type -> TEnv

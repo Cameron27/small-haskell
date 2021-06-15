@@ -25,9 +25,9 @@ arrayAccess (Array n1 n2 ls) k e =
   isInt e
     ?> ( (n >= n1 && n <= n2)
            ?> ( k $ ELoc (ls !! fromIntegral (n - n1)),
-                err $ printf "array index %d is outside of range %d to %d" n n1 n2
+                err $ printf "array index %d is outside of range %d to %d." n n1 n2
               ),
-         err $ printf "array index \"%s\" is not an integer" (pretty e)
+         err $ printf "array index \"%s\" is not an integer." (pretty e)
        )
   where
     n = evToInt e

@@ -61,7 +61,7 @@ typeOp2 _ Xor (TInt, TInt) = return TInt
 typeOp2 _ Xor (TBool, TBool) = return TBool
 typeOp2 _ Or (TInt, TInt) = return TInt
 typeOp2 _ Or (TBool, TBool) = return TBool
-typeOp2 e o (a, b) = err $ printf "operation \"%s\" cannot be applied to types \"%s\" and \"%s\" in \"%s\"" (pretty o) (show a) (show b) (pretty e)
+typeOp2 e o (a, b) = err $ printf "operation \"%s\" cannot be applied to types \"%s\" and \"%s\" in \"%s\"." (pretty o) (show a) (show b) (pretty e)
 
 -- | @typeOp1 src o t1@ returns the type obtained from applying operation `o` to types `t1` . `src` is the expression to
 -- use in the error message.
@@ -71,4 +71,4 @@ typeOp1 _ Positive TInt = return TInt
 typeOp1 _ Positive TDouble = return TDouble
 typeOp1 _ Negative TInt = return TInt
 typeOp1 _ Negative TDouble = return TDouble
-typeOp1 e o a = err $ printf "operation \"%s\" cannot be applied to type \"%s\" in \"%s\"" (pretty o) (show a) (pretty e)
+typeOp1 e o a = err $ printf "operation \"%s\" cannot be applied to type \"%s\" in \"%s\"." (pretty o) (show a) (pretty e)
