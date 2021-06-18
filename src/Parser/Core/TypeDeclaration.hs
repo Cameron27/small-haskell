@@ -28,7 +28,7 @@ typeDeclaration = do
       do
         keyword "array"
         keyword "of"
-        TArray . TRef <$> typeDeclaration,
+        TArray <$> typeDeclaration,
       -- Record: record ( I : T , ... , I : T )
       do
         keyword "record"
@@ -38,7 +38,7 @@ typeDeclaration = do
                 ( do
                     i <- ide
                     colon
-                    t <- TRef <$> typeDeclaration
+                    t <- typeDeclaration
                     return (i, t)
                 )
             )

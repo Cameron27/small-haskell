@@ -5,6 +5,7 @@ import Text.Printf
 import TypeChecker.Core.Types
 import TypeChecker.Helper.Control
 import TypeChecker.Helper.TEnv
+import TypeChecker.Helper.TypeModification
 
 -- | @typeType t r@ returns the type `t` represents if `t` type checks under the environment `r`.
 typeType :: Type -> TEnv -> Either TypeError Type
@@ -12,12 +13,13 @@ typeType TInt r = return TInt
 typeType TDouble r = return TDouble
 typeType TBool r = return TBool
 typeType TString r = return TString
-typeType (TArray t) r = TArray <$> typeType t r
+typeType (TArray t) r = TArray <$> (typeType t r >>= ref (TArray t))
 typeType (TRecord ts) r =
   if allDifferent (map fst ts)
     then do
       ts' <- typeTypes (map snd ts) r
-      return $ TRecord (zip (map fst ts) ts')
+      ts'' <- mapM (ref (TRecord ts)) ts'
+      return $ TRecord (zip (map fst ts) ts'')
     else err $ printf "all identifiers must be unique in \"%s\"." (show (TRecord ts))
 typeType (TProc ts) r = TProc <$> typeTypes ts r
 typeType (TFunc ts t) r = do
@@ -25,7 +27,7 @@ typeType (TFunc ts t) r = do
   t <- typeType t r
   return $ TFunc ts t
 typeType (TFile t) r = TFile <$> typeType t r
-typeType (TRef t) r = TRef <$> typeType t r
+typeType (TRef t) r = typeType t r >>= ref (TRef t)
 typeType (TObjectNamed i) r = do
   c <- lookupTEnv i r
   if c <: TClassAny

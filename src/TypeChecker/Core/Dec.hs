@@ -48,7 +48,7 @@ typeDec (RecordDec i1 is ts) r = do
   ts <- typeTypes ts r
   if allDifferent is
     then do
-      ts' <- foldr (\t ts' -> do t' <- ref (RecordDec i1 is ts) t; (t' :) <$> ts') (Right []) ts -- Reference each type in the record
+      ts' <- mapM (ref (RecordDec i1 is ts)) ts
       return $ newTEnv i1 $ TRecord (zip is ts')
     else err $ printf "all identifiers must be unique in \"%s\"." (pretty (RecordDec i1 is ts))
 typeDec (FileDec i1 i2 t1) r = do

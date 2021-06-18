@@ -33,12 +33,12 @@ typeExp (RecordExp is ts) r = do
   ts <- typeTypes ts r
   if allDifferent is
     then do
-      ts' <- foldr (\t ts' -> do t' <- ref (RecordExp is ts) t; (t' :) <$> ts') (Right []) ts -- Reference each type in the record
+      ts' <- mapM (ref (RecordExp is ts)) ts
       return $ TRecord (zip is ts')
     else err $ printf "all identifiers must be unique in \"%s\"." (pretty (RecordExp is ts))
 typeExp (Func e1 es) r = do
   f <- typeExp e1 r
-  ts <- foldr (\e ts -> do t <- typeExp e r; (t :) <$> ts) (Right []) es -- Type check all the expressions in es
+  ts <- mapM (`typeExp` r) es
   case f of
     TFunc fts t ->
       if (length ts == length fts) && and (zipWith (<:) ts fts)

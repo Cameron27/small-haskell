@@ -85,7 +85,7 @@ typeCDecInterface (ArrayDec i1 e1 e2 t1) r = do
   newTEnv i1 <$> (TArray <$> ref (ArrayDec i1 e1 e2 t1) t1)
 typeCDecInterface (RecordDec i1 is ts) r = do
   ts <- typeTypes ts r
-  ts' <- foldr (\t ts' -> do t' <- ref (RecordDec i1 is ts) t; (t' :) <$> ts') (Right []) ts
+  ts' <- mapM (ref (RecordDec i1 is ts)) ts
   return $ newTEnv i1 $ TRecord (zip is ts')
 typeCDecInterface (FileDec i1 i2 t1) r = do
   t1 <- typeType t1 r

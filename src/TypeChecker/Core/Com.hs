@@ -26,7 +26,7 @@ typeCom (Output e1) r = do
     else err $ printf "\"%s\" is not a printable type in \"%s\"." (show t) (pretty (Output e1))
 typeCom (Proc e1 es) r = do
   p <- typeExp e1 r
-  ts <- foldr (\e ts -> do t <- typeExp e r; (t :) <$> ts) (Right []) es
+  ts <- mapM (`typeExp` r) es
   case p of
     TProc pts ->
       if (length ts == length pts) && and (zipWith (<:) ts pts)

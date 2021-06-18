@@ -1,5 +1,6 @@
 module TypeChecker.Core.Types where
 
+import Common.Formatting
 import qualified Data.HashMap.Strict as HashMap
 import Data.List
 import Data.Maybe
@@ -55,6 +56,9 @@ data Type
   | TNull
   | TUnion [Type]
   deriving (Eq, Ord, Show)
+
+instance Pretty Type where
+  pretty x = show x
 
 -- | A `Class` represents a class type in small.
 data Class
