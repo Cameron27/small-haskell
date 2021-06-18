@@ -60,7 +60,9 @@ tinyDef =
           "this",
           "null",
           "public",
-          "private"
+          "private",
+          "of",
+          "own"
         ],
       reservedOpNames =
         [ "*",
