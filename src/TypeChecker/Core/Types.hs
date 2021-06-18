@@ -86,7 +86,7 @@ TNull <: (TObject _) = True
 t <: TUnion ts = any (t <:) ts
 -- nested cases
 (TArray t1) <: (TArray t2) = t1 <: t2
-(TRecord ts1) <: (TRecord ts2) = (length ts1 >= length ts2) && all (\(i2, t2) -> isJust (find (\(i1, t1) -> i1 == i2 && t1 <: t2) ts1)) ts2
+(TRecord ts1) <: (TRecord ts2) = all (\(i2, t2) -> isJust (find (\(i1, t1) -> i1 == i2 && t1 <: t2) ts1)) ts2
 (TProc ts1) <: (TProc ts2) = length ts1 == length ts2 && all (uncurry (<:)) (zip ts2 ts1)
 (TFunc ts1 t1) <: (TFunc ts2 t2) = length ts1 == length ts2 && all (uncurry (<:)) (zip ts2 ts1) && t1 <: t2
 (TFile t1) <: (TFile t2) = t1 <: t2
