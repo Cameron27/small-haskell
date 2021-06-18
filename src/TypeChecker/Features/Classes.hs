@@ -18,20 +18,20 @@ import TypeChecker.Helper.TypeModification
 typeClassDec :: Dec -> TEnv -> Either TypeError TEnv
 typeClassDec (ClassDec i1 scds) r = do
   (TEnv c11 _ _ _ _, TEnv c12 _ _ _ _) <- typeSCDecInterface scds (updateTEnv (fst $ newClassTEnv i1 HashMap.empty r) r) -- Generate the interface with public and private variables
-  let (r1', c') = newClassTEnv i1 (HashMap.union c12 c11) r
-  (TEnv c2 _ _ _ _) <- typeSCDec scds (updateThisTEnv emptyClass (updateTEnv r1' r)) c' -- Type check the class using the interface with only public variables
+  let (r1', o) = newClassTEnv i1 (HashMap.union c12 c11) r
+  (TEnv c2 _ _ _ _) <- typeSCDec scds (updateThisTEnv emptyObjectId (updateTEnv r1' r)) o -- Type check the class using the interface with only public variables
   let (r2', _) = newClassTEnv i1 c2 r
   return r2'
 typeClassDec d1 _ = error $ printf "Cannot run typeClassDec with \"%s\"." (pretty d1)
 
 -- | @typeSCDec scd r c@ returns an environment containing the public information of scoped class declaration `scd` if `scd`
 -- type checks under the environment `r` using the class `c` as "this" where relevant.
-typeSCDec :: SCDec -> TEnv -> Class -> Either TypeError TEnv
-typeSCDec (Public cd1) r c = typeCDec cd1 r c
-typeSCDec (Private cd1) r c = do
-  typeCDec cd1 r c
+typeSCDec :: SCDec -> TEnv -> ObjectId -> Either TypeError TEnv
+typeSCDec (Public cd1) r o = typeCDec cd1 r o
+typeSCDec (Private cd1) r o = do
+  typeCDec cd1 r o
   return emptyTEnv
-typeSCDec SkipSCDec r c = return emptyTEnv
+typeSCDec SkipSCDec r o = return emptyTEnv
 typeSCDec (ChainSCDec scd1 scd2) r c = do
   r1 <- typeSCDec scd1 r c
   r2 <- typeSCDec scd2 r c
@@ -56,19 +56,19 @@ typeSCDecInterface (ChainSCDec scd1 scd2) r = do
 
 -- | @typeCDec cd r c@ returns an environment containing the information of class declaration `cd` if `cd` type
 -- checks under the environment `r` using the class `c` as "this" where relevant.
-typeCDec :: CDec -> TEnv -> Class -> Either TypeError TEnv
-typeCDec (ProcDec i1 is ts c1) r c = do
+typeCDec :: CDec -> TEnv -> ObjectId -> Either TypeError TEnv
+typeCDec (ProcDec i1 is ts c1) r o = do
   ts <- typeTypes ts r
-  typeCom c1 (updateThisTEnv c (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
+  typeCom c1 (updateThisTEnv o (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
   return $ newTEnv i1 (TProc ts) -- Procedures in classes are methods
-typeCDec (FuncDec i1 is ts t1 e1) r c = do
+typeCDec (FuncDec i1 is ts t1 e1) r o = do
   ts <- typeTypes ts r
   t1 <- typeType t1 r
-  t <- typeExp e1 (updateThisTEnv c (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
+  t <- typeExp e1 (updateThisTEnv o (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
   if t <: t1
     then return $ newTEnv i1 (TFunc ts t1) -- Functions in classes are methods
     else err $ printf "function result \"%s\" does not match type \"%s\" in \"%s\"." (show t) (show t1) (pretty (FuncDec i1 is ts t1 e1))
-typeCDec d1 r c = typeDec d1 r
+typeCDec d1 r _ = typeDec d1 r
 
 -- | @typeCDecInterface cd r@ returns an environment containing the information of class declaration `cd` if `cd` type
 -- checks under the environment `r` but does not check any of the right hand values or procedure/function bodies.
@@ -117,7 +117,7 @@ typeNewExp e1 _ = error $ printf "Cannot run typeNewExp with \"%s\"." (pretty e1
 
 -- | @typeThisExp e r@ returns the type `e` represents if the this expression `e` type checks under the environment `r`.
 typeThisExp :: Exp -> TEnv -> Either TypeError Type
-typeThisExp This (TEnv _ _ _ (Class i _) _) = return $ TObject i
+typeThisExp This (TEnv _ _ _ i _) = return $ TObject i
 typeThisExp e1 _ = error $ printf "Cannot run typeThisExp with \"%s\"." (pretty e1)
 
 -- | @typeNullExp e r@ returns the type `e` represents if the null expression `e` type checks under the environment `r`.

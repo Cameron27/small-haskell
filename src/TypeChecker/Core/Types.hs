@@ -9,6 +9,9 @@ import Text.Printf
 -- | An `Ide` is a identifier in small.
 type Ide = String
 
+-- | An `ObjectId` is an id indicating the type of object.
+type ObjectId = Int
+
 -- | A `TypeError` is an error produced during the type checking of small.
 newtype TypeError
   = -- | @TypeError s@ is a type error with error message `s`.
@@ -19,11 +22,11 @@ instance Show TypeError where
 
 -- | A `TEnv` is a type environment.
 data TEnv
-  = -- | @TEnv m1 m2 t c i@ is a type environment with `m1` being the mapping from identifiers to the types they
-    -- represent, `m2` being the mapping from unique ids to the classes they represent, `t` being the current type
-    -- expected by the return address, `c` being the current class represented by "this" and `i` being the next
+  = -- | @TEnv m1 m2 t o i@ is a type environment with `m1` being the mapping from identifiers to the types they
+    -- represent, `m2` being the mapping from unique objects ids to the classes they represent, `t` being the current type
+    -- expected by the return address, `o` being the id of the object this represents and `i` being the next
     -- available unique id.
-    TEnv (HashMap.HashMap Ide Type) (HashMap.HashMap Int Class) Type Class Int
+    TEnv (HashMap.HashMap Ide Type) (HashMap.HashMap ObjectId Class) Type ObjectId Int
   deriving (Show)
 
 -- | A `Type` is a type in small.
@@ -62,9 +65,9 @@ instance Pretty Type where
 
 -- | A `Class` represents a class type in small.
 data Class
-  = -- | @Class i m@ is a class with unique id `i` and with `m` being the mapping from identifiers to the types they
+  = -- | @Class o m@ is a class with unique object id `o` and with `m` being the mapping from identifiers to the types they
     -- represent.
-    Class Int (HashMap.HashMap Ide Type)
+    Class ObjectId (HashMap.HashMap Ide Type)
   deriving (Eq, Ord, Show)
 
 -- | @t1 <: t2@ returns `True` iff `t1` is a subtype of `t2`.
