@@ -19,9 +19,11 @@ typeClassDec :: Dec -> TEnv -> Either TypeError TEnv
 typeClassDec (ClassDec i1 scds) r = do
   (TEnv c11 _ _ _ _, TEnv c12 _ _ _ _) <- typeSCDecInterface scds (updateTEnv (fst $ newClassTEnv i1 HashMap.empty r) r) -- Generate the interface with public and private variables
   let (r1', o) = newClassTEnv i1 (HashMap.union c12 c11) r
-  (TEnv c2 _ _ _ _) <- typeSCDec scds (updateThisTEnv emptyObjectId (updateTEnv r1' r)) o -- Type check the class using the interface with only public variables
+  (TEnv c2 _ _ _ _) <- typeSCDec scds (updateTEnv r1' r') o -- Type check the class using the interface with only public variables
   let (r2', _) = newClassTEnv i1 c2 r
   return r2'
+  where
+    r' = let TEnv r'' cr _ _ i = r in TEnv r'' cr TVoid emptyObjectId i -- Environment with on return address or current object id
 typeClassDec d1 _ = error $ printf "Cannot run typeClassDec with \"%s\"." (pretty d1)
 
 -- | @typeSCDec scd r c@ returns an environment containing the public information of scoped class declaration `scd` if `scd`

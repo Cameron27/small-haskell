@@ -8,7 +8,7 @@ import TypeChecker.Helper.Control
 -- | @updateTEnv r' r@ returns an environment which first checks @r'@ then `r` when a lookup is preformed. Keeps the
 -- return address and current object id from `r` and takes the largest next unique id.
 updateTEnv :: TEnv -> TEnv -> TEnv
-updateTEnv (TEnv r' cr' _ _ i') (TEnv r cr rt c i) = TEnv (HashMap.union r' r) (HashMap.union cr' cr) rt c (Prelude.max i i')
+updateTEnv (TEnv r' cr' _ _ i') (TEnv r cr rt o i) = TEnv (HashMap.union r' r) (HashMap.union cr' cr) rt o (Prelude.max i i')
 
 -- | @updateThisTEnv o r@ returns the environment `r` but with the current object id updated to `o`.
 updateThisTEnv :: ObjectId -> TEnv -> TEnv

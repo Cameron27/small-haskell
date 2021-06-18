@@ -83,6 +83,7 @@ data Class
 (TObject _) <: TObjectAny = True
 TNull <: TObjectAny = True
 TNull <: (TObject _) = True
+TUnion ts1 <: TUnion ts2 = all (\t1 -> any (t1 <:) ts2) ts1
 t <: TUnion ts = any (t <:) ts
 -- nested cases
 (TArray t1) <: (TArray t2) = t1 <: t2
