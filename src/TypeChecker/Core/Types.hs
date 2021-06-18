@@ -53,8 +53,6 @@ data Type
   | TObject Int
   | TObjectAny
   | TNull
-  | TMethod Type
-  | TMethodAny
   | TUnion [Type]
   deriving (Eq, Ord, Show)
 
@@ -78,7 +76,6 @@ data Class
 (TObject _) <: TObjectAny = True
 TNull <: TObjectAny = True
 TNull <: (TObject _) = True
-(TMethod _) <: TMethodAny = True
 t <: TUnion ts = any (t <:) ts
 -- nested cases
 (TArray t1) <: (TArray t2) = t1 <: t2
@@ -88,7 +85,6 @@ t <: TUnion ts = any (t <:) ts
 (TFile t1) <: (TFile t2) = t1 <: t2
 (TRef t1) <: (TRef t2) = t1 <: t2
 (TRefMaybe t1) <: (TRefMaybe t2) = t1 <: t2
-(TMethod t1) <: (TMethod t2) = t1 <: t2
 t1 <: t2 = t1 == t2
 
 -- | @t1 <::> t2@ returns `True` iff `t1` is a subtype of `t2` or `t2` is a subtype of `t1`.

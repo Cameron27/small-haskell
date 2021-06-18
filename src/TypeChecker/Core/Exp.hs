@@ -77,11 +77,7 @@ typeExp (Dot e1 e2) r = do
   where
     process t
       | t <: TRecordAny = typeExp e2 (updateTEnv (recordEnvironment t) r) -- Records evaluate e2 with the record updating the environment
-      | t <: TObjectAny = do
-        t <- typeExp e2 (updateTEnv (objectEnvironment t r) r) -- Objects evaluate e2 with the object updating the environment
-        if t <: TMethodAny
-          then let (TMethod t') = t in return t' -- If a method is returned just return the type from the method
-          else return t
+      | t <: TObjectAny = typeExp e2 (updateTEnv (objectEnvironment t r) r) -- Objects evaluate e2 with the object updating the environment
       | otherwise = err $ printf "dot operation be performed on type \"%s\" in \"%s\"." (show t) (pretty (Dot e1 e2))
 typeExp (New i1) r = typeNewExp (New i1) r
 typeExp Null r = typeNullExp Null r

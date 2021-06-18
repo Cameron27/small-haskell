@@ -60,13 +60,13 @@ typeCDec :: CDec -> TEnv -> Class -> Either TypeError TEnv
 typeCDec (ProcDec i1 is ts c1) r c = do
   ts <- typeTypes ts r
   typeCom c1 (updateThisTEnv c (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
-  return $ newTEnv i1 (TMethod $ TProc ts) -- Procedures in classes are methods
+  return $ newTEnv i1 (TProc ts) -- Procedures in classes are methods
 typeCDec (FuncDec i1 is ts t1 e1) r c = do
   ts <- typeTypes ts r
   t1 <- typeType t1 r
   t <- typeExp e1 (updateThisTEnv c (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
   if t <: t1
-    then return $ newTEnv i1 (TMethod $ TFunc ts t1) -- Functions in classes are methods
+    then return $ newTEnv i1 (TFunc ts t1) -- Functions in classes are methods
     else err $ printf "function result \"%s\" does not match type \"%s\" in \"%s\"." (show t) (show t1) (pretty (FuncDec i1 is ts t1 e1))
 typeCDec d1 r c = typeDec d1 r
 
@@ -94,11 +94,11 @@ typeCDecInterface (FileDec i1 i2 t1) r = do
   return $ newTEnvMulti [i1, i2] [t2', t1']
 typeCDecInterface (ProcDec i1 is ts c1) r = do
   ts <- typeTypes ts r
-  return $ newTEnv i1 (TMethod $ TProc ts)
+  return $ newTEnv i1 (TProc ts)
 typeCDecInterface (FuncDec i1 is ts t1 e1) r = do
   t1 <- typeType t1 r
   ts <- typeTypes ts r
-  return $ newTEnv i1 (TMethod $ TFunc ts t1)
+  return $ newTEnv i1 (TFunc ts t1)
 typeCDecInterface (ChainDec d1 d2) r = do
   r1 <- typeCDecInterface d1 r
   r2 <- typeCDecInterface d2 r
