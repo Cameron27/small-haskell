@@ -55,7 +55,7 @@ program {
         }
     }
     file c withbuffer cb: record(c: float, a: int, b: string);
-    proc cp(f: ref file record(c: float, a: int)) {
+    proc cp(f: file record(c: float, a: int)) {
         output 4;
     }
     var d: ref record(c: float, a: int) = ref ref record(a: int, b: string, c: float);

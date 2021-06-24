@@ -24,7 +24,7 @@ program {
     file f2 withbuffer buff2: int;
     file f3 withbuffer f3: int;
     var x: int = 0;
-    func last(f: ref file int, buff: ref int): int {
+    func last(f: file int, buff: ref int): int {
         valof: int {
             var res: int = 0;
             reset(f);

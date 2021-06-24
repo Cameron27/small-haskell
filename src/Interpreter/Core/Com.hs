@@ -25,7 +25,7 @@ evalCom (Proc e1 es) w r c = evalExp e1 (w ! 1) r $ testProc (length es) (Proc e
     params = zip es [2 ..]
     chainEval p =
       foldr
-        (\(e, i) p' es' -> evalExp e (w ! i) r (\e' -> p' (es' ++ [e']))) -- Evaluate the expression, add it to list and pass it on
+        (\(e, i) p' es' -> evalExp e (w ! i) r $ testDv e (\e' -> p' (es' ++ [e']))) -- Evaluate the expression, add it to list and pass it on
         (evToProc p c) -- End by running the procedure
         params -- Apply to each expression
         [] -- Start with an empty list of values

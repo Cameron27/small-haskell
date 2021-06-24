@@ -60,7 +60,7 @@ evalExp (Func e1 es) w r k s = evalExp e1 (w ! 1) r (testFunc (length es) (Func 
     params = zip es [2 ..]
     chainEval p =
       foldr
-        (\(e, i) f' es' -> evalExp e (w ! i) r (\e' -> f' (es' ++ [e']))) -- Evaluate the expression, add it to list and pass it on
+        (\(e, i) f' es' -> evalExp e (w ! i) r $ testDv e (\e' -> f' (es' ++ [e']))) -- Evaluate the expression, add it to list and pass it on
         (evToFunc p k) -- End by running the function
         params -- Apply to each expression
         [] -- Start with an empty list of values

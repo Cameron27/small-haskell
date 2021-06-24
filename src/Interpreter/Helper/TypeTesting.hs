@@ -121,6 +121,29 @@ isRv _ = False
 testRv :: Exp -> Ec -> Ec
 testRv src k e = isRv e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a right hand value." (pretty src) (pretty e))
 
+-- | @isDv e@ checks if `e` is a denotable value.
+isDv :: Ev -> Bool
+isDv (EInt _) = True
+isDv (EDouble _) = True
+isDv (EBool _) = True
+isDv (EString _) = True
+isDv (ELoc _) = True
+isDv (EArray _) = True
+isDv (ERecord _) = True
+isDv (EProc _ _) = True
+isDv (EFunc _ _) = True
+isDv (EMethod _) = True
+isDv (EClass _) = True
+isDv (EObject _) = True
+isDv ENull = True
+isDv (ECc _) = True
+isDv _ = False
+
+-- | @testDv src k e@ applies `e` to `k` if it is a denotable value, otherwise it returns an error. `src` is the
+-- expression to use in the error message.
+testDv :: Exp -> Ec -> Ec
+testDv src k e = isDv e ?> (k e, err $ printf "\"%s\", evaluated as \"%s\", is not a denotable value." (pretty src) (pretty e))
+
 -- | @isSv e@ checks if `e` is a storable value.
 isSv :: Ev -> Bool
 isSv (EInt _) = True

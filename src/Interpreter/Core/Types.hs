@@ -70,7 +70,7 @@ instance Pretty Ev where
   pretty (ELoc x) = printf "Loc(%d)" x
   pretty (EArray (Array x y _)) = printf "ARRAY[%d:%d]" x y
   pretty (ERecord (Record x)) = printf "RECORD(%s)" (pretty x)
-  pretty (EFile _) = "FILESTATE"
+  pretty (EFile _) = "FILE"
   pretty (EProc _ y) = printf "PROCEDURE%d" y
   pretty (EFunc _ y) = printf "FUNCTION%d" y
   pretty (EMethod _) = printf "METHOD"

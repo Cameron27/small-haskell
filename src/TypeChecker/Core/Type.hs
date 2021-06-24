@@ -26,7 +26,7 @@ typeType (TFunc ts t) r = do
   ts <- typeTypes ts r
   t <- typeType t r
   return $ TFunc ts t
-typeType (TFile t) r = TFile <$> typeType t r
+typeType (TFile t) r = TRef . TFile <$> typeType t r
 typeType (TRef t) r = typeType t r >>= ref (TRef t)
 typeType (TObjectNamed i) r = do
   c <- lookupTEnv i r
