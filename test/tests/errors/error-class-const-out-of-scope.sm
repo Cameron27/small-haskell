@@ -1,0 +1,13 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    class T {
+        public const x: int = 1;
+    }
+
+    output x;
+}

@@ -1,0 +1,13 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    class T {
+        file f withbuffer b: int;
+    }
+
+    reset(f);
+}

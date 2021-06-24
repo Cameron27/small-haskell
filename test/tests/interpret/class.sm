@@ -43,6 +43,7 @@ false
 5
 true
 false
+1
 */
 
 program {
@@ -306,5 +307,44 @@ program {
         const b: Test = new Test();
         x(isNull, a); // true
         x(isNull, b); // false
+    }
+
+    // Test recursive usage on rhs
+    {
+        class T{
+            var x: int = 1;
+            public var a: int = (new T()).x;
+            public const b: int = (new T()).x;
+            public array c[(new T()).x : (new T()).x]: int;
+            public proc d(y: T) {
+                output (new T()).x;
+            }
+            public func e(y: T): int {
+                cont (new T()).x
+            }
+            
+            private var f: int = (new T()).x;
+            private const g: int = (new T()).x;
+            private array h[(new T()).x : (new T()).x]: int;
+            private proc i(y: T) {
+                output (new T()).x;
+            }
+            private func j(y: T): int {
+                cont (new T()).x
+            }
+        }
+    }
+
+    // Test return type restored
+    {
+        output valof: int {
+            class T {
+                public proc t() {
+                    output 1;
+                }
+            }
+
+            return 1;
+        }; // 1
     }
 }
