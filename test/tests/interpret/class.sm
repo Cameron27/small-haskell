@@ -41,8 +41,6 @@ false
 3
 4
 5
-true
-false
 1
 */
 
@@ -295,18 +293,6 @@ program {
 
         const t: Test = new Test();
         reset(t.f);
-    }
-
-    // Typing of isNull
-    {
-        class Test {}
-        proc x(f: func(Test) bool, a: Test) {
-            output f(a);
-        }
-        const a: Test = null;
-        const b: Test = new Test();
-        x(isNull, a); // true
-        x(isNull, b); // false
     }
 
     // Test recursive usage on rhs

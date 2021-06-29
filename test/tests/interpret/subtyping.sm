@@ -11,6 +11,10 @@
 8
 9
 4
+true
+false
+true
+false
 */
 
 program {
@@ -76,4 +80,26 @@ program {
     e.a = 9;
     output e.a; // 9
     cp(c); // 4
+
+    // Complex set subtyping
+    {
+        class Test {}
+        proc x(f: func(Test) bool, a: Test) {
+            output f(a);
+        }
+        func y(f: func(ref Test) bool, a: ref Test): Test {
+            valof: Test {
+                output f(a);
+                return a;
+            }
+        }
+        const a: Test = null;
+        const b: Test = new Test();
+        var c: Test = null;
+        var d: Test = new Test();
+        x(isNull, a); // true
+        x(isNull, b); // false
+        c = y(isNull, c); // true
+        d = y(isNull, d); // false
+    }
 }
