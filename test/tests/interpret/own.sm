@@ -1,7 +1,11 @@
 // true
 // true
 // true
-/**/
+/*
+1
+2
+3
+*/
 /*
 1
 2
@@ -16,6 +20,9 @@
 3
 4
 1
+2
+1
+3
 */
 
 program {
@@ -59,5 +66,17 @@ program {
             return b;
         };
         output x;
+    }
+
+    {
+        var y: string = read;
+        own x: string = read;
+
+        if (true) {
+            own z: string = read;
+            output z;
+        }
+        output x;
+        output y;
     }
 }
