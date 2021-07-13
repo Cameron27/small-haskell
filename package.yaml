@@ -35,6 +35,7 @@ dependencies:
 - hashable
 - parseargs
 - containers
+- clock
 
 library:
   source-dirs:

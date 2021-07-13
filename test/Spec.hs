@@ -1,3 +1,5 @@
+{-# LANGUAGE MultiWayIf #-}
+
 import Control.Concurrent.ParallelIO
 import Control.Monad
 import qualified Data.ByteString.Char8 as Char8
@@ -7,6 +9,8 @@ import Data.Maybe
 import Data.String.Utils
 import Interpreter.Small
 import Parser.Small
+import System.CPUTime
+import System.Clock
 import System.Directory
 import System.Environment
 import System.Exit
@@ -15,6 +19,7 @@ import System.IO.Silently
 import System.Process
 import Test.HUnit
 import Test.Main
+import Text.Printf
 import Text.Regex.TDFA
 import TypeChecker.Small
 
@@ -22,9 +27,15 @@ data TestSpec = TestSpec {name :: String, parsed :: Bool, typed :: Bool, ran :: 
 
 main :: IO ()
 main = do
-  x <- generateTest "test/tests/"
-  void $ runTestTT x
-  stopGlobalPool
+  let testPath = "test/tests/"
+  args <- getArgs
+  case args of
+    ("k-parse-kast" : _) -> kParsingSpeedTest testPath "kast"
+    ("k-parse-bison" : _) -> kParsingSpeedTest testPath "bison"
+    _ -> do
+      x <- generateTest testPath
+      void $ runTestTT x
+      stopGlobalPool
 
 generateTest :: FilePath -> IO Test
 generateTest fp = do
@@ -34,21 +45,21 @@ generateTest fp = do
   args <- getArgs
   case testSpecs of
     Right testSpecs ->
-      if null args || head args /= "k"
-        then TestList <$> mapM testHaskellProgram testSpecs
-        else do
+      case args of
+        ("k" : _) -> do
           x <- parallel $ map testKProgram testSpecs
           return $ TestList x
+        _ -> TestList <$> mapM testHaskellProgram testSpecs
     Left err -> return $ TestCase $ assertFailure err
-  where
-    getFilesRecursive :: FilePath -> IO [String]
-    getFilesRecursive fp = do
-      all <- map (fp ++) . filter (\s -> (s /= ".") && (s /= "..")) <$> listDirectory fp
-      files <- filterM doesFileExist all
-      direc <- map (++ "/") <$> filterM doesDirectoryExist all
-      extra <- mapM getFilesRecursive direc
-      let join = files ++ concat extra
-      return join
+
+getFilesRecursive :: FilePath -> IO [String]
+getFilesRecursive fp = do
+  all <- map (fp ++) . filter (\s -> (s /= ".") && (s /= "..")) <$> listDirectory fp
+  files <- filterM doesFileExist all
+  direc <- map (++ "/") <$> filterM doesDirectoryExist all
+  extra <- mapM getFilesRecursive direc
+  let join = files ++ concat extra
+  return join
 
 generateTestSpec :: String -> String -> Either [Char] TestSpec
 generateTestSpec name content = TestSpec <$> Right name <*> parsed <*> typed <*> ran <*> input <*> expected <*> Right content
@@ -208,3 +219,28 @@ testKProgram testSpec =
     return $
       name testSpec
         ~: TestList (["Parsed" ~: parseTest] ++ ["Typed" ~: typeTest | shouldType] ++ ["Ran" ~: runTest | shouldRun] ++ ["Output" ~: resultTest | shouldCheckResult])
+
+kParsingSpeedTest :: FilePath -> String -> IO ()
+kParsingSpeedTest fp s = do
+  files <- getFilesRecursive fp
+  let shellCommand =
+        if
+            | s == "bison" -> "../small-k/out/interpreter/small-interpreter-kompiled/parser_PGM "
+            | s == "kast" -> "kast --directory ../small-k/out/interpreter/ -o KORE "
+            | otherwise -> s ++ " is not a valid parser to test."
+  putStrLn $ printf "Parsing %d files." (length files)
+  start <- getTime Monotonic
+  parallel $
+    map
+      ( \file -> do
+          (exitCode, stdout, stderr) <-
+            readCreateProcessWithExitCode
+              (shell $ shellCommand ++ file)
+              ""
+          return ()
+      )
+      files
+  end <- getTime Monotonic
+  let diff = fromIntegral (toNanoSecs $ diffTimeSpec start end) / (10 ^ 9)
+  printf "Computation time: %0.3f sec\n" (diff :: Double)
+  return ()
