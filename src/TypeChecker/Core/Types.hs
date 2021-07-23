@@ -10,7 +10,7 @@ import Text.Printf
 type Ide = String
 
 -- | An `ObjectId` is an id indicating the type of object.
-type ObjectId = Int
+type ClassId = Int
 
 -- | A `TypeError` is an error produced during the type checking of small.
 newtype TypeError
@@ -26,7 +26,7 @@ data TEnv
     -- represent, `m2` being the mapping from unique objects ids to the classes they represent, `t` being the current type
     -- expected by the return address, `o` being the id of the object this represents and `i` being the next
     -- available unique id.
-    TEnv (HashMap.HashMap Ide Type) (HashMap.HashMap ObjectId Class) Type ObjectId Int
+    TEnv (HashMap.HashMap Ide Type) (HashMap.HashMap ClassId Class) Type ClassId Int
   deriving (Show)
 
 -- | A `Type` is a type in small.
@@ -67,7 +67,7 @@ instance Pretty Type where
 data Class
   = -- | @Class o m@ is a class with unique object id `o` and with `m` being the mapping from identifiers to the types they
     -- represent.
-    Class ObjectId (HashMap.HashMap Ide Type)
+    Class ClassId (HashMap.HashMap Ide Type)
   deriving (Eq, Ord, Show)
 
 -- | @t1 <: t2@ returns `True` iff `t1` is a subtype of `t2`.

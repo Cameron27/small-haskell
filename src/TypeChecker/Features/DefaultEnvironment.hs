@@ -12,5 +12,5 @@ defaultTEnv =
     (HashMap.fromList $ map (\(a, _, c) -> (a, c)) defaultEnvAndTEnv ++ [("", TClass emptyClass)])
     (HashMap.fromList [(-1, Class (-1) HashMap.empty)])
     TVoid
-    emptyObjectId
-    (emptyObjectId + 1)
+    emptyClassId
+    (emptyClassId + 1)

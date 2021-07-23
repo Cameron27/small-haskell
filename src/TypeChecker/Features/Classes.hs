@@ -23,12 +23,12 @@ typeClassDec (ClassDec i1 scds) r = do
   let (r2', _) = newClassTEnv i1 c2 r
   return r2'
   where
-    r' = let TEnv r'' cr _ _ i = r in TEnv r'' cr TVoid emptyObjectId i -- Environment with on return address or current object id
+    r' = let TEnv r'' cr _ _ i = r in TEnv r'' cr TVoid emptyClassId i -- Environment with on return address or current object id
 typeClassDec d1 _ = error $ printf "Cannot run typeClassDec with \"%s\"." (pretty d1)
 
 -- | @typeSCDec scd r c@ returns an environment containing the public information of scoped class declaration `scd` if `scd`
 -- type checks under the environment `r` using the class `c` as "this" where relevant.
-typeSCDec :: SCDec -> TEnv -> ObjectId -> Either TypeError TEnv
+typeSCDec :: SCDec -> TEnv -> ClassId -> Either TypeError TEnv
 typeSCDec (Public cd1) r o = typeCDec cd1 r o
 typeSCDec (Private cd1) r o = do
   typeCDec cd1 r o
@@ -58,7 +58,7 @@ typeSCDecInterface (ChainSCDec scd1 scd2) r = do
 
 -- | @typeCDec cd r c@ returns an environment containing the information of class declaration `cd` if `cd` type
 -- checks under the environment `r` using the class `c` as "this" where relevant.
-typeCDec :: CDec -> TEnv -> ObjectId -> Either TypeError TEnv
+typeCDec :: CDec -> TEnv -> ClassId -> Either TypeError TEnv
 typeCDec (ProcDec i1 is ts c1) r o = do
   ts <- typeTypes ts r
   typeCom c1 (updateThisTEnv o (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
