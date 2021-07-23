@@ -223,24 +223,31 @@ testKProgram testSpec =
 kParsingSpeedTest :: FilePath -> String -> IO ()
 kParsingSpeedTest fp s = do
   files <- getFilesRecursive fp
-  let shellCommand =
-        if
-            | s == "bison" -> "../small-k/out/interpreter/small-interpreter-kompiled/parser_PGM "
-            | s == "kast" -> "kast --directory ../small-k/out/interpreter/ -o KORE "
-            | otherwise -> s ++ " is not a valid parser to test."
-  putStrLn $ printf "Parsing %d files." (length files)
-  start <- getTime Monotonic
-  parallel $
-    map
-      ( \file -> do
-          (exitCode, stdout, stderr) <-
-            readCreateProcessWithExitCode
-              (shell $ shellCommand ++ file)
-              ""
-          return ()
-      )
-      files
-  end <- getTime Monotonic
-  let diff = fromIntegral (toNanoSecs $ diffTimeSpec start end) / (10 ^ 9)
-  printf "Computation time: %0.3f sec\n" (diff :: Double)
-  return ()
+  contents <- mapM readFile files
+  let testSpecs = zipWithM generateTestSpec files contents
+  case testSpecs of
+    Right testSpecs -> do
+      let shellCommand =
+            if
+                | s == "bison" -> "../small-k/out/interpreter/small-interpreter-kompiled/parser_PGM "
+                | s == "kast" -> "kast --directory ../small-k/out/interpreter/ -o KORE "
+                | otherwise -> s ++ " is not a valid parser to test."
+      putStrLn $ printf "Parsing %d files." (length files)
+      start <- getTime Monotonic
+      parallel $
+        map
+          ( \testSpec -> do
+              (exitCode, stdout, stderr) <-
+                readCreateProcessWithExitCode
+                  (shell $ shellCommand ++ name testSpec)
+                  ""
+              if exitCode == ExitSuccess
+                then unless (parsed testSpec) $ putStrLn $ printf "Parsed %s when it should not have." (name testSpec)
+                else when (parsed testSpec) $ putStrLn $ printf "Failed to parse %s." (name testSpec)
+          )
+          testSpecs
+      end <- getTime Monotonic
+      let diff = fromIntegral (toNanoSecs $ diffTimeSpec start end) / (10 ^ 9)
+      printf "Computation time: %0.3f sec\n" (diff :: Double)
+      return ()
+    Left err -> putStrLn err
