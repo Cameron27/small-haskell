@@ -1,0 +1,15 @@
+// false
+// false
+// false
+/**/
+/*
+1
+*/
+
+program {
+    proc a() {
+        output 1;
+    }
+
+    true ? a : a();
+}
