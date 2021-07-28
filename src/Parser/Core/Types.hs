@@ -106,7 +106,7 @@ data Dec
   | RecProcDec Id [Id] [Type] Com
   | FuncDec Id [Id] [Type] Type Exp
   | RecFuncDec Id [Id] [Type] Type Exp
-  | ClassDec Id SCDec
+  | ClassDec Id (Maybe Id) SCDec
   | ChainDec Dec Dec
   | SkipDec
   deriving (Show)
@@ -122,7 +122,7 @@ instance Pretty Dec where
   pretty (RecProcDec v w x y) = printf "proc %s(%s) %s" v (intercalate ", " $ zipWith (\w x -> printf "%s: %s" w (show x)) w x) (pretty y)
   pretty (FuncDec v w x y z) = printf "func %s(%s): %s { %s }" v (intercalate ", " $ zipWith (\w x -> printf "%s: %s" w (show x)) w x) (show y) (pretty z)
   pretty (RecFuncDec v w x y z) = printf "rec func %s(%s): %s { %s }" v (intercalate ", " $ zipWith (\w x -> printf "%s: %s" w (show x)) w x) (show y) (pretty z)
-  pretty (ClassDec x y) = printf "class %s { %s }" x (pretty y)
+  pretty (ClassDec x y z) = printf "class %s%s { %s }" x (maybe "" (printf " extends %s") y) (pretty z)
   pretty (ChainDec x y) = printf "%s %s" (pretty x) (pretty y)
   pretty SkipDec = ""
 

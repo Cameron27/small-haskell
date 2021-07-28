@@ -72,9 +72,10 @@ instance Pretty Type where
 
 -- | A `Class` represents a class type in small.
 data Class
-  = -- | @Class o1 o2 m@ is a class with unique object id `o1`, `o2` being the ide of the parent class and `m` being the
-    -- mapping from identifiers to the types they represent.
-    Class ClassId ClassId TypeMap
+  = -- | @Class o1 o2 m1 m2@ is a class with unique object id `o1`, `o2` being the ide of the parent class, `m1` being
+    -- the mapping from public identifiers to the types they represent and `m2` being the mapping from private
+    -- identifiers to the types they represent.
+    Class ClassId ClassId TypeMap TypeMap
   deriving (Eq, Ord, Show)
 
 -- | @t1 <: t2@ returns `True` iff `t1` is a subtype of `t2`.
@@ -105,7 +106,7 @@ subtype r (TObject o1) (TObject o2)
   | o2 == emptyClassId = True
   | o1 == emptyClassId = False
   | otherwise =
-    let (Just (Class o11 o12 _)) = HashMap.lookup o1 c
+    let (Just (Class o11 o12 _ _)) = HashMap.lookup o1 c
      in o12 == o2 || subtype r (TObject o12) (TObject o2)
   where
     (TEnv _ c _ _ _) = r

@@ -12,9 +12,15 @@ import Prelude hiding (exp)
 classDec :: Parsec String () Dec
 classDec = do
   keyword "class"
-  i <- ide
+  i1 <- ide
+  i2 <-
+    optionMaybe
+      ( do
+          keyword "extends"
+          ide
+      )
   scds <- chainSCDec <$> braces (many $ try scdec)
-  return $ ClassDec i scds
+  return $ ClassDec i1 i2 scds
 
 -- | Parses a scoped class declaration.
 scdec :: Parsec String () SCDec

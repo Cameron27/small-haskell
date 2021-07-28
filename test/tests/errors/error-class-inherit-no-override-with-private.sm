@@ -1,0 +1,15 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    class A {
+        public var x: int = 1;
+    }
+
+    class B extends A {
+        private var x: int = 1;
+    }
+}

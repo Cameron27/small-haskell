@@ -1,0 +1,15 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    class A {
+        public record x(a: int);
+    }
+
+    class B extends A {
+        public record x();
+    }
+}

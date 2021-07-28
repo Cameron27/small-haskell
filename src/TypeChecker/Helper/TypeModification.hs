@@ -81,7 +81,7 @@ recordEnvironment t = error $ printf "Tried to get the record environment of a \
 objectEnvironment :: Type -> TEnv -> TEnv
 objectEnvironment (TObject i1) r = do
   case lookupClassTEnv i1 r of
-    (Right (Class _ _ c)) -> TEnv c HashMap.empty TVoid emptyClassId (-1)
+    (Right (Class _ _ c _)) -> TEnv c HashMap.empty TVoid emptyClassId (-1)
     _ -> error $ printf "There is no class with id %d." i1
 objectEnvironment t _ = error $ printf "Tried to get the object environment of a \"%s\"." (show t)
 

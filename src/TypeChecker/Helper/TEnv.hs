@@ -35,12 +35,12 @@ newTEnv i t = TEnv (HashMap.fromList [(i, t)]) HashMap.empty TVoid emptyClassId 
 newTEnvMulti :: [Ide] -> [Type] -> TEnv
 newTEnvMulti is ts = TEnv (HashMap.fromList $ reverse $ zip is ts) HashMap.empty TVoid emptyClassId (-1)
 
--- | @newClassTEnv i id c r@ returns a new environment with just `i` bound to a new class with type map `c` and parent
--- id `id`. `r` is used to get the next available unique id.
-newClassTEnv :: Ide -> ClassId -> TypeMap -> TEnv -> (TEnv, ClassId)
-newClassTEnv i id2 c (TEnv _ _ _ _ id) = (TEnv (HashMap.fromList [(i, TClass c')]) (HashMap.fromList [(id, c')]) TVoid emptyClassId (id + 1), id)
+-- | @newClassTEnv i id c1 c2 r@ returns a new environment with just `i` bound to a new class with public type map `c1`,
+-- private type map `c2` and parent id `id`. `r` is used to get the next available unique id.
+newClassTEnv :: Ide -> ClassId -> TypeMap -> TypeMap -> TEnv -> (TEnv, ClassId)
+newClassTEnv i id2 c1 c2 (TEnv _ _ _ _ id) = (TEnv (HashMap.fromList [(i, TClass c')]) (HashMap.fromList [(id, c')]) TVoid emptyClassId (id + 1), id)
   where
-    c' = Class id id2 c
+    c' = Class id id2 c1 c2
 
 -- | An empty type environment.
 emptyTEnv :: TEnv
@@ -48,4 +48,4 @@ emptyTEnv = TEnv HashMap.empty HashMap.empty TVoid emptyClassId (-1)
 
 -- | An empty class.
 emptyClass :: Class
-emptyClass = Class emptyClassId emptyClassId HashMap.empty
+emptyClass = Class emptyClassId emptyClassId HashMap.empty HashMap.empty

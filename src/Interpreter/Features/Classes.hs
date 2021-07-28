@@ -18,12 +18,21 @@ import Text.Printf
 -- | @evalClassDec dec w r u s@ evaluates the class declaration `dec` under the environment `r` and with store `s` then
 -- passes the resulting environment into the rest of the program `u`.
 evalClassDec :: Dec -> Posn -> Env -> Dc -> Cc
-evalClassDec (ClassDec i1 scd1) w r u (Store s' n) = u (newEnv i1 (c n)) (Store s' (n + 1))
+evalClassDec (ClassDec i1 Nothing scd1) w r u = u (newEnv i1 c)
   where
-    c n = EClass $ Class $ \k -> evalSCDec scd1 (w ! 3) (updateEnv (newEnv i1 (c n)) r1) $ \o -> k (EObject o)
+    c = EClass . Class $ \k -> evalSCDec scd1 (w ! 3) (updateEnv (newEnv i1 c) r1) $ \o -> k (EObject o)
     (Env r1' w1' _ _) = r
     r1 = Env r1' w1' defaultReturn emptyObj
-evalClassDec d1 _ _ _ _ = error $ printf "Cannot run evalClassDec with \"%s\"." (pretty d1)
+evalClassDec (ClassDec i1 (Just i2) scd1) w r u = evalExp (I i2) (w ! 2) r $ testClass (I i2) $ \(EClass (Class c2)) -> u (newEnv i1 (c1 c2))
+  where
+    c1 :: (Ec -> Cc) -> Ev
+    c1 c2 = EClass . Class $ \k ->
+      c2 $ \(EObject (Object o2)) ->
+        evalSCDec scd1 (w ! 3) (updateEnv (newEnv i1 (c1 c2)) r1) $ \(Object o1) ->
+          k (EObject (Object (HashMap.union o1 o2)))
+    (Env r1' w1' _ _) = r
+    r1 = Env r1' w1' defaultReturn emptyObj
+evalClassDec d1 _ _ _ = error $ printf "Cannot run evalClassDec with \"%s\"." (pretty d1)
 
 -- | @evalSCDec scdec w r v s@ evaluates the scoped class declaration `scdec` under the environment `r` and with store
 -- `s` then passes the resulting environment into the rest of the program `v`.

@@ -64,6 +64,11 @@ program {
     }
     var d: ref record(c: float, a: int) = ref ref record(a: int, b: string, c: float);
     var e: record(a: int) = (true ? record(a: int, b: string, c: float) : record(a: int, c: float));
+    class A {}
+    class B extends A {}
+    class C extends A {}
+    class D extends C {}
+    array arr[0:5]: A;
 
     a[2] = record(a: int, b: string, c: float);
     a[2].c = 1.25;
@@ -80,6 +85,10 @@ program {
     e.a = 9;
     output e.a; // 9
     cp(c); // 4
+    arr[0] = new A();
+    arr[0] = new B();
+    arr[0] = new C();
+    arr[0] = new D();
 
     // Complex set subtyping
     {

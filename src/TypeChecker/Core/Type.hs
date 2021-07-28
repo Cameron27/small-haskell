@@ -31,7 +31,7 @@ typeType (TRef t) r = typeType t r >>= ref (TRef t)
 typeType (TObjectNamed i) r = do
   c <- lookupTEnv i r
   if subtype r c TClassAny
-    then let (TClass (Class i _ _)) = c in return $ TObject i
+    then let (TClass (Class i _ _ _)) = c in return $ TObject i
     else err $ printf "no class \"%s\"." i
 typeType t _ = error $ printf "Should not be type checking \"%s\"." (show t)
 

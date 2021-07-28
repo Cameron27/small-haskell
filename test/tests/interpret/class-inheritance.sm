@@ -1,0 +1,64 @@
+// true
+// true
+// true
+/*
+a
+b
+c
+d
+*/
+/*
+1
+0
+1
+0
+1
+test
+b
+1
+0
+1
+0
+1
+d
+*/
+
+program {
+    class A {
+        private const a: int = 0;
+        public const b: int = 0;
+        public const c: int = 0;
+        public record d(a: int);
+        public const e: string = read;
+
+        public func fa(): int { this.a }
+        public func fb(): int { this.b }
+    }
+
+    class B extends A {
+        public const b: int = 1;
+        public record d(a: int, b: string);
+        public const e: string = read;
+    }
+
+    var b: B = new B();
+    var a: A = new B();
+
+    output b.b; // 1
+    output b.fa(); // 0
+    output b.fb(); // 1
+    output b.c; // 0
+    b.d.a = 1;
+    b.d.b = "test";
+    output b.d.a; // 1
+    output b.d.b; // test
+    output b.e; // b
+
+    output a.b; // 1
+    output a.fa(); // 0
+    output a.fb(); // 1
+    output a.c; // 0
+    a.d.a = 1;
+    output a.d.a; // 1
+    output a.e; // d
+}

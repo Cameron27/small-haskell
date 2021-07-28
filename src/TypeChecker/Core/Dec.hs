@@ -78,7 +78,7 @@ typeDec (RecFuncDec i1 is ts t1 e1) r = do
   if subtype r t t1
     then return $ newTEnv i1 (TFunc ts t1)
     else err $ printf "function result \"%s\" does not match type \"%s\" in \"%s\"." (show t) (show t1) (pretty (FuncDec i1 is ts t1 e1))
-typeDec (ClassDec i1 cds) r = typeClassDec (ClassDec i1 cds) r
+typeDec (ClassDec i1 i2 cds) r = typeClassDec (ClassDec i1 i2 cds) r
 typeDec (ChainDec d1 d2) r = do
   r1 <- typeDec d1 r
   r2 <- typeDec d2 (updateTEnv r1 r)

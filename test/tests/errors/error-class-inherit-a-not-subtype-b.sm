@@ -1,0 +1,13 @@
+// true
+// false
+// false
+/**/
+/**/
+
+program {
+    class A {}
+
+    class B extends A {}
+
+    var b: B = new A();
+}

@@ -62,7 +62,8 @@ tinyDef =
           "public",
           "private",
           "of",
-          "own"
+          "own",
+          "extends"
         ],
       reservedOpNames =
         [ "*",

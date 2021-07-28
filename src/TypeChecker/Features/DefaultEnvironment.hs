@@ -10,7 +10,7 @@ defaultTEnv :: TEnv
 defaultTEnv =
   TEnv
     (HashMap.fromList $ map (\(a, _, c) -> (a, c)) defaultEnvAndTEnv ++ [("", TClass emptyClass)])
-    (HashMap.fromList [(emptyClassId, Class emptyClassId emptyClassId HashMap.empty)])
+    (HashMap.fromList [(emptyClassId, Class emptyClassId emptyClassId HashMap.empty HashMap.empty)])
     TVoid
     emptyClassId
     (emptyClassId + 1)
