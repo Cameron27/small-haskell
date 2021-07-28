@@ -21,10 +21,6 @@ test1
 test2
 5
 16
-12
-32
-4
-6
 0
 4
 16
@@ -104,33 +100,6 @@ program {
         }
 
         (new Test()).out();
-    }
-
-    // Private dominates
-    {
-        class Test1 {
-            public const i: string = "1";
-            private const i: int = 2;
-            
-            public func j(): int {
-                this.i + 2
-            }
-        }
-        class Test2 {
-            private const i: int = 4;
-            public const i: string = "3";
-
-            public func j(): int {
-                this.i + 2
-            }
-        }
-        const a: Test1 = new Test1();
-        const b: Test2 = new Test2();
-
-        output a.i + "2"; //12
-        output b.i + "2"; //32
-        output a.j(); // 4
-        output b.j(); // 6
     }
 
     // Can access other instances private

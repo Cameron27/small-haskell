@@ -8,11 +8,11 @@ import TypeChecker.Helper.Control
 -- | @updateTEnv r' r@ returns an environment which first checks @r'@ then `r` when a lookup is preformed. Keeps the
 -- return address and current object id from `r` and takes the largest next unique id.
 updateTEnv :: TEnv -> TEnv -> TEnv
-updateTEnv (TEnv r' cr' _ _ i') (TEnv r cr rt o i) = TEnv (HashMap.union r' r) (HashMap.union cr' cr) rt o (Prelude.max i i')
+updateTEnv (TEnv r' c' _ _ i') (TEnv r c rt o i) = TEnv (HashMap.union r' r) (HashMap.union c' c) rt o (Prelude.max i i')
 
 -- | @updateThisTEnv o r@ returns the environment `r` but with the current object id updated to `o`.
 updateThisTEnv :: ClassId -> TEnv -> TEnv
-updateThisTEnv t (TEnv r cr rt _ i) = TEnv r cr rt t i
+updateThisTEnv t (TEnv r c rt _ i) = TEnv r c rt t i
 
 -- | @lookupTEnv i r@ returns the value that is assigned to `i` in `r`.
 lookupTEnv :: Ide -> TEnv -> Either TypeError Type
@@ -22,7 +22,7 @@ lookupTEnv i (TEnv r _ _ _ _) = case HashMap.lookup i r of
 
 -- | @lookupClassTEnv o r@ returns the class that is assigned to `o` in `r`.
 lookupClassTEnv :: ClassId -> TEnv -> Either TypeError Class
-lookupClassTEnv i (TEnv _ cr _ _ _) = case HashMap.lookup i cr of
+lookupClassTEnv i (TEnv _ c _ _ _) = case HashMap.lookup i c of
   Just s -> Right s
   Nothing -> err $ printf "\"%s\" is not defined." i
 
@@ -35,21 +35,17 @@ newTEnv i t = TEnv (HashMap.fromList [(i, t)]) HashMap.empty TVoid emptyClassId 
 newTEnvMulti :: [Ide] -> [Type] -> TEnv
 newTEnvMulti is ts = TEnv (HashMap.fromList $ reverse $ zip is ts) HashMap.empty TVoid emptyClassId (-1)
 
--- | @newClassTEnv i c r@ returns a new environment with just `i` bound to `c` and `c` in the class environment. `r` is
--- used to get the next available unique id.
-newClassTEnv :: Ide -> HashMap.HashMap Ide Type -> TEnv -> (TEnv, ClassId)
-newClassTEnv i c (TEnv _ _ _ _ id) = (TEnv (HashMap.fromList [(i, TClass c')]) (HashMap.fromList [(id, c')]) TVoid emptyClassId (id + 1), id)
+-- | @newClassTEnv i id c r@ returns a new environment with just `i` bound to a new class with type map `c` and parent
+-- id `id`. `r` is used to get the next available unique id.
+newClassTEnv :: Ide -> ClassId -> TypeMap -> TEnv -> (TEnv, ClassId)
+newClassTEnv i id2 c (TEnv _ _ _ _ id) = (TEnv (HashMap.fromList [(i, TClass c')]) (HashMap.fromList [(id, c')]) TVoid emptyClassId (id + 1), id)
   where
-    c' = Class id c
+    c' = Class id id2 c
 
 -- | An empty type environment.
 emptyTEnv :: TEnv
 emptyTEnv = TEnv HashMap.empty HashMap.empty TVoid emptyClassId (-1)
 
--- | Id of the empty object.
-emptyClassId :: Int
-emptyClassId = -1
-
 -- | An empty class.
 emptyClass :: Class
-emptyClass = Class emptyClassId HashMap.empty
+emptyClass = Class emptyClassId emptyClassId HashMap.empty

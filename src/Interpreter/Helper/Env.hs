@@ -47,7 +47,7 @@ defaultReturn e s = putError "no return address"
 
 -- | The empty object.
 emptyObj :: Object
-emptyObj = Object HashMap.empty HashMap.empty (-1)
+emptyObj = Object HashMap.empty
 
 -- | The empty environment.
 emptyEnv :: Env

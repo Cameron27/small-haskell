@@ -35,41 +35,41 @@ rval src t =
 -- | @tryMerge src t1 t2@ returns the merged type of `t1` and `t2`. This means returning whichever type is the super
 -- type of the other and resolving difference in the level of referencing by 1 with a `TRefMaybe`. `src` is the
 -- expression to use in the error message.
-tryMerge :: Pretty a => a -> Type -> Type -> Either TypeError Type
-tryMerge src (TRef t1) (TRef t2) = case TRef <$> tryMerge src t1 t2 of
+tryMerge :: Pretty a => a -> TEnv -> Type -> Type -> Either TypeError Type
+tryMerge src r (TRef t1) (TRef t2) = case TRef <$> tryMerge src r t1 t2 of
   Left _ -> err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show $ TRef t1) (show $ TRef t2) (pretty src)
   x -> x
-tryMerge src (TRefMaybe t1) (TRefMaybe t2) =
-  if t1 <::> t2
-    then return $ TRefMaybe $ max t1 t2
+tryMerge src r (TRefMaybe t1) (TRefMaybe t2) =
+  if eitherSubtype r t1 t2
+    then return $ TRefMaybe $ max r t1 t2
     else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show $ TRef t1) (show $ TRefMaybe t2) (pretty src)
-tryMerge src (TRef t1) (TRefMaybe t2) =
-  if t1 <::> t2
-    then return $ TRefMaybe $ max t1 t2
+tryMerge src r (TRef t1) (TRefMaybe t2) =
+  if eitherSubtype r t1 t2
+    then return $ TRefMaybe $ max r t1 t2
     else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show $ TRef t1) (show $ TRefMaybe t2) (pretty src)
-tryMerge src (TRefMaybe t1) (TRef t2) =
-  if t1 <::> t2
-    then return $ TRefMaybe $ max t1 t2
+tryMerge src r (TRefMaybe t1) (TRef t2) =
+  if eitherSubtype r t1 t2
+    then return $ TRefMaybe $ max r t1 t2
     else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show $ TRefMaybe t1) (show $ TRef t2) (pretty src)
-tryMerge src t1 (TRefMaybe t2) =
-  if t1 <::> t2
-    then return $ TRefMaybe $ max t1 t2
+tryMerge src r t1 (TRefMaybe t2) =
+  if eitherSubtype r t1 t2
+    then return $ TRefMaybe $ max r t1 t2
     else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show t1) (show $ TRefMaybe t2) (pretty src)
-tryMerge src (TRefMaybe t1) t2 =
-  if t1 <::> t2
-    then return $ TRefMaybe $ max t1 t2
+tryMerge src r (TRefMaybe t1) t2 =
+  if eitherSubtype r t1 t2
+    then return $ TRefMaybe $ max r t1 t2
     else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show $ TRefMaybe t1) (show t2) (pretty src)
-tryMerge src t1 (TRef t2) =
-  if t1 <::> t2
-    then return $ TRefMaybe $ max t1 t2
+tryMerge src r t1 (TRef t2) =
+  if eitherSubtype r t1 t2
+    then return $ TRefMaybe $ max r t1 t2
     else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show t1) (show $ TRef t2) (pretty src)
-tryMerge src (TRef t1) t2 =
-  if t1 <::> t2
-    then return $ TRefMaybe $ max t1 t2
+tryMerge src r (TRef t1) t2 =
+  if eitherSubtype r t1 t2
+    then return $ TRefMaybe $ max r t1 t2
     else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show $ TRef t1) (show t2) (pretty src)
-tryMerge src t1 t2 =
-  if t1 <::> t2
-    then return $ max t1 t2
+tryMerge src r t1 t2 =
+  if eitherSubtype r t1 t2
+    then return $ max r t1 t2
     else err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show t1) (show t2) (pretty src)
 
 -- | @recordEnvironment r@ returns the type environment record `r` represents.
@@ -81,7 +81,7 @@ recordEnvironment t = error $ printf "Tried to get the record environment of a \
 objectEnvironment :: Type -> TEnv -> TEnv
 objectEnvironment (TObject i1) r = do
   case lookupClassTEnv i1 r of
-    (Right (Class _ c)) -> TEnv c HashMap.empty TVoid emptyClassId (-1)
+    (Right (Class _ _ c)) -> TEnv c HashMap.empty TVoid emptyClassId (-1)
     _ -> error $ printf "There is no class with id %d." i1
 objectEnvironment t _ = error $ printf "Tried to get the object environment of a \"%s\"." (show t)
 
@@ -126,6 +126,6 @@ isPrintable TString = True
 isPrintable _ = False
 
 -- @assignable t1 t2@ returns `True` iff a value of type `t1` can be assigned to an identifier of type `t2`.
-assignable :: Type -> Type -> Bool
-assignable t1 (TRef t2) = t1 <: t2
-assignable _ _ = False
+assignable :: TEnv -> Type -> Type -> Bool
+assignable r t1 (TRef t2) = subtype r t1 t2
+assignable _ _ _ = False

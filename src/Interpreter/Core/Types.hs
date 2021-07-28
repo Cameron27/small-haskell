@@ -75,7 +75,7 @@ instance Pretty Ev where
   pretty (EFunc _ y) = printf "FUNCTION%d" y
   pretty (EMethod _) = printf "METHOD"
   pretty (EClass _) = printf "CLASS"
-  pretty (EObject (Object x y z)) = printf "OBJECT%d(%s)(%s)" z (pretty x) (pretty y)
+  pretty (EObject (Object x)) = printf "OBJECT(%s)" (pretty x)
   pretty ENull = "null"
   pretty (ECc _) = "CC"
 
@@ -87,7 +87,7 @@ instance Typeable Ev where
   typeStr (ELoc _) = "location"
   typeStr (EArray (Array x y _)) = printf "array[%s:%s]" x y
   typeStr (ERecord (Record x)) = printf "record(%s)" (intercalate "," (HashMap.keys x))
-  typeStr (EObject (Object x y z)) = printf "object%d(%s)(%s)" z (intercalate "," (HashMap.keys x)) (intercalate "," (HashMap.keys y))
+  typeStr (EObject (Object x)) = printf "object(%s)" (intercalate "," (HashMap.keys x))
   typeStr ENull = "null"
   typeStr e = error $ printf "%s is not right hand value." (pretty e)
 
@@ -131,15 +131,12 @@ type Cc = Store -> Ans
 -- | A `Dc` is a declaration continuation. It takes in an `Env` and a `Store` and produces an `Ans`.
 type Dc = Env -> Cc
 
--- | A `DDc` is a scoped class declaration continuation. It takes in an `(Env, Env)` and a `Store` and produces an
+-- | A `CDc` is a class declaration continuation. It takes in an `Object` and a `Store` and produces an
 -- `Ans`.
-type DDc = (Env, Env) -> Cc
+type CDc = Object -> Cc
 
 -- | A `Ec` is a expression continuation. It takes in an `Ev` and a `Store` and produces an `Ans`.
 type Ec = Ev -> Cc
-
--- | A `CDc` is a class declaration continuation. It takes in a `Class` and a `Store` and produces an `Ans`.
-type CDc = Class -> Cc
 
 -- | An `Array` is an array of locations.
 data Array
@@ -175,10 +172,9 @@ newtype Class
     Class (Ec -> Cc)
 
 -- | A `Object` is an object.
-data Object
-  = -- | @Object m1 m2 i@ is an object with `m1` and `m2` being the mapping from identifiers to the public and private
-    -- values they represent respectively and is a unique id for the class the object is from.
-    Object (HashMap.HashMap Ide EnvVal) (HashMap.HashMap Ide EnvVal) Int
+newtype Object
+  = -- | @Object m@ is an object with `m` being the mapping from identifiers to the values they represent.
+    Object (HashMap.HashMap Ide EnvVal)
 
 -- | An `Ans` is an `IO` representing what the small program does.
 type Ans = IO ExitCode

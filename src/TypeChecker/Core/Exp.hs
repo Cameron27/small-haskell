@@ -26,7 +26,7 @@ typeExp (ArrayExp e1 e2 t1) r = do
   t1 <- typeType t1 r
   te1 <- typeExp e1 r >>= rval (ArrayExp e1 e2 t1)
   te2 <- typeExp e2 r >>= rval (ArrayExp e1 e2 t1)
-  if te1 <: TInt && te2 <: TInt
+  if subtype r te1 TInt && subtype r te2 TInt
     then TArray <$> ref (ArrayExp e1 e2 t1) t1
     else err $ printf "array cannot have bounds of types \"%s:%s\" in \"%s\"." (show te1) (show te2) (pretty (ArrayExp e1 e2 t1))
 typeExp (RecordExp is ts) r = do
@@ -41,33 +41,33 @@ typeExp (Func e1 es) r = do
   ts <- mapM (`typeExp` r) es
   case f of
     TFunc fts t ->
-      if (length ts == length fts) && and (zipWith (<:) ts fts)
+      if (length ts == length fts) && and (zipWith (subtype r) ts fts)
         then return t
         else err $ printf "types \"%s\" did not match expected types \"%s\" in \"%s\"." (show ts) (show fts) (pretty (Proc e1 es))
     _ -> err $ printf "\"%s\" is not a function in \"%s\"." (show f) (pretty (Proc e1 es))
 typeExp (IfExp e1 e2 e3) r = do
   t <- typeExp e1 r >>= rval (IfExp e1 e2 e3)
-  if t <: TBool
+  if subtype r t TBool
     then do
       t1 <- typeExp e2 r
       t2 <- typeExp e3 r
-      tryMerge (IfExp e1 e2 e3) t1 t2 -- Allows types where the only difference is one is references once more to be type compatible
+      tryMerge (IfExp e1 e2 e3) r t1 t2 -- Allows types where the only difference is one is references once more to be type compatible
     else err $ printf "test cannot be \"%s\" in \"%s\"." (show t) (pretty (IfExp e1 e2 e3))
-typeExp (Valof t1 c1) (TEnv r cr rt t i) = do
-  t1 <- typeType t1 (TEnv r cr rt t i)
-  typeCom c1 (TEnv r cr t1 t i)
+typeExp (Valof t1 c1) (TEnv r c rt t i) = do
+  t1 <- typeType t1 (TEnv r c rt t i)
+  typeCom c1 (TEnv r c t1 t i)
   return t1
 typeExp (Cont e1) r = do
   t <- typeExp e1 r
-  if t <: TRefAny
+  if subtype r t TRefAny
     then return $ deref t
     else err $ printf "cont cannot be applied to type \"%s\" in \"%s\"." (show t) (pretty (Cont e1))
 typeExp (ArrayAccess e1 e2) r = do
   t1 <- typeExp e1 r >>= rval (ArrayAccess e1 e2)
   t2 <- typeExp e2 r >>= rval (ArrayAccess e1 e2)
-  if t1 <: TArrayAny
+  if subtype r t1 TArrayAny
     then
-      if t2 <: TInt
+      if subtype r t2 TInt
         then return $ arrayType t1
         else err $ printf "array access cannot have index of type \"%s\" in \"%s\"." (show t2) (pretty (ArrayAccess e1 e2))
     else err $ printf "array access cannot be performed on type \"%s\" in \"%s\"." (show t1) (pretty (ArrayAccess e1 e2))
@@ -76,8 +76,8 @@ typeExp (Dot e1 e2) r = do
   process t
   where
     process t
-      | t <: TRecordAny = typeExp e2 (updateTEnv (recordEnvironment t) r) -- Records evaluate e2 with the record updating the environment
-      | t <: TObjectAny = typeExp e2 (updateTEnv (objectEnvironment t r) r) -- Objects evaluate e2 with the object updating the environment
+      | subtype r t TRecordAny = typeExp e2 (updateTEnv (recordEnvironment t) r) -- Records evaluate e2 with the record updating the environment
+      | subtype r t TObjectAny = typeExp e2 (updateTEnv (objectEnvironment t r) r) -- Objects evaluate e2 with the object updating the environment
       | otherwise = err $ printf "dot operation be performed on type \"%s\" in \"%s\"." (show t) (pretty (Dot e1 e2))
 typeExp (New i1) r = typeNewExp (New i1) r
 typeExp Null r = typeNullExp Null r

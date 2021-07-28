@@ -49,7 +49,7 @@ evalOwnDec (ProcDec _ _ _ c1) w r u = evalOwnCom c1 (w ! 3) r u
 evalOwnDec (RecProcDec _ _ _ c1) w r u = evalOwnCom c1 (w ! 3) r u
 evalOwnDec (FuncDec _ _ _ _ e1) w r u = evalOwnExp e1 (w ! 3) r u
 evalOwnDec (RecFuncDec _ _ _ _ e1) w r u = evalOwnExp e1 (w ! 3) r u
-evalOwnDec (ClassDec _ scd1) w r u = evalOwnSCDec scd1 (w ! 2) r u
+evalOwnDec (ClassDec _ scd1) w r u = evalOwnSCDec scd1 (w ! 3) r u
 evalOwnDec (ChainDec d1 d2) w r u = evalOwnDec d1 (w ! 1) r (\r1 -> evalOwnDec d2 (w ! 2) r (u . updateEnv r1))
 evalOwnDec SkipDec w r u = u emptyEnv
 
