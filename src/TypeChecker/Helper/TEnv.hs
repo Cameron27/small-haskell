@@ -6,11 +6,11 @@ import TypeChecker.Core.Types
 import TypeChecker.Helper.Control
 
 -- | @updateTEnv r' r@ returns an environment which first checks @r'@ then `r` when a lookup is preformed. Keeps the
--- return address and current object id from `r` and takes the largest next unique id.
+-- return address and current class id from `r` and takes the largest next unique id.
 updateTEnv :: TEnv -> TEnv -> TEnv
 updateTEnv (TEnv r' c' _ _ i') (TEnv r c rt o i) = TEnv (HashMap.union r' r) (HashMap.union c' c) rt o (Prelude.max i i')
 
--- | @updateThisTEnv o r@ returns the environment `r` but with the current object id updated to `o`.
+-- | @updateThisTEnv o r@ returns the environment `r` but with the current class id updated to `o`.
 updateThisTEnv :: ClassId -> TEnv -> TEnv
 updateThisTEnv t (TEnv r c rt _ i) = TEnv r c rt t i
 

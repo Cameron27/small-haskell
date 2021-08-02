@@ -36,7 +36,7 @@ typeClassDec (ClassDec i1 Nothing scds) r = do
   let (r2', _) = newClassTEnv i1 emptyClassId c11 c12 r
   return r2'
   where
-    r' = let TEnv r'' c _ _ i = r in TEnv r'' c TVoid emptyClassId i -- Environment with on return address or current object id
+    r' = let TEnv r'' c _ _ i = r in TEnv r'' c TVoid emptyClassId i -- Environment with on return address or current class id
 typeClassDec (ClassDec i1 (Just i2) scds) r = do
   -- Get parent class
   c2 <- typeExp (I i2) r
@@ -50,7 +50,7 @@ typeClassDec (ClassDec i1 (Just i2) scds) r = do
   -- Perform checks of public and private domains
   let s11 = HashMap.keysSet c11; s12 = HashMap.keysSet c12; s21 = HashMap.keysSet c21; s22 = HashMap.keysSet c22
    in do
-        if null $ (s11 `union` s12) `intersection` (s12 `union` s22) -- Check public and private are disjoint
+        if null $ (s11 `union` s21) `intersection` (s12 `union` s22) -- Check public and private are disjoint
           then return ()
           else err $ printf "The identifiers %s appear as both public and private values in \"%s\"." (show $ (s11 `union` s12) `intersection` (s12 `union` s22)) (pretty (ClassDec i1 (Just i2) scds))
         if null $ s12 `intersection` s22 -- Check privates are not being overridden
@@ -73,7 +73,7 @@ typeClassDec (ClassDec i1 (Just i2) scds) r = do
   let (r2', _) = newClassTEnv i1 o2 (HashMap.union c11 c21) (HashMap.union c12 c22) r
   return r2'
   where
-    r' = let TEnv r'' c _ _ i = r in TEnv r'' c TVoid emptyClassId i -- Environment with on return address or current object id
+    r' = let TEnv r'' c _ _ i = r in TEnv r'' c TVoid emptyClassId i -- Environment with on return address or current class id
 typeClassDec d1 _ = error $ printf "Cannot run typeClassDec with \"%s\"." (pretty d1)
 
 -- | @typeSCDec scd r c@ type checks scoped class declaration `scd` under the environment `r` using the class `c` as

@@ -72,7 +72,7 @@ instance Pretty Type where
 
 -- | A `Class` represents a class type in small.
 data Class
-  = -- | @Class o1 o2 m1 m2@ is a class with unique object id `o1`, `o2` being the ide of the parent class, `m1` being
+  = -- | @Class o1 o2 m1 m2@ is a class with unique class id `o1`, `o2` being the ide of the parent class id, `m1` being
     -- the mapping from public identifiers to the types they represent and `m2` being the mapping from private
     -- identifiers to the types they represent.
     Class ClassId ClassId TypeMap TypeMap
