@@ -202,7 +202,7 @@ g:
         // class
         class T {
             // const
-            public const j: float = valof: float { own x: float = 29.1; return x; };
+            public const j: float = valof: float { own x: float = 100.0; return x; };
 
             // var
             public var k: float = valof: float { own x: float = 29.2; return x; };
@@ -250,7 +250,10 @@ g:
                 output this.s(29);
             }
         }
-        var i: T = new T();
+        class TT extends T {
+            public const j: float = valof: float { own x: float = 29.1; return x; };
+        }
+        var i: TT = new TT();
 
         output a;
         output b;

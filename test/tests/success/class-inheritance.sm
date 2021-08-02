@@ -1,0 +1,146 @@
+// true
+// true
+// true
+/*
+a
+b
+c
+d
+*/
+/*
+1
+0
+1
+0
+1
+test
+b
+1
+0
+1
+0
+1
+d
+true
+true
+true
+1
+2
+true
+true
+true
+1
+2
+*/
+
+program {
+    class A {
+        private const a: int = 0;
+        public const b: int = 0;
+        public const c: int = 0;
+        public record d(a: int);
+        public const e: string = read;
+
+        public func fa(): int { this.a }
+        public func fb(): int { this.b }
+    }
+
+    class B extends A {
+        public const b: int = 1;
+        public record d(a: int, b: string);
+        public const e: string = read;
+    }
+
+    var b: B = new B();
+    var a: A = new B();
+
+    output b.b; // 1
+    output b.fa(); // 0
+    output b.fb(); // 1
+    output b.c; // 0
+    b.d.a = 1;
+    b.d.b = "test";
+    output b.d.a; // 1
+    output b.d.b; // test
+    output b.e; // b
+
+    output a.b; // 1
+    output a.fa(); // 0
+    output a.fb(); // 1
+    output a.c; // 0
+    a.d.a = 1;
+    output a.d.a; // 1
+    output a.e; // d
+
+    {
+        var b1: bool = true;
+        var b2: bool = true;
+        class ARec {
+            public var a: ARec = valof: ARec {
+                if (b1) {
+                    b1 = false;
+                    return new ARec();
+                }
+                
+                return null;
+            };
+
+            public const _1: int = 1;
+        }
+        class BRec extends ARec {
+            public var b: BRec = valof: BRec {
+                if (b2) {
+                    b2 = false;
+                    return new BRec();
+                }
+                
+                return null;
+            };
+
+            public const _2: int = 2;
+        }
+
+        const x: BRec = new BRec();
+        output isNull(x.b.b); // True
+        output isNull(x.a.a); // True
+        output isNull(x.b.a); // True
+        output x.a._1; // 1
+        output x.b._2; // 2
+    }
+
+    {
+        var b1: bool = true;
+        var b2: bool = true;
+        class AOver {
+            public var a: AOver = valof: AOver {
+                if (b1) {
+                    b1 = false;
+                    return new AOver();
+                }
+                
+                return null;
+            };
+
+            public const _1: int = 1;
+        }
+        class AOver extends AOver {
+            public var b: AOver = valof: AOver {
+                if (b2) {
+                    b2 = false;
+                    return new AOver();
+                }
+                
+                return null;
+            };
+
+            public const _2: int = 2;
+        }
+
+        const x: AOver = new AOver();
+        output isNull(x.b.b); // True
+        output isNull(x.a.a); // True
+        output isNull(x.b.a); // True
+        output x.a._1; // 1
+        output x.b._2; // 2
+    }
+}
