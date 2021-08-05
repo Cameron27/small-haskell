@@ -8,7 +8,7 @@ import TypeChecker.Helper.TEnv
 import TypeChecker.Helper.TypeModification
 
 -- | @typeType t r@ returns the type `t` represents if `t` type checks under the environment `r`.
-typeType :: Type -> TEnv -> Either TypeError Type
+typeType :: Type -> TEnv -> TypeResult Type
 typeType TInt r = return TInt
 typeType TDouble r = return TDouble
 typeType TBool r = return TBool
@@ -36,7 +36,7 @@ typeType (TObjectNamed i) r = do
 typeType t _ = error $ printf "Should not be type checking \"%s\"." (show t)
 
 -- | @typeType ts r@ returns the type `ts` represents if `ts` type checks under the environment `r`.
-typeTypes :: [Type] -> TEnv -> Either TypeError [Type]
+typeTypes :: [Type] -> TEnv -> TypeResult [Type]
 typeTypes [] _ = return []
 typeTypes (t : ts) r = do
   t <- typeType t r

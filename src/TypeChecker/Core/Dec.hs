@@ -16,7 +16,7 @@ import TypeChecker.Helper.TypeModification
 
 -- | @typeDec d r@ returns an environment containing the information of declaration `d` if `d` type checks under the
 -- environment `r`.
-typeDec :: Dec -> TEnv -> Either TypeError TEnv
+typeDec :: Dec -> TEnv -> TypeResult TEnv
 typeDec (Const i1 t1 e1) r = do
   t1 <- typeType t1 r
   t <- typeExp e1 r >>= rval (Const i1 t1 e1)

@@ -21,6 +21,9 @@ newtype TypeError
   = -- | @TypeError s@ is a type error with error message `s`.
     TypeError String
 
+-- | A `TypeResult` is a result of a type checker: a value of type @TypeResult a@ is a @Either TypeError a@.
+type TypeResult = Either TypeError
+
 instance Show TypeError where
   show (TypeError err) = err
 

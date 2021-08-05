@@ -17,7 +17,7 @@ import Prelude hiding (null)
 
 -- | @typeClassDec d r@ returns an environment containing the information of declaration `d` if class `d` type checks
 -- under the environment `r`.
-typeClassDec :: Dec -> TEnv -> Either TypeError TEnv
+typeClassDec :: Dec -> TEnv -> TypeResult TEnv
 typeClassDec (ClassDec i1 Nothing scds) r = do
   -- Generate the interface
   (c11, c12) <- typeSCDecInterface scds (updateTEnv (fst $ newClassTEnv i1 emptyClassId HashMap.empty HashMap.empty r) r)
@@ -78,7 +78,7 @@ typeClassDec d1 _ = error $ printf "Cannot run typeClassDec with \"%s\"." (prett
 
 -- | @typeSCDec scd r c@ type checks scoped class declaration `scd` under the environment `r` using the class `c` as
 -- "this" where relevant.
-typeSCDec :: SCDec -> TEnv -> ClassId -> Either TypeError ()
+typeSCDec :: SCDec -> TEnv -> ClassId -> TypeResult ()
 typeSCDec (Public cd1) r o = do
   typeCDec cd1 r o
   return ()
@@ -95,7 +95,7 @@ typeSCDec (ChainSCDec scd1 scd2) r c = do
 -- declaration `scd` under the environment `r`. This does not check any of the right-hand sides or bodies of
 -- class declarations. \\
 -- This is used to generate the type information of a class which can then be used to fully type check a class.
-typeSCDecInterface :: SCDec -> TEnv -> Either TypeError (TypeMap, TypeMap)
+typeSCDecInterface :: SCDec -> TEnv -> TypeResult (TypeMap, TypeMap)
 typeSCDecInterface (Public cd1) r = do
   r' <- typeCDecInterface cd1 r
   return (r', HashMap.empty)
@@ -110,7 +110,7 @@ typeSCDecInterface (ChainSCDec scd1 scd2) r = do
 
 -- | @typeCDec cd r c@ returns a type map containing the information of class declaration `cd` if `cd` type checks under
 -- the environment `r` using the class `c` as "this" where relevant.
-typeCDec :: CDec -> TEnv -> ClassId -> Either TypeError TypeMap
+typeCDec :: CDec -> TEnv -> ClassId -> TypeResult TypeMap
 typeCDec (ProcDec i1 is ts c1) r o = do
   ts <- typeTypes ts r
   typeCom c1 (updateThisTEnv o (updateTEnv (newTEnvMulti is ts) r)) -- Set "this" to the class when checking the body
@@ -128,7 +128,7 @@ typeCDec d1 r _ = do
 
 -- | @typeCDecInterface cd r@ returns a type map containing the information of class declaration `cd`. This does not
 -- check any of the right-hand sides or bodies of class declarations.
-typeCDecInterface :: CDec -> TEnv -> Either TypeError TypeMap
+typeCDecInterface :: CDec -> TEnv -> TypeResult TypeMap
 typeCDecInterface (Const i1 t1 e1) r = do
   t1 <- typeType t1 r
   return $ HashMap.singleton i1 t1
@@ -163,7 +163,7 @@ typeCDecInterface SkipDec r = Right HashMap.empty
 typeCDecInterface cd1 _ = error $ printf "Cannot run typeCDecInterface with \"%s\"." (pretty cd1)
 
 -- | @typeNewExp e r@ returns the type `e` represents if the new expression `e` type checks under the environment `r`.
-typeNewExp :: Exp -> TEnv -> Either TypeError Type
+typeNewExp :: Exp -> TEnv -> TypeResult Type
 typeNewExp (New i1) r = do
   c <- lookupTEnv i1 r
   if subtype r c TClassAny
@@ -172,11 +172,11 @@ typeNewExp (New i1) r = do
 typeNewExp e1 _ = error $ printf "Cannot run typeNewExp with \"%s\"." (pretty e1)
 
 -- | @typeThisExp e r@ returns the type `e` represents if the this expression `e` type checks under the environment `r`.
-typeThisExp :: Exp -> TEnv -> Either TypeError Type
+typeThisExp :: Exp -> TEnv -> TypeResult Type
 typeThisExp This (TEnv _ _ _ i _) = return $ TObject i
 typeThisExp e1 _ = error $ printf "Cannot run typeThisExp with \"%s\"." (pretty e1)
 
 -- | @typeNullExp e r@ returns the type `e` represents if the null expression `e` type checks under the environment `r`.
-typeNullExp :: Exp -> TEnv -> Either TypeError Type
+typeNullExp :: Exp -> TEnv -> TypeResult Type
 typeNullExp Null r = return TNull
 typeNullExp e1 _ = error $ printf "Cannot run typeNullExp with \"%s\"." (pretty e1)

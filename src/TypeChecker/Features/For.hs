@@ -11,7 +11,7 @@ import TypeChecker.Helper.TypeModification
 import Prelude hiding (max)
 
 -- | @typeForCom c r@ type checks for command `c` under the environment `r`.
-typeForCom :: Com -> TEnv -> Either TypeError ()
+typeForCom :: Com -> TEnv -> TypeResult ()
 typeForCom (For i1 f1 c1) r = do
   t1 <- typeExp (I i1) r
   t2 <- typeFor f1 r
@@ -21,7 +21,7 @@ typeForCom (For i1 f1 c1) r = do
 typeForCom c1 _ = error $ printf "Cannot run typeForCom with \"%s\"." (pretty c1)
 
 -- | @typeFor f r@ returns the type `f` represents if `f` type checks under the environment `r`.
-typeFor :: For -> TEnv -> Either TypeError Type
+typeFor :: For -> TEnv -> TypeResult Type
 typeFor (ExpFor e1) r = do
   typeExp e1 r >>= rval (ExpFor e1)
 typeFor (WhileFor e1 e2) r = do

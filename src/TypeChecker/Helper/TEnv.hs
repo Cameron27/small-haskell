@@ -15,13 +15,13 @@ updateThisTEnv :: ClassId -> TEnv -> TEnv
 updateThisTEnv t (TEnv r c rt _ i) = TEnv r c rt t i
 
 -- | @lookupTEnv i r@ returns the value that is assigned to `i` in `r`.
-lookupTEnv :: Ide -> TEnv -> Either TypeError Type
+lookupTEnv :: Ide -> TEnv -> TypeResult Type
 lookupTEnv i (TEnv r _ _ _ _) = case HashMap.lookup i r of
   Just s -> Right s
   Nothing -> err $ printf "\"%s\" is not defined." i
 
 -- | @lookupClassTEnv o r@ returns the class that is assigned to `o` in `r`.
-lookupClassTEnv :: ClassId -> TEnv -> Either TypeError Class
+lookupClassTEnv :: ClassId -> TEnv -> TypeResult Class
 lookupClassTEnv i (TEnv _ c _ _ _) = case HashMap.lookup i c of
   Just s -> Right s
   Nothing -> err $ printf "\"%s\" is not defined." i

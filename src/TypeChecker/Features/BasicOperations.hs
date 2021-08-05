@@ -8,7 +8,7 @@ import TypeChecker.Helper.Control
 
 -- | @typeOp2 src o (t1, t2)@ returns the type obtained from applying operation `o` to types `t1` and `t2`. `src` is the
 -- expression to use in the error message.
-typeOp2 :: Exp -> Opr2 -> (Type, Type) -> Either TypeError Type
+typeOp2 :: Exp -> Opr2 -> (Type, Type) -> TypeResult Type
 typeOp2 _ Mult (TInt, TInt) = return TInt
 typeOp2 _ Mult (TDouble, TDouble) = return TDouble
 typeOp2 _ Mult (TInt, TDouble) = return TDouble
@@ -65,7 +65,7 @@ typeOp2 e o (a, b) = err $ printf "operation \"%s\" cannot be applied to types \
 
 -- | @typeOp1 src o t1@ returns the type obtained from applying operation `o` to types `t1` . `src` is the expression to
 -- use in the error message.
-typeOp1 :: Exp -> Opr1 -> Type -> Either TypeError Type
+typeOp1 :: Exp -> Opr1 -> Type -> TypeResult Type
 typeOp1 _ Not TBool = return TBool
 typeOp1 _ Positive TInt = return TInt
 typeOp1 _ Positive TDouble = return TDouble

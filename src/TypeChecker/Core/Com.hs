@@ -12,7 +12,7 @@ import TypeChecker.Helper.TEnv
 import TypeChecker.Helper.TypeModification
 
 -- | @typeCom c r@ type checks command `c` under the environment `r`.
-typeCom :: Com -> TEnv -> Either TypeError ()
+typeCom :: Com -> TEnv -> TypeResult ()
 typeCom (Assign e1 e2) r = do
   t1 <- typeExp e1 r
   t2 <- typeExp e2 r >>= rval (Assign e1 e2)

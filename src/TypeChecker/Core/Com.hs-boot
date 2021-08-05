@@ -3,4 +3,4 @@ module TypeChecker.Core.Com where
 import Parser.Core.Types
 import TypeChecker.Core.Types
 
-typeCom :: Com -> TEnv -> Either TypeError ()
+typeCom :: Com -> TEnv -> TypeResult ()

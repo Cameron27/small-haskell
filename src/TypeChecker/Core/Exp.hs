@@ -14,7 +14,7 @@ import TypeChecker.Helper.TEnv
 import TypeChecker.Helper.TypeModification
 
 -- | @typeExp e r@ returns the type `e` represents if `e` type checks under the environment `r`.
-typeExp :: Exp -> TEnv -> Either TypeError Type
+typeExp :: Exp -> TEnv -> TypeResult Type
 typeExp (Int _) r = Right TInt
 typeExp (Double _) r = Right TDouble
 typeExp (Bool _) r = Right TBool

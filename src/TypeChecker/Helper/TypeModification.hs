@@ -10,7 +10,7 @@ import Prelude hiding (max)
 
 -- | @ref src t@ returns the references version of `t` if it is a storable value. `src` is the expression to use in the
 -- error message.
-ref :: Pretty a => a -> Type -> Either TypeError Type
+ref :: Pretty a => a -> Type -> TypeResult Type
 ref src t =
   if isSv t
     then return $ TRef t
@@ -24,7 +24,7 @@ deref t = t
 
 -- | @rval src t@ returns the dereferences version of `t` if it is a right hand value. `src` is the expression to use in
 -- the error message.
-rval :: Pretty a => a -> Type -> Either TypeError Type
+rval :: Pretty a => a -> Type -> TypeResult Type
 rval src t =
   if isRv t'
     then return t'
@@ -34,8 +34,7 @@ rval src t =
 
 -- | @tryMerge src t1 t2@ returns the merged type of `t1` and `t2`. This means returning whichever type is the super
 -- type of the other and resolving difference in the level of referencing by 1 with a `TRefMaybe`. `src` is the
--- expression to use in the error message.
-tryMerge :: Pretty a => a -> TEnv -> Type -> Type -> Either TypeError Type
+-- expression to use in the error message.TypeResult TypeError Type
 tryMerge src r (TRef t1) (TRef t2) = case TRef <$> tryMerge src r t1 t2 of
   Left _ -> err $ printf "types \"%s\" and \"%s\" are incompatible in \"%s\"." (show $ TRef t1) (show $ TRef t2) (pretty src)
   x -> x
