@@ -11,6 +11,7 @@ import Interpreter.Small
 import Parser.Small
 import System.CPUTime
 import System.Clock
+import System.Console.ParseArgs
 import System.Directory
 import System.Environment
 import System.Exit
@@ -25,31 +26,55 @@ import TypeChecker.Small
 
 data TestSpec = TestSpec {name :: String, parsed :: Bool, typed :: Bool, ran :: Bool, input :: String, expected :: String, program :: String} deriving (Show)
 
+data Arguments = TestType | KPath
+  deriving (Show, Eq, Ord)
+
 main :: IO ()
 main = do
   let testPath = "test/tests/"
-  args <- getArgs
-  case args of
-    ("k-parse-kast" : _) -> kParsingSpeedTest testPath "kast"
-    ("k-parse-bison" : _) -> kParsingSpeedTest testPath "bison"
+  args <-
+    parseArgsIO
+      ArgsComplete
+      [ Arg
+          { argIndex = KPath,
+            argAbbr = Just 'k',
+            argName = Just "k-path",
+            argData = argDataOptional "PATH" ArgtypeString,
+            argDesc = "Path to K semantics"
+          },
+        Arg
+          { argIndex = TestType,
+            argAbbr = Nothing,
+            argName = Nothing,
+            argData = argDataDefaulted "TEST" ArgtypeString "haskell",
+            argDesc = "The test to perform: haskell (default), k, k-parse-kast, k-parse-bison"
+          }
+      ]
+  case getArgString args TestType of
+    Just "k-parse-kast" -> kParsingSpeedTest args testPath "kast"
+    Just "k-parse-bison" -> kParsingSpeedTest args testPath "bison"
     _ -> do
-      x <- generateTest testPath
+      x <- generateTest args testPath
       void $ runTestTT x
       stopGlobalPool
 
-generateTest :: FilePath -> IO Test
-generateTest fp = do
+generateTest :: Args Arguments -> FilePath -> IO Test
+generateTest args fp = do
   files <- getFilesRecursive fp
   contents <- mapM readFile files
   let testSpecs = zipWithM generateTestSpec files contents
-  args <- getArgs
   case testSpecs of
     Right testSpecs ->
-      case args of
-        ("k" : _) -> do
-          x <- parallel $ map testKProgram testSpecs
+      case getArgString args TestType of
+        Just "k" -> do
+          if gotArg args KPath then return () else error "No K path provided."
+          let Just kPath' = getArgString args KPath
+          let kPath = if last kPath' == '/' then kPath' else kPath' ++ "/"
+          x <- parallel $ map (testKProgram kPath) testSpecs
           return $ TestList x
-        _ -> TestList <$> mapM testHaskellProgram testSpecs
+        Just "haskell" -> TestList <$> mapM testHaskellProgram testSpecs
+        (Just s) -> error $ printf "%s is not a valid test." s
+        Nothing -> error "Cannot occur."
     Left err -> return $ TestCase $ assertFailure err
 
 getFilesRecursive :: FilePath -> IO [String]
@@ -94,7 +119,7 @@ generateTestSpec name content = TestSpec <$> Right name <*> parsed <*> typed <*>
     dropUntilPrefix prefix (x : xs)
       | prefix `isPrefixOf` x = x : xs
       | otherwise = dropUntilPrefix prefix xs
-    dropUntilPrefix prefix [] = error $ "needed comments are missing in " ++ name
+    dropUntilPrefix prefix [] = error $ printf "Needed comments are missing in %s." name
 
 testHaskellProgram :: TestSpec -> IO Test
 testHaskellProgram testSpec =
@@ -184,12 +209,12 @@ testHaskellProgram testSpec =
 --       name testSpec
 --         ~: TestList (["Parsed" ~: parseTest] ++ ["Typed" ~: typeTest | shouldType] ++ ["Ran" ~: runTest | shouldRun] ++ ["Output" ~: resultTest | shouldCheckResult])
 
-testKProgram :: TestSpec -> IO Test
-testKProgram testSpec =
+testKProgram :: String -> TestSpec -> IO Test
+testKProgram path testSpec =
   do
     (exitCode, stdout, stderr) <-
       readCreateProcessWithExitCode
-        (shell $ "../small-k/run.sh -o none " ++ name testSpec)
+        (shell $ path ++ "run.sh -o none " ++ name testSpec)
         $ input testSpec ++ "\n"
     let parseTest =
           case exitCode of
@@ -220,8 +245,10 @@ testKProgram testSpec =
       name testSpec
         ~: TestList (["Parsed" ~: parseTest] ++ ["Typed" ~: typeTest | shouldType] ++ ["Ran" ~: runTest | shouldRun] ++ ["Output" ~: resultTest | shouldCheckResult])
 
-kParsingSpeedTest :: FilePath -> String -> IO ()
-kParsingSpeedTest fp s = do
+kParsingSpeedTest args fp s = do
+  if gotArg args KPath then return () else error "No K path provided."
+  let Just kPath' = getArgString args KPath
+  let kPath = if last kPath' == '/' then kPath' else kPath' ++ "/"
   files <- getFilesRecursive fp
   contents <- mapM readFile files
   let testSpecs = zipWithM generateTestSpec files contents
@@ -229,8 +256,8 @@ kParsingSpeedTest fp s = do
     Right testSpecs -> do
       let shellCommand =
             if
-                | s == "bison" -> "../small-k/out/interpreter/small-interpreter-kompiled/parser_PGM "
-                | s == "kast" -> "kast --directory ../small-k/out/interpreter/ -o KORE "
+                | s == "bison" -> kPath ++ "out/interpreter/small-interpreter-kompiled/parser_PGM "
+                | s == "kast" -> "kast --directory " ++ kPath ++ "out/interpreter/ -o KORE "
                 | otherwise -> s ++ " is not a valid parser to test."
       putStrLn $ printf "Parsing %d files." (length files)
       start <- getTime Monotonic
