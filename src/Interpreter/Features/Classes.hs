@@ -23,13 +23,13 @@ evalClassDec (ClassDec i1 Nothing scd1) w r u = u (newEnv i1 c)
     c = EClass . Class $ \k -> evalSCDec scd1 (w ! 3) (updateEnv (newEnv i1 c) r1) $ \o -> k (EObject o)
     (Env r1' w1' _ _) = r
     r1 = Env r1' w1' defaultReturn emptyObj
-evalClassDec (ClassDec i1 (Just i2) scd1) w r u = evalExp (I i2) (w ! 2) r $ testClass (I i2) $ \(EClass (Class c2)) -> u (newEnv i1 (c1 c2))
+evalClassDec (ClassDec i1 (Just i2) scd1) w r u = evalExp (I i2) (w ! 2) r $ testClass (I i2) $ \(EClass (Class c')) -> u (newEnv i1 (c c'))
   where
-    c1 :: (Ec -> Cc) -> Ev
-    c1 c2 = EClass . Class $ \k ->
-      c2 $ \(EObject (Object o2)) ->
-        evalSCDec scd1 (w ! 3) (updateEnv (newEnv i1 (c1 c2)) r1) $ \(Object o1) ->
-          k (EObject (Object (HashMap.union o1 o2)))
+    c :: (Ec -> Cc) -> Ev
+    c c' = EClass . Class $ \k ->
+      c' $ \(EObject (Object o')) ->
+        evalSCDec scd1 (w ! 3) (updateEnv (newEnv i1 (c c')) r1) $ \(Object o) ->
+          k (EObject (Object (HashMap.union o o')))
     (Env r1' w1' _ _) = r
     r1 = Env r1' w1' defaultReturn emptyObj
 evalClassDec d1 _ _ _ = error $ printf "Cannot run evalClassDec with \"%s\"." (pretty d1)
