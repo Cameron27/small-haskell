@@ -20,28 +20,15 @@ instance Pretty Loc where
   pretty l = printf "Loc(%d)" l
 
 -- | A `Posn` is a code position.
-data Posn
-  = -- | @Posn i@ is the position `i`.
-    Posn Int
-  | -- | @PosnChain w i@ is the position `w` with `i` appended to the end.
-    PosnChain Posn Int
+type Posn = [Int]
 
 -- | @w ! i@ returns a new position that is `w` with `i` appended to the end.
 (!) :: Posn -> Int -> Posn
-p ! i = PosnChain p i
+w ! i = i : w
 
 instance Pretty Posn where
-  pretty (Posn i) = show i
-  pretty (PosnChain p i) = pretty p ++ "." ++ show i
-
-instance Eq Posn where
-  Posn i1 == Posn i2 = i1 == i2
-  PosnChain p1 i1 == PosnChain p2 i2 = i1 == i2 && p1 == p2
-  _ == _ = False
-
-instance Hashable Posn where
-  hashWithSalt n (Posn i) = hashWithSalt n i
-  hashWithSalt n (PosnChain p i) = hashWithSalt n p `xor` hashWithSalt n i
+  pretty [] = ""
+  pretty (i : s) = pretty s ++ "." ++ show i
 
 -- | A `Ev` is a denotable value.
 data Ev

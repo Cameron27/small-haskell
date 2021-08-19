@@ -16,7 +16,7 @@ evalPgm (Program c) = do
   where
     env = defaultEnv
     store = Store HashMap.empty 0
-    w = Posn 1
+    w = [1]
 
 -- | @interpretSmall p@ runs the program `p`.
 interpretSmall :: Pgm -> Ans
