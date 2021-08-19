@@ -37,7 +37,7 @@ main = do
             argAbbr = Nothing,
             argName = Nothing,
             argData = argDataRequired "FILE" ArgtypeString,
-            argDesc = "Do not type check the program"
+            argDesc = "File containing Small program to run"
           }
       ]
   let printParsed = gotArg args PrintParsed
