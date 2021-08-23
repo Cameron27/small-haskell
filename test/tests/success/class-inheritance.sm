@@ -101,9 +101,9 @@ program {
         }
 
         const x: BRec = new BRec();
-        output isNull(x.b.b); // True
-        output isNull(x.a.a); // True
-        output isNull(x.b.a); // True
+        output isNull(x.b.b); // true
+        output isNull(x.a.a); // true
+        output isNull(x.b.a); // true
         output x.a._1; // 1
         output x.b._2; // 2
     }
@@ -137,9 +137,9 @@ program {
         }
 
         const x: AOver = new AOver();
-        output isNull(x.b.b); // True
-        output isNull(x.a.a); // True
-        output isNull(x.b.a); // True
+        output isNull(x.b.b); // true
+        output isNull(x.a.a); // true
+        output isNull(x.b.a); // true
         output x.a._1; // 1
         output x.b._2; // 2
     }
